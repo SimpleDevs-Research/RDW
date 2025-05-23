@@ -34,9 +34,12 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     private Action<string> _onPermissionGranted;
     private static int _trackingInstanceCount;
 
+    public CSVWriter writer;
+
      private void Awake()
     {
         _onPermissionGranted = OnPermissionGranted;
+        writer.Initialize();
     }
 
     private void Start()
@@ -92,6 +95,7 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     private void OnDestroy()
     {
         OVRPermissionsRequester.PermissionGranted -= _onPermissionGranted;
+        writer.Disable();
     }
 
     private void FixedUpdate()
@@ -109,8 +113,7 @@ public class EyeGazeFixedUpdate : MonoBehaviour
             return;
 
         var pose = eyeGaze.Pose.ToOVRPose();
-        switch (TrackingMode)
-        {
+        switch (TrackingMode) {
             case EyeTrackingMode.HeadSpace:
                 pose = pose.ToHeadSpacePose();
                 break;
@@ -119,15 +122,23 @@ public class EyeGazeFixedUpdate : MonoBehaviour
                 break;
         }
 
-        if (ApplyPosition)
-        {
+        if (ApplyPosition) {
             transform.position = pose.position;
         }
 
-        if (ApplyRotation)
-        {
+        if (ApplyRotation) {
             transform.rotation = CalculateEyeRotation(pose.orientation);
         }
+
+        // Finally, record everything in writing
+        writer.AddPayload(Time.frameCount);
+        writer.AddPayload(Eye.ToString());
+        writer.AddPayload(transform.position);
+        writer.AddPayload(transform.forward);
+        writer.AddPayload(transform.rotation.eulerAngles);
+        writer.AddPayload(transform.position + transform.forward * 50f);
+        writer.AddPayload(Confidence);
+        writer.WriteLine(true);
     }
 
     private Quaternion CalculateEyeRotation(Quaternion eyeRotation)
