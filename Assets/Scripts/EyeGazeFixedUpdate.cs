@@ -122,23 +122,23 @@ public class EyeGazeFixedUpdate : MonoBehaviour
                 break;
         }
 
-        if (ApplyPosition) {
-            transform.position = pose.position;
-        }
-
-        if (ApplyRotation) {
-            transform.rotation = CalculateEyeRotation(pose.orientation);
-        }
+        Vector3 pos = pose.position;
+        Quaternion ori = pose.orientation;
 
         // Finally, record everything in writing
         writer.AddPayload(Time.frameCount);
         writer.AddPayload(Eye.ToString());
-        writer.AddPayload(transform.position);
-        writer.AddPayload(transform.forward);
-        writer.AddPayload(transform.rotation.eulerAngles);
-        writer.AddPayload(transform.position + transform.forward * 50f);
+        writer.AddPayload(ori.eulerAngles);
         writer.AddPayload(Confidence);
         writer.WriteLine(true);
+
+        if (ApplyPosition) {
+            transform.position = pos;
+        }
+
+        if (ApplyRotation) {
+            transform.rotation = CalculateEyeRotation(ori);
+        }
     }
 
     private Quaternion CalculateEyeRotation(Quaternion eyeRotation)

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -176,24 +176,15 @@ MonoBehaviour:
   TrackingMode: 0
   writer:
     fileName: Left_Eye
-    dirName: Standalone
+    dirName: PCVR-ConfThresh_0
     writeUnixTime: 1
     append_zero_to_filename: 0
     columns:
     - frame
     - id
-    - position_x
-    - position_y
-    - position_z
-    - forward_x
-    - forward_y
-    - forward_z
     - rotation_x
     - rotation_y
     - rotation_z
-    - target_x
-    - target_y
-    - target_z
     - confidence
     filePath: 
 --- !u!1 &596193574
@@ -374,24 +365,15 @@ MonoBehaviour:
   TrackingMode: 0
   writer:
     fileName: Right_Eye
-    dirName: Standalone
+    dirName: PCVR-ConfThresh_0
     writeUnixTime: 1
     append_zero_to_filename: 0
     columns:
     - frame
     - id
-    - position_x
-    - position_y
-    - position_z
-    - forward_x
-    - forward_y
-    - forward_z
     - rotation_x
     - rotation_y
     - rotation_z
-    - target_x
-    - target_y
-    - target_z
     - confidence
     filePath: 
 --- !u!1 &798057310
