@@ -1,0 +1,5 @@
+Hello. I am a Ph.D. student currently working with the Quest Pro for experiments involving gaze tracking in VR. For the purposes of my research, I need to understand the raw sample rate of the Quest Pro's eye tracker. From my measurements in Unity, the sample rate is measured to be approximately 72Hz in standalone (not PCVR via the Oculus Link). This sample rate is measured by identifying the number of frames during which the estimated pose of the eyes changes, assuming that the eyes are constantly moving. We did not rely on Unity's Update loop for this; we isolated this sample rate out of the render loop by migrating the gaze code in `OVREyeGaze.cs` into a FixedUpdate sequence that runs at 200Hz. I wanted to verify two things:
+1. Is 72Hz an accurate measurement for the Quest Pro's eye tracker?
+2. Are there any methods readily available in Unity + Meta's SDK packages that allow us to sample the raw pose data without relying on Update or FixedUpdate?
+3. If this is NOT the correct place to ask, can you please direct me to the department/individual at Meta who can answer these questions?
+Any help on this would be greatly appreciated!
