@@ -60,7 +60,7 @@ public class Randomizer : MonoBehaviour
     private void Update() {
         for(int i = 0; i < num_objects; i++) {
             Vector3 cp = objects[i].position;
-            objects[i].localPosition += LorenzStep(cp) * Time.deltaTime * 0.1f;
+            objects[i].position += LorenzStep(cp) * Time.deltaTime * 0.1f;
         }
     }
 }

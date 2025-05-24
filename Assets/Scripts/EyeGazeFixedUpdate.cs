@@ -108,22 +108,10 @@ public class EyeGazeFixedUpdate : MonoBehaviour
         if (!eyeGaze.IsValid)
             return;
 
-        Confidence = eyeGaze.Confidence;
-        if (Confidence < ConfidenceThreshold)
-            return;
-
         var pose = eyeGaze.Pose.ToOVRPose();
-        switch (TrackingMode) {
-            case EyeTrackingMode.HeadSpace:
-                pose = pose.ToHeadSpacePose();
-                break;
-            case EyeTrackingMode.WorldSpace:
-                pose = pose.ToWorldSpacePose(Camera.main);
-                break;
-        }
-
         Vector3 pos = pose.position;
         Quaternion ori = pose.orientation;
+        Confidence = eyeGaze.Confidence;
 
         // Finally, record everything in writing
         writer.AddPayload(Time.frameCount);
@@ -131,6 +119,20 @@ public class EyeGazeFixedUpdate : MonoBehaviour
         writer.AddPayload(ori.eulerAngles);
         writer.AddPayload(Confidence);
         writer.WriteLine(true);
+
+        // Move back into default code
+        if (Confidence < ConfidenceThreshold)
+            return;
+            
+        switch (TrackingMode)
+        {
+            case EyeTrackingMode.HeadSpace:
+                pose = pose.ToHeadSpacePose();
+                break;
+            case EyeTrackingMode.WorldSpace:
+                pose = pose.ToWorldSpacePose(Camera.main);
+                break;
+        }
 
         if (ApplyPosition) {
             transform.position = pos;
