@@ -64,6 +64,7 @@ namespace RDW
             //      we need to keep track of the disabled rotational gain 
             //      on TOP of the existing gain angle.
             float angle_disp = 0f;
+            Vector3 translation_disp = Vector3.zero;
             foreach (GainComponent gc in gain_components)
             {
                 angle_disp += gc.CalculateGain();
