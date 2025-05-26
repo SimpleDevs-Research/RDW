@@ -25,18 +25,26 @@ namespace RDW {
         public List<GainComponent2> default_gain_components = new List<GainComponent2>();
         public List<GainComponent2> boundary_gain_components = new List<GainComponent2>();
 
-        [Header("=== READ-ONLY ===")]    
+        [Header("=== Cached - READ-ONLY ===")]
         public Vector3 true_head_displacement;
         public Vector3 pivot;
-
-        private void OnDrawGizmos() {
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(head_ref.TransformPoint(true_head_displacement), 0.1f);
-        }
+        // ===
+        private Vector3 prev_position, prev_displacement, prev_move_direction, prev_orientation;
+        [Tooltip("The position of the user in world space.")] 
+        public Vector3 current_position;
+        [Tooltip("The translation direction of the user in world space.")]
+        public Vector3 current_displacement;
+        [Tooltip("Same as `current_displacement`, except as a normalized vector")]
+        public Vector3 current_move_direction;
+        [Tooltip("The forward direction of the user's head in world space.")]
+        public Vector3 current_orientation;
 
         public void Start() {
             pivot = head_ref.position;
             prev_at_boundary = at_boundary;
+            prev_position = head_pos_ref.position.Flatten();
+            CacheCurrent();
+            CachePrev();
             foreach(GainComponent2 gc in default_gain_components) gc.Initialize(this);
             foreach(GainComponent2 gc in boundary_gain_components) gc.Initialize(this);
         }
@@ -58,6 +66,9 @@ namespace RDW {
         }
 
         public void Update() {
+            // Measure the current frame
+            CacheCurrent();
+
             // Initialize yaw delta
             float yaw_delta = 0f;
             
@@ -73,6 +84,9 @@ namespace RDW {
 
             // After calculatin the entire yaw delta, rotate the environment around the pivot point.
             environment_ref.RotateAround(pivot, Vector3.up, yaw_delta);
+
+            // Cache the current into the previous for the next frame
+            CachePrev();
         }
 
         public void ToggleAtBoundary() { 
@@ -97,5 +111,19 @@ namespace RDW {
             }
             prev_at_boundary = at_boundary;
         }
+
+        private void CacheCurrent() {
+            current_position = head_pos_ref.position.Flatten();
+            current_displacement = current_position - prev_position;
+            current_move_direction = current_displacement.normalized;
+            current_orientation = Vector3.Normalize(head_pos_ref.forward.Flatten());
+        }
+        private void CachePrev() {
+            prev_position = current_position;
+            prev_displacement = current_displacement;
+            prev_move_direction = current_move_direction;
+            prev_orientation = current_orientation;
+        }
+        
     }
 }
