@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -216,6 +216,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1204984941}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &39291769
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 39291770}
+  - component: {fileID: 39291771}
+  m_Layer: 0
+  m_Name: Rotation Gain
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &39291770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 39291769}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2064964448}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &39291771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 39291769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 022ce2ad02969462b98997abe2445f40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  redirector: {fileID: 0}
+  active: 1
+  rotationGainSame: 0.49
+  rotationGainOpposite: -0.2
+  rotationMinThreshold: 1.5
 --- !u!1 &48628871
 GameObject:
   m_ObjectHideFlags: 0
@@ -710,9 +759,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 231511417}
+  - {fileID: 1379569517}
   - {fileID: 263453009}
   - {fileID: 825415564}
-  - {fileID: 1379569517}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &181027686
@@ -3159,19 +3208,21 @@ MonoBehaviour:
   rightHandRef: {fileID: 831167289}
   headPosPrefab: {fileID: 268657212447013243, guid: 926a476d5553ba74ca8e018ef5626d72, type: 3}
   spatialAnchorPrefab: {fileID: 268657212447013243, guid: 926a476d5553ba74ca8e018ef5626d72, type: 3}
+  calibrateHeadOnAwake: 0
   headPosRef: {fileID: 2078322759}
-  calibrateHeadOnAwake: 1
   onHeadCalibrated:
     m_PersistentCalls:
       m_Calls: []
+  calibrateSpaceOnAwake: 0
+  calibrationHand: 1
   minAnchorRef: {fileID: 0}
   maxAnchorRef: {fileID: 0}
-  floorRef: {fileID: 0}
   onPlaySpaceCalibrated:
     m_PersistentCalls:
       m_Calls: []
   debugRayIntersectionRef: {fileID: 0}
   debugTextbox: {fileID: 0}
+  visibleAnchors: 1
   calibrated: 0
   calibrating: 0
   headPosDisp: {x: 0, y: 0, z: 0}
@@ -3378,8 +3429,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _buttonClickActions:
-  - Title: Manual Gain Toggle (Left Hand)
-    Button: 4
+  - Title: Calibrate Head Position Ref.
+    Button: 8
     ButtonMode: 0
     InputActionReference: {fileID: 0}
     CallbackWithContext:
@@ -3388,41 +3439,19 @@ MonoBehaviour:
     Callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 2064964449}
-          m_TargetAssemblyTypeName: RDW.Redirector2, Assembly-CSharp
-          m_MethodName: ToggleAtBoundary
-          m_Mode: 3
+        - m_Target: {fileID: 626335232}
+          m_TargetAssemblyTypeName: RDW.SpatialManager, Assembly-CSharp
+          m_MethodName: CalibrateHeadPos
+          m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
             m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 1
+            m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-  - Title: Manual Gain Toggle (Right Hand)
-    Button: 1
-    ButtonMode: 0
-    InputActionReference: {fileID: 0}
-    CallbackWithContext:
-      m_PersistentCalls:
-        m_Calls: []
-    Callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 2064964449}
-          m_TargetAssemblyTypeName: RDW.Redirector2, Assembly-CSharp
-          m_MethodName: ToggleAtBoundary
-          m_Mode: 3
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 2
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - Title: Manual Gain Toggle (Head)
+  - Title: Toggle Gain Components
     Button: 2
     ButtonMode: 0
     InputActionReference: {fileID: 0}
@@ -3434,29 +3463,7 @@ MonoBehaviour:
         m_Calls:
         - m_Target: {fileID: 2064964449}
           m_TargetAssemblyTypeName: RDW.Redirector2, Assembly-CSharp
-          m_MethodName: ToggleAtBoundary
-          m_Mode: 3
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  - Title: Calibrate Head Position Ref.
-    Button: 8
-    ButtonMode: 0
-    InputActionReference: {fileID: 0}
-    CallbackWithContext:
-      m_PersistentCalls:
-        m_Calls: []
-    Callback:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: Calibration, Assembly-CSharp
-          m_MethodName: CalibrateHeadPos
+          m_MethodName: ToggleGainComponents
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -6886,39 +6893,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1347039443}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1195041125
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1195041127}
-  m_Layer: 0
-  m_Name: Boundary Gains
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1195041127
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1195041125}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1380047486}
-  - {fileID: 1332807520}
-  m_Father: {fileID: 2064964448}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1200675818
 GameObject:
   m_ObjectHideFlags: 0
@@ -7781,7 +7755,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1332807520
 Transform:
   m_ObjectHideFlags: 0
@@ -7790,12 +7764,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1332807519}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1195041127}
+  m_Father: {fileID: 2064964448}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1332807521
 MonoBehaviour:
@@ -8024,7 +7998,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1379569517
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8208,7 +8182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   redirector: {fileID: 0}
-  active: 1
+  active: 0
 --- !u!4 &1380047486
 Transform:
   m_ObjectHideFlags: 0
@@ -8217,12 +8191,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1380047484}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1195041127}
+  m_Father: {fileID: 2064964448}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1390787779
 GameObject:
@@ -8773,38 +8747,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 64360544}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1463214338
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1463214339}
-  m_Layer: 0
-  m_Name: Default Gains
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1463214339
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1463214338}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1833790803}
-  m_Father: {fileID: 2064964448}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1471645367
 GameObject:
@@ -10556,7 +10498,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redirector: {fileID: 0}
   active: 1
-  curvature_preset: 1
+  curvature_preset: 2
   curvature_rate: 0
   curvature_radius: 0
   weight_by_direction: 1
@@ -10569,12 +10511,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1833790801}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1463214339}
+  m_Father: {fileID: 2064964448}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1859626882
 GameObject:
@@ -11418,8 +11360,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1195041127}
-  - {fileID: 1463214339}
+  - {fileID: 1833790803}
+  - {fileID: 39291770}
+  - {fileID: 1380047486}
+  - {fileID: 1332807520}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2064964449
@@ -11438,19 +11382,23 @@ MonoBehaviour:
   environment_ref: {fileID: 167991248}
   left_hand_ref: {fileID: 1318685648}
   right_hand_ref: {fileID: 831167289}
+  min_speed_threshold: 0.5
+  max_speed_threshold: 2
   boundary_buffer: 0.5
-  at_boundary: 0
-  default_gain_components:
+  dynamic_goal_direction: 1
+  gain_components:
   - {fileID: 1833790802}
-  boundary_gain_components:
+  - {fileID: 39291771}
   - {fileID: 1380047485}
-  debugTextbox: {fileID: 1379569518}
-  pivot_ref_id: 0
-  pivot: {x: 0, y: 0, z: 0}
+  goal_direction: -1
   current_position: {x: 0, y: 0, z: 0}
   current_displacement: {x: 0, y: 0, z: 0}
   current_move_direction: {x: 0, y: 0, z: 0}
   current_orientation: {x: 0, y: 0, z: 0}
+  current_head_rotation: 0
+  direction_factor: 1
+  speed_factor: 0
+  pivot: {x: 0, y: 0, z: 0}
 --- !u!1 &2070709730
 GameObject:
   m_ObjectHideFlags: 0
@@ -11908,9 +11856,9 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 626335233}
   - {fileID: 2001851089}
   - {fileID: 50415167}
   - {fileID: 666112830}
+  - {fileID: 626335233}
   - {fileID: 2064964448}
   - {fileID: 167991248}

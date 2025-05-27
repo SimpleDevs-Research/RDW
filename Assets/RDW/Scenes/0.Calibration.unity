@@ -3431,7 +3431,7 @@ MonoBehaviour:
             m_BoolArgument: 0
           m_CallState: 2
   - Title: Move To Debug Scene
-    Button: 2
+    Button: 4
     ButtonMode: 0
     InputActionReference: {fileID: 0}
     CallbackWithContext:
@@ -8731,19 +8731,21 @@ MonoBehaviour:
   rightHandRef: {fileID: 831167289}
   headPosPrefab: {fileID: 268657212447013243, guid: 926a476d5553ba74ca8e018ef5626d72, type: 3}
   spatialAnchorPrefab: {fileID: 268657212447013243, guid: 926a476d5553ba74ca8e018ef5626d72, type: 3}
-  headPosRef: {fileID: 2078322759}
   calibrateHeadOnAwake: 1
+  headPosRef: {fileID: 2078322759}
   onHeadCalibrated:
     m_PersistentCalls:
       m_Calls: []
+  calibrateSpaceOnAwake: 1
+  calibrationHand: 1
   minAnchorRef: {fileID: 0}
   maxAnchorRef: {fileID: 0}
-  floorRef: {fileID: 263453009}
   onPlaySpaceCalibrated:
     m_PersistentCalls:
       m_Calls: []
   debugRayIntersectionRef: {fileID: 0}
   debugTextbox: {fileID: 1034458168}
+  visibleAnchors: 1
   calibrated: 0
   calibrating: 0
   headPosDisp: {x: 0, y: 0, z: 0}
@@ -11948,8 +11950,8 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1461222851}
   - {fileID: 2001851089}
   - {fileID: 50415167}
   - {fileID: 666112830}
+  - {fileID: 1461222851}
   - {fileID: 167991248}

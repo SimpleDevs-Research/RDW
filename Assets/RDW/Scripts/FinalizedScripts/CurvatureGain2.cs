@@ -36,7 +36,8 @@ namespace RDW {
             curvature_radius = 1f/(curvature_rate * (Mathf.PI/180f));
         }
 
-        public override float CalculateGain() {
+        public override float CalculateGain(float deltaTime) {
+            if (redirector == null || !active) return 0f;
             // What's the dot product between the current move direction and the current forward?
             // Because if we're moving sideways, I think the illusion may break...
             float cur_rate = curvature_rate;
@@ -50,7 +51,7 @@ namespace RDW {
             float forward_weight = (weight_by_direction) 
                 ? Mathf.Clamp(Vector3.Dot(redirector.current_move_direction, redirector.current_orientation), 0f, 1f)
                 : 1f;
-            return cur_rate * redirector.current_displacement.magnitude * forward_weight;
+            return cur_rate * redirector.current_displacement.magnitude * forward_weight * redirector.direction_factor * redirector.speed_factor;
         }
     }
 }

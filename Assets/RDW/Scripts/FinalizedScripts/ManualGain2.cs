@@ -9,21 +9,7 @@ namespace RDW
     {
         Quaternion last_rotation;
 
-        public override void Initialize(Redirector2 r)
-        {
-            SetRedirector(r);
-            redirector.on_boundary_enabled += this.ToggleOn;
-            redirector.on_boundary_disabled += this.ToggleOff;
-        }
-
-        public override void OnDestroy()
-        {
-            redirector.on_boundary_enabled -= this.ToggleOn;
-            redirector.on_boundary_disabled -= this.ToggleOff;
-        }
-
-        public override float CalculateGain()
-        {
+        public override float CalculateGain(float deltaTime) {
             if (redirector == null || !active) return 0f;
             // Calculate change in rotation
             Quaternion cur_rotation = redirector.head_ref.rotation;
@@ -37,9 +23,9 @@ namespace RDW
             return yaw_delta;
         }
 
-        public override void ToggleOn() {
-            base.ToggleOn();
-            last_rotation = redirector.head_ref.rotation;
+        public override void Toggle() {
+            base.Toggle();
+            if (this.active) last_rotation = redirector.head_ref.rotation;
         }
     }
 }

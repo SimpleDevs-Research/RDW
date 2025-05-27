@@ -9,6 +9,7 @@ namespace RDW {
     public class SpatialManager : MonoBehaviour
     {
         public static SpatialManager Instance;
+        public enum CalibrationHand { Left, Right }
 
         [Header("=== Tracked Anchors - SET THESE FIRST ===")]
         public Transform headRef;
@@ -24,6 +25,7 @@ namespace RDW {
 
         [Header("=== Spatial Calibration ===")]
         public bool calibrateSpaceOnAwake = true;
+        public CalibrationHand calibrationHand = CalibrationHand.Right;
         // These can be null, or you can define them manually
         [Tooltip("Game Objects representing the position of anchors. Can be set manually; if unset, the system will auto-replace them.")]
         public Transform minAnchorRef, maxAnchorRef;
@@ -32,6 +34,7 @@ namespace RDW {
         [Header("=== Debugging ===")]
         public Transform debugRayIntersectionRef;
         public TextMeshPro debugTextbox;
+        public bool visibleAnchors = false;
 
         [Header("=== Spatial Anchoring - Flags (Read-Only) ===")]
         [Tooltip("Are we calibrated already?")]
@@ -44,7 +47,7 @@ namespace RDW {
         [Tooltip("Local-scale min and max anchors")]
         public Vector3 localAnchorMin, localAnchorMax;
 
-        private void Awake() {
+        private void Start() {
             // If an instance of this already exists, then this shouldn't do anything
             if (Instance != null) {
                 // Transfer the game object knowledge from this guy to the instance
@@ -65,10 +68,10 @@ namespace RDW {
                 // Debugging
                 Instance.debugRayIntersectionRef = this.debugRayIntersectionRef;
                 Instance.debugTextbox = this.debugTextbox;
-                // Destroy this version of the instance to make way for the incoming instance.
-                Destroy(gameObject);
                 // Invoke initialize on the incoming instance
                 Instance.Initialize();
+                // Destroy this version of the instance to make way for the incoming instance.
+                Destroy(gameObject);
                 return;
             }
             // Otherwise, create a new persistent instance
@@ -84,33 +87,25 @@ namespace RDW {
             else                        InitializeHeadPos();
 
             // Second, calibrate the playspace anchors.
-            // Create the spatial anchors if needed
-            // Place min and max anchors
-            if (minAnchorRef == null) {
-                minAnchorRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
-                minAnchorRef.localScale = Vector3.one * 0.1f;
-            }
-            if (maxAnchorRef == null) {
-                maxAnchorRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
-                maxAnchorRef.localScale = Vector3.one * 0.1f;
-            }
             // The player must dictate TWO spatial anchors - a min and a max. 
             //      The point here is to define localAnchorMin and localAnchorMax.
             //      if we pulled this singleton from another scene (where these were likely to be set) then we don't need to set these.
-            if (!calibrated) StartCoroutine(CalibrateSpace());
-            else {
-                minAnchorRef.position = transform.TransformPoint(localAnchorMin);
-                maxAnchorRef.position = transform.TransformPoint(localAnchorMax);
-                onPlaySpaceCalibrated?.Invoke();
-            }
+            if (!calibrated)    CalibrateSpace();
+            else                InitializeSpace();
 
             // Debug stuff
             if (debugRayIntersectionRef == null) {
                 debugRayIntersectionRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
                 debugRayIntersectionRef.localScale = Vector3.one * 0.15f;
             }
+
+            // Toggle visibility
+            ToggleVisible(visibleAnchors);
         }
 
+        // =================================
+        // === HEAD POSITION CALIBRATION ===
+        // =================================
         public void CalibrateHeadPos() {
             // Assume that the user's hands and head exists. If not, then we cannot do anything here.
             if (leftHandRef == null || rightHandRef == null || headRef == null) {
@@ -137,10 +132,13 @@ namespace RDW {
             onHeadCalibrated?.Invoke();
         }
 
-        public void CalibrateSpace() {
-        
+        // =============================
+        // === PLAYSPACE CALBIRATION ===
+        // =============================
+        public void CalibrateSpace() { 
+            StartCoroutine(CalibrateSpaceUpdate()); 
         }
-        private IEnumerator CalibrateSpace() {
+        private IEnumerator CalibrateSpaceUpdate() {
             // Initialize calibratin flag
             calibrating = true;
 
@@ -150,12 +148,9 @@ namespace RDW {
             // For each raycast target, we instantate them from primitives. 
             //      These will represent the place in the floor the hands raycast to. 
             //      They'll be deleted at the end of this function.
-            GameObject left_hand_raycast_target = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            left_hand_raycast_target.transform.localScale = Vector3.one * 0.1f;
-            Destroy(left_hand_raycast_target.GetComponent<SphereCollider>());
-            GameObject right_hand_raycast_target = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            right_hand_raycast_target.transform.localScale = Vector3.one * 0.1f;
-            Destroy(right_hand_raycast_target.GetComponent<SphereCollider>());
+            GameObject raycast_target = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            raycast_target.transform.localScale = Vector3.one * 0.1f;
+            Destroy(raycast_target.GetComponent<SphereCollider>());
 
             // Similarly, we only create the floor for this scene
             GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
@@ -164,29 +159,22 @@ namespace RDW {
             floor.transform.localScale = new Vector3(10f, 10f, 10f);
             floor.GetComponent<Renderer>().enabled = false;
             
+            // Initialize some primers
+            Transform hand = (calibrationHand == CalibrationHand.Left) ? leftHandRef : rightHandRef;
+            OVRInput.RawButton inputButton = (calibrationHand == CalibrationHand.Left) ? OVRInput.RawButton.LIndexTrigger : OVRInput.RawButton.RIndexTrigger;
+            Vector3[] hits = new Vector3[2];
+
             // Initialize calibration routine
             while(calibrating) {
-                // for each hand, do a raycast from the hand forward to the ground.
+                // for the preferred calibration hand, do a raycast from the hand forward to the ground.
                 RaycastHit hit;
-                if (Physics.Raycast(leftHandRef.position, leftHandRef.forward, out hit, 100f)) {
+                if (Physics.Raycast(hand.position, hand.forward, out hit, 200f)) {
                     // Set indicator
-                    left_hand_raycast_target.transform.position = hit.point;
+                    raycast_target.transform.position = hit.point;
                     // If detect index trigger, press, then place an anchor.
-                    if (OVRInput.GetUp(OVRInput.RawButton.LIndexTrigger) && anchor_count < 2) {
+                    if (OVRInput.GetUp(inputButton) && anchor_count < 2) {
                         // Instantiate new anchor
-                        if (anchor_count == 0)      minAnchorRef.position = hit.point;
-                        else if (anchor_count == 1) maxAnchorRef.position = hit.point;
-                        anchor_count += 1;
-                    }
-                }
-                if (Physics.Raycast(rightHandRef.position, rightHandRef.forward, out hit, 100f)) {
-                    // Set indicator
-                    right_hand_raycast_target.transform.position = hit.point;
-                    // If detect index trigger, press, then place an anchor.
-                    if (OVRInput.GetUp(OVRInput.RawButton.RIndexTrigger) && anchor_count < 2) {
-                        // Instantiate new anchor
-                        if (anchor_count == 0)      minAnchorRef.position = hit.point;
-                        else if (anchor_count == 1) maxAnchorRef.position = hit.point;
+                        hits[anchor_count] = transform.InverseTransformPoint(hit.point);
                         anchor_count += 1;
                     }
                 }
@@ -195,26 +183,48 @@ namespace RDW {
                 yield return null;
             }
             // Destroy our left and right hand targets
-            Destroy(left_hand_raycast_target);
-            Destroy(right_hand_raycast_target);
+            Destroy(raycast_target);
             Destroy(floor);
-            // Assign min and max local anchors
-            localAnchorMin = transform.InverseTransformPoint(minAnchorRef.position);
-            localAnchorMax = transform.InverseTransformPoint(maxAnchorRef.position);
-            // set Defined status
+
+            // Assign min and max local anchors, and calibrated status
+            localAnchorMin = hits[0];
+            localAnchorMax = hits[1];
             calibrated = true;
+
+            // Call `InitializeSpace()` upon completion
+            InitializeSpace();
+        }
+        public void InitializeSpace() {
+            // Create the spatial anchors if needed
+            if (minAnchorRef == null) {
+                minAnchorRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
+                minAnchorRef.localScale = Vector3.one * 0.1f;
+            }
+            if (maxAnchorRef == null) {
+                maxAnchorRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
+                maxAnchorRef.localScale = Vector3.one * 0.1f;
+            }
+
+            // Place min and max anchors
+            minAnchorRef.position = transform.TransformPoint(localAnchorMin);
+            maxAnchorRef.position = transform.TransformPoint(localAnchorMax);
 
             // If any events need to be called, do them here.
             onPlaySpaceCalibrated?.Invoke();
         }
 
-        // PURELY FOR DEBUG PURPOSES
+        // =======================
+        // === DEBUG PURPOSES ===
+        // =======================
         private void Update() {
             if (debugTextbox != null) debugTextbox.text = $"{localAnchorMin}\n{localAnchorMax}\n{calibrated}";
             if (!calibrated) return;
             debugRayIntersectionRef.position = GetEdgePointFromRay(headPosRef.position, headPosRef.forward);
         }
 
+        // ========================
+        // === HELPER FUNCTIONS ===
+        // =========================
         public Vector3 GetEdgePointFromRay(Vector3 start, Vector3 dir) {
             Vector3 direction = transform.InverseTransformDirection(Vector3.Normalize(dir.Flatten()));
             Vector3 origin = transform.InverseTransformPoint(start.Flatten());
@@ -230,14 +240,11 @@ namespace RDW {
 
             return transform.TransformPoint(origin + direction * tMax);
         }
-
         public float GetMinDistanceToRectangleEdge() {
             return GetMinDistanceToRectangleEdge(headPosRef.position);
         }
         public float GetMinDistanceToRectangleEdge(Vector3 query) {
             Vector3 point = transform.InverseTransformPoint(query.Flatten());
-
-            // Calculate the orthogonal distances
             float[] distances = new float[4];
             distances[0] = Mathf.Abs(point.x - localAnchorMin.x);
             distances[1] = Mathf.Abs(localAnchorMax.x - point.x);
@@ -245,7 +252,15 @@ namespace RDW {
             distances[3] = Mathf.Abs(localAnchorMax.z - point.z);
             return Mathf.Min(distances);
         }
+        public float GetDistanceAhead() { 
+            Vector3 ahead = GetEdgePointFromRay(headPosRef.position, headPosRef.forward);
+            return Vector3.Distance(ahead.Flatten(), headPosRef.position.Flatten()); 
+        }
 
+        public void ToggleVisible() {
+            visibleAnchors = !visibleAnchors;
+            ToggleVisible(visibleAnchors);
+        }
         public void ToggleVisible(bool setTo) {
             headPosRef?.gameObject.SetActive(setTo);
             minAnchorRef?.gameObject.SetActive(setTo);
@@ -255,7 +270,6 @@ namespace RDW {
 
         public void TransitionToScene(string scene) { SceneManager.LoadScene(scene); }
         public void TransitionToScene(int scene) { SceneManager.LoadScene(scene); }
-        public float GetDistanceAhead() { return Vector3.Distance(debugRayIntersectionRef.position.Flatten(), headPosRef.position.Flatten()); }
     }
 
 }

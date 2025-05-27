@@ -15,8 +15,9 @@ namespace RDW
         public virtual void OnDestroy() { SetRedirector(null);  }
 
         public virtual void SetRedirector(Redirector2 r) { redirector = r; }
-        public virtual float CalculateGain() { return 0f; }
+        public virtual float CalculateGain(float deltaTime) { return 0f; }
 
+        public virtual void Toggle() { active = !active; }
         public virtual void Toggle(bool new_active) { active = new_active; }
         public virtual void ToggleOn() { active = true; }
         public virtual void ToggleOff() { active = false; }
