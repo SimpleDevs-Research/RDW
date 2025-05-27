@@ -26,7 +26,7 @@ namespace RDW
         {
             if (redirector == null || !active) return 0f;
             // Calculate change in rotation
-            Quaternion cur_rotation = redirector.head_pos_ref.rotation;
+            Quaternion cur_rotation = redirector.head_ref.rotation;
             Quaternion delta_rotation = cur_rotation * Quaternion.Inverse(last_rotation);
             delta_rotation.ToAngleAxis(out float angle, out Vector3 axis);
             // Guarantee that the rotation is around Y
@@ -39,7 +39,7 @@ namespace RDW
 
         public override void ToggleOn() {
             base.ToggleOn();
-            last_rotation = redirector.head_pos_ref.rotation;
+            last_rotation = redirector.head_ref.rotation;
         }
     }
 }
