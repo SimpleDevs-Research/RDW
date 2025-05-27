@@ -18,14 +18,15 @@ namespace RDW {
         public Transform spatialAnchorPrefab;
 
         [Header("=== Head Calibration ===")]
-        public Transform headPosRef;
         public bool calibrateHeadOnAwake = true;
+        public Transform headPosRef;
         public UnityEvent onHeadCalibrated;
 
         [Header("=== Spatial Calibration ===")]
+        public bool calibrateSpaceOnAwake = true;
         // These can be null, or you can define them manually
-        [Tooltip("Game Objects representing the position of anchors and floor. Can be set manually; if unset, the system will auto-replace them.")]
-        public Transform minAnchorRef, maxAnchorRef, floorRef;
+        [Tooltip("Game Objects representing the position of anchors. Can be set manually; if unset, the system will auto-replace them.")]
+        public Transform minAnchorRef, maxAnchorRef;
         public UnityEvent onPlaySpaceCalibrated;
 
         [Header("=== Debugging ===")]
@@ -60,7 +61,6 @@ namespace RDW {
                 // Spatial Calibration
                 Instance.minAnchorRef = this.minAnchorRef;
                 Instance.maxAnchorRef = this.maxAnchorRef;
-                Instance.floorRef = this.floorRef;
                 Instance.onPlaySpaceCalibrated = this.onPlaySpaceCalibrated;
                 // Debugging
                 Instance.debugRayIntersectionRef = this.debugRayIntersectionRef;
@@ -80,30 +80,11 @@ namespace RDW {
 
         private void Initialize() {
             // First, calibrate the head if necessary
-            // Create the head pos ref if not defined
-            if (headPosRef == null) {
-                headPosRef  = Instantiate(headPosPrefab, Vector3.zero, Quaternion.identity) as Transform;
-                headPosRef.parent = headRef;
-                headPosRef.localPosition = Vector3.zero;
-                headPosRef.localRotation = Quaternion.identity;
-                headPosRef.localScale = Vector3.one * 0.05f;
-            }
-            // Calibrate the head.
-            if (calibrateHeadOnAwake) CalibrateHeadPos();
-            else {
-                headPosRef.localPosition = headPosDisp;
-                onHeadCalibrated?.Invoke();
-            }
+            if (calibrateHeadOnAwake)   CalibrateHeadPos();
+            else                        InitializeHeadPos();
 
             // Second, calibrate the playspace anchors.
-            // Create the floor and spatial anchors if needed
-            if (floorRef == null) {
-                GameObject floorGo = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                floorRef = floorGo.transform;
-                floorRef.rotation = Quaternion.Euler(90f, 0f, 0f);
-                floorRef.localScale = new Vector3(10f, 10f, 1f);
-                floorRef.GetComponent<Renderer>().enabled = false;
-            }
+            // Create the spatial anchors if needed
             // Place min and max anchors
             if (minAnchorRef == null) {
                 minAnchorRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
@@ -131,21 +112,34 @@ namespace RDW {
         }
 
         public void CalibrateHeadPos() {
-            // Assume that the user's hands exists. If not, then we cannot do anything here.
-            if (leftHandRef == null || rightHandRef == null || headPosRef == null) {
-                Debug.Log("Cannot estimate true head displacement because of missing hand refs or head pose ref.");
+            // Assume that the user's hands and head exists. If not, then we cannot do anything here.
+            if (leftHandRef == null || rightHandRef == null || headRef == null) {
+                Debug.Log("Cannot estimate true head displacement because of missing hand refs or head ref.");
                 return;
             }
+
             // Get the local positions of both hands
             Vector3 left_localPos = headRef.InverseTransformPoint(leftHandRef.position);
             Vector3 right_localPos = headRef.InverseTransformPoint(rightHandRef.position);
+
             // Calculate the Z position of both left and right (via averaging)
             headPosDisp = new Vector3(0f, 0f, (left_localPos.z + right_localPos.z)/2f);
+            
+            // Reposition the head
+            InitializeHeadPos();
+        }
+        public void InitializeHeadPos() {
+            if (headPosRef == null) headPosRef  = Instantiate(headPosPrefab, Vector3.zero, Quaternion.identity) as Transform;
+            headPosRef.parent = headRef;
             headPosRef.localPosition = headPosDisp;
-            // Call events if needed
+            headPosRef.localRotation = Quaternion.identity;
+            headPosRef.localScale = Vector3.one * 0.025f;
             onHeadCalibrated?.Invoke();
         }
 
+        public void CalibrateSpace() {
+        
+        }
         private IEnumerator CalibrateSpace() {
             // Initialize calibratin flag
             calibrating = true;
@@ -162,6 +156,13 @@ namespace RDW {
             GameObject right_hand_raycast_target = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             right_hand_raycast_target.transform.localScale = Vector3.one * 0.1f;
             Destroy(right_hand_raycast_target.GetComponent<SphereCollider>());
+
+            // Similarly, we only create the floor for this scene
+            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            floor.transform.position = Vector3.zero;
+            floor.transform.rotation = Quaternion.identity;
+            floor.transform.localScale = new Vector3(10f, 10f, 10f);
+            floor.GetComponent<Renderer>().enabled = false;
             
             // Initialize calibration routine
             while(calibrating) {
@@ -196,6 +197,7 @@ namespace RDW {
             // Destroy our left and right hand targets
             Destroy(left_hand_raycast_target);
             Destroy(right_hand_raycast_target);
+            Destroy(floor);
             // Assign min and max local anchors
             localAnchorMin = transform.InverseTransformPoint(minAnchorRef.position);
             localAnchorMax = transform.InverseTransformPoint(maxAnchorRef.position);
@@ -248,7 +250,6 @@ namespace RDW {
             headPosRef?.gameObject.SetActive(setTo);
             minAnchorRef?.gameObject.SetActive(setTo);
             maxAnchorRef?.gameObject.SetActive(setTo);
-            floorRef?.gameObject.SetActive(setTo);
             debugRayIntersectionRef?.gameObject.SetActive(setTo);
         }
 
