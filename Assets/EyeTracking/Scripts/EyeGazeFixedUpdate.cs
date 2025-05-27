@@ -4,19 +4,14 @@ using Meta.XR.Util;
 
 public class EyeGazeFixedUpdate : MonoBehaviour
 {
-    public enum EyeId { Left = OVRPlugin.Eye.Left, Right = OVRPlugin.Eye.Right }
-    public enum EyeTrackingMode {
-        HeadSpace,
-        WorldSpace,
-        TrackingSpace
-    }
-
     public bool EyeTrackingEnabled => OVRPlugin.eyeTrackingEnabled;
     public EyeId Eye;
     public float Confidence { get; private set; }
     [Range(0f, 1f)] public float ConfidenceThreshold = 0.5f;
     public bool ApplyPosition = true;
     public bool ApplyRotation = true;
+    private OVRPlugin.EyeGazesState _currentEyeGazesState;
+
     public Transform ReferenceFrame;
     [Tooltip(
         "HeadSpace: Tracking mode will convert the eye pose from tracking space to local space " +
@@ -26,17 +21,17 @@ public class EyeGazeFixedUpdate : MonoBehaviour
         "TrackingSpace: Track eye is relative to OVRCameraRig. This is raw pose information from VR tracking space.")]
     public EyeTrackingMode TrackingMode;
 
-    private OVRPlugin.EyeGazesState _currentEyeGazesState;
     private Quaternion _initialRotationOffset;
-    private Transform _viewTransform;
+    public Transform _viewTransform;
+
     private const OVRPermissionsRequester.Permission EyeTrackingPermission =
         OVRPermissionsRequester.Permission.EyeTracking;
+
     private Action<string> _onPermissionGranted;
     private static int _trackingInstanceCount;
 
     public bool recordData = true;
     public CSVWriter writer;
-
     private Vector3 prevOrientation;
     private Vector3 currentOrientation;
     private float rotationDisp;
@@ -128,6 +123,16 @@ public class EyeGazeFixedUpdate : MonoBehaviour
             return;
 
         var pose = eyeGaze.Pose.ToOVRPose();
+        switch (TrackingMode)
+        {
+            case EyeTrackingMode.HeadSpace:
+                pose = pose.ToHeadSpacePose();
+                break;
+            case EyeTrackingMode.WorldSpace:
+                pose = pose.ToWorldSpacePose(Camera.main);
+                break;
+        }
+
         Vector3 pos = pose.position;
         Quaternion ori = pose.orientation;
         Confidence = eyeGaze.Confidence;
@@ -144,16 +149,6 @@ public class EyeGazeFixedUpdate : MonoBehaviour
         if (Confidence < ConfidenceThreshold)
             return;
             
-        switch (TrackingMode)
-        {
-            case EyeTrackingMode.HeadSpace:
-                pose = pose.ToHeadSpacePose();
-                break;
-            case EyeTrackingMode.WorldSpace:
-                pose = pose.ToWorldSpacePose(Camera.main);
-                break;
-        }
-
         if (ApplyPosition) {
             transform.position = pos;
         }
@@ -203,5 +198,21 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     }
     private void CachePrev() {
         prevOrientation = currentOrientation;
+    }
+
+    /// <summary>
+    /// List of eyes
+    /// </summary>
+    public enum EyeId
+    {
+        Left = OVRPlugin.Eye.Left,
+        Right = OVRPlugin.Eye.Right
+    }
+
+    public enum EyeTrackingMode
+    {
+        HeadSpace,
+        WorldSpace,
+        TrackingSpace
     }
 }
