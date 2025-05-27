@@ -34,17 +34,36 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     private Action<string> _onPermissionGranted;
     private static int _trackingInstanceCount;
 
+    public bool recordData = true;
     public CSVWriter writer;
+
+    private Vector3 prevOrientation;
+    private Vector3 currentOrientation;
+    private float rotationDisp;
+    public Transform targetRef = null;
+    public float saccadeAngleThreshold = 180f;
+    public Color saccadeColor = Color.blue;
+    public Color nonSaccadeColor = Color.yellow;
+    private Material targetMaterial = null;
 
      private void Awake()
     {
         _onPermissionGranted = OnPermissionGranted;
-        writer.Initialize();
+        if (recordData) writer.Initialize();
     }
 
     private void Start()
     {
         PrepareHeadDirection();
+
+        if (targetRef != null) {
+            Renderer r = targetRef.GetComponent<Renderer>();
+            if (r != null) targetMaterial = r.materials[0];
+        }
+        targetMaterial?.SetColor("_Color",nonSaccadeColor);
+        prevOrientation = (_viewTransform != null) ? _viewTransform.InverseTransformDirection(transform.forward) : transform.forward;
+        CacheCurrent();
+        CachePrev();
     }
 
     private void OnEnable()
@@ -95,10 +114,10 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     private void OnDestroy()
     {
         OVRPermissionsRequester.PermissionGranted -= _onPermissionGranted;
-        writer.Disable();
+        if (recordData) writer.Disable();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (!OVRPlugin.GetEyeGazesState(OVRPlugin.Step.Render, -1, ref _currentEyeGazesState))
             return;
@@ -114,12 +133,13 @@ public class EyeGazeFixedUpdate : MonoBehaviour
         Confidence = eyeGaze.Confidence;
 
         // Finally, record everything in writing
-        writer.AddPayload(Time.frameCount);
-        writer.AddPayload(Eye.ToString());
-        writer.AddPayload(ori.eulerAngles);
-        writer.AddPayload(Confidence);
-        writer.WriteLine(true);
-
+        if (recordData) {
+            writer.AddPayload(Time.frameCount);
+            writer.AddPayload(Eye.ToString());
+            writer.AddPayload(ori.eulerAngles);
+            writer.AddPayload(Confidence);
+            writer.WriteLine(true);
+        }
         // Move back into default code
         if (Confidence < ConfidenceThreshold)
             return;
@@ -137,10 +157,16 @@ public class EyeGazeFixedUpdate : MonoBehaviour
         if (ApplyPosition) {
             transform.position = pos;
         }
-
         if (ApplyRotation) {
             transform.rotation = CalculateEyeRotation(ori);
         }
+
+        CacheCurrent();
+        if (targetMaterial != null) {
+            if (rotationDisp > saccadeAngleThreshold * Time.deltaTime) targetMaterial.SetColor("_Color",saccadeColor);
+            else targetMaterial.SetColor("_Color",nonSaccadeColor);
+        }
+        CachePrev();
     }
 
     private Quaternion CalculateEyeRotation(Quaternion eyeRotation)
@@ -169,5 +195,13 @@ public class EyeGazeFixedUpdate : MonoBehaviour
 
         _viewTransform.parent = transform.parent;
         _initialRotationOffset = Quaternion.Inverse(_viewTransform.rotation) * transform.rotation;
+    }
+
+    private void CacheCurrent() {
+        currentOrientation = (_viewTransform != null) ? _viewTransform.InverseTransformDirection(transform.forward) : transform.forward;
+        rotationDisp = Vector3.Angle(prevOrientation, currentOrientation);
+    }
+    private void CachePrev() {
+        prevOrientation = currentOrientation;
     }
 }
