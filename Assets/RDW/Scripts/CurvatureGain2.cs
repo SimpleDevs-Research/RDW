@@ -27,31 +27,22 @@ namespace RDW {
         public CurvatureRatePresets curvature_preset = CurvatureRatePresets.Custom;
         [Tooltip("The curvature gain (degrees per unit meter). This is replaced by a preset value if not CUSTOM set above.")]
         public float curvature_rate = 0f; 
-        public float curvature_radius = 0f;
+        //public float curvature_radius = 0f;
         public bool weight_by_direction = true;
-        public  bool dynamic_radius = false;
 
         private void Awake() {
             if ((int)curvature_preset != -1) curvature_rate = preset_curvatures[(int)curvature_preset];
-            curvature_radius = 1f/(curvature_rate * (Mathf.PI/180f));
+            //curvature_radius = 1f/(curvature_rate * (Mathf.PI/180f));
         }
 
         public override float CalculateGain(float deltaTime) {
             if (redirector == null || !active) return 0f;
             // What's the dot product between the current move direction and the current forward?
             // Because if we're moving sideways, I think the illusion may break...
-            float cur_rate = curvature_rate;
-            if (dynamic_radius) {
-                // Calculate distance between player position and the edge ahead of them
-                float dist = SpatialManager.Instance.GetDistanceAhead();
-                float radius = Mathf.Min(curvature_radius, dist);
-                // Given the radius, calculate the new rate
-                cur_rate = (1f/radius) * (180f/Mathf.PI);
-            }
             float forward_weight = (weight_by_direction) 
                 ? Mathf.Clamp(Vector3.Dot(redirector.current_move_direction, redirector.current_orientation), 0f, 1f)
                 : 1f;
-            return cur_rate * redirector.current_displacement.magnitude * forward_weight * redirector.direction_factor * redirector.speed_factor;
+            return curvature_rate * redirector.current_displacement.magnitude * forward_weight * redirector.direction_factor * redirector.speed_factor;
         }
     }
 }

@@ -7,6 +7,7 @@ namespace RDW {
     public class Redirector2 : MonoBehaviour
     {
         public enum Direction { Left=-1, Right=1 }
+        public enum PivotOrigin { Head, BoundaryBuffer }
 
         [Header("=== Head, Hands, Environment ===")]
         [Tooltip("We need references to two core things: 1) the user's head, and the environment root.\n"
@@ -21,6 +22,7 @@ namespace RDW {
         [Header("=== Gain Components ===")]
         public float min_speed_threshold = 0.5f;
         public float max_speed_threshold = 1.5f;
+        public PivotOrigin pivotOrigin = PivotOrigin.Head;
         public float boundary_buffer = 0.5f;
         public bool dynamic_goal_direction = true;
         public List<GainComponent2> gain_components = new List<GainComponent2>();
@@ -77,12 +79,23 @@ namespace RDW {
             current_orientation = Vector3.Normalize(head_ref.forward.Flatten());
             current_head_rotation = Vector3.SignedAngle(prev_orientation, current_orientation, Vector3.up);
             if (dynamic_goal_direction) {
-                float dir_dot = Vector3.Dot(-head_ref.position.Flatten(), head_ref.right.Flatten());
+                float dir_dot = Vector3.Dot(
+                    SpatialManager.Instance.worldCenter-head_ref.position.Flatten(), 
+                    head_ref.right.Flatten()
+                );
                 goal_direction = (dir_dot < 0f) ? Direction.Left : Direction.Right;
             }
             direction_factor = (float)((int)goal_direction);
             speed_factor = Mathf.Clamp(((current_displacement.magnitude/deltaTime)-min_speed_threshold)/(max_speed_threshold-min_speed_threshold), 0f, 1f);
-            pivot = head_ref.position;
+            
+            if (pivotOrigin == PivotOrigin.BoundaryBuffer) {
+                // Note that displacement might be 0. We add the denominator by a small number to avoid 0 denominator
+                float radius = current_displacement.magnitude / (Mathf.Abs(current_head_rotation)+0.0001f);
+                Vector3 pivotDir = direction_factor * head_ref.right.Flatten();
+                pivot = head_ref.position.Flatten() + pivotDir * radius;
+            } else {
+                pivot = head_ref.position.Flatten();
+            }
         }
         private void CachePrev() {
             prev_position = current_position;
@@ -93,6 +106,10 @@ namespace RDW {
 
         public void ToggleGainComponents() {
             foreach(GainComponent2 gc in gain_components) gc.Toggle();
+        }
+
+        public void TogglePivotOrigin() {
+            pivotOrigin = (pivotOrigin == PivotOrigin.Head) ? PivotOrigin.BoundaryBuffer : PivotOrigin.Head;
         }
         
     }

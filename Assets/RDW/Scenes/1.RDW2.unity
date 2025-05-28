@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -437,7 +437,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 50415164}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -753,7 +753,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 167991247}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3185,7 +3185,7 @@ GameObject:
   - component: {fileID: 626335233}
   - component: {fileID: 626335232}
   m_Layer: 0
-  m_Name: 'Spatial Manager '
+  m_Name: Spatial Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3217,17 +3217,21 @@ MonoBehaviour:
   calibrationHand: 1
   minAnchorRef: {fileID: 0}
   maxAnchorRef: {fileID: 0}
+  worldCenterRef: {fileID: 0}
+  localAnchorMin: {x: 0, y: 0, z: 0}
+  localAnchorMax: {x: 0, y: 0, z: 0}
   onPlaySpaceCalibrated:
     m_PersistentCalls:
       m_Calls: []
   debugRayIntersectionRef: {fileID: 0}
   debugTextbox: {fileID: 0}
-  visibleAnchors: 1
+  visibleAnchors: 0
   calibrated: 0
   calibrating: 0
   headPosDisp: {x: 0, y: 0, z: 0}
-  localAnchorMin: {x: 0, y: 0, z: 0}
-  localAnchorMax: {x: 0, y: 0, z: 0}
+  anchorMin: {x: 0, y: 0, z: 0}
+  anchorMax: {x: 0, y: 0, z: 0}
+  worldCenter: {x: 0, y: 0, z: 0}
 --- !u!4 &626335233
 Transform:
   m_ObjectHideFlags: 0
@@ -3473,6 +3477,18 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+        - m_Target: {fileID: 2064964449}
+          m_TargetAssemblyTypeName: RDW.Redirector2, Assembly-CSharp
+          m_MethodName: TogglePivotOrigin
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!114 &666112829
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3499,7 +3515,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 666112827}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -7787,9 +7803,7 @@ MonoBehaviour:
   active: 1
   curvature_preset: 0
   curvature_rate: 0
-  curvature_radius: 0
   weight_by_direction: 1
-  dynamic_radius: 1
 --- !u!1 &1333411387
 GameObject:
   m_ObjectHideFlags: 0
@@ -10500,9 +10514,7 @@ MonoBehaviour:
   active: 1
   curvature_preset: 2
   curvature_rate: 0
-  curvature_radius: 0
   weight_by_direction: 1
-  dynamic_radius: 0
 --- !u!4 &1833790803
 Transform:
   m_ObjectHideFlags: 0
@@ -11075,7 +11087,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2001851084}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -11355,7 +11367,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2064964446}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -11382,8 +11394,9 @@ MonoBehaviour:
   environment_ref: {fileID: 167991248}
   left_hand_ref: {fileID: 1318685648}
   right_hand_ref: {fileID: 831167289}
-  min_speed_threshold: 0.5
-  max_speed_threshold: 2
+  min_speed_threshold: 0.25
+  max_speed_threshold: 0.75
+  pivotOrigin: 0
   boundary_buffer: 0.5
   dynamic_goal_direction: 1
   gain_components:
@@ -11856,9 +11869,9 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 626335233}
   - {fileID: 2001851089}
   - {fileID: 50415167}
   - {fileID: 666112830}
-  - {fileID: 626335233}
   - {fileID: 2064964448}
   - {fileID: 167991248}

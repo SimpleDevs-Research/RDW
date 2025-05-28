@@ -28,7 +28,9 @@ namespace RDW {
         public CalibrationHand calibrationHand = CalibrationHand.Right;
         // These can be null, or you can define them manually
         [Tooltip("Game Objects representing the position of anchors. Can be set manually; if unset, the system will auto-replace them.")]
-        public Transform minAnchorRef, maxAnchorRef;
+        public Transform minAnchorRef, maxAnchorRef, worldCenterRef;
+        [Tooltip("Local-scale min and max anchors")]
+        public Vector3 localAnchorMin, localAnchorMax;
         public UnityEvent onPlaySpaceCalibrated;
 
         [Header("=== Debugging ===")]
@@ -41,11 +43,13 @@ namespace RDW {
         public bool calibrated = false;
         public bool calibrating = false;
         
-        [Header("=== Cacbed Data ===")]
+        [Header("=== Cached Data ===")]
         [Tooltip("Local displacement of the head pos ref from the head ref")]
         public Vector3 headPosDisp;
-        [Tooltip("Local-scale min and max anchors")]
-        public Vector3 localAnchorMin, localAnchorMax;
+        [Tooltip("world-position min and max anchors")]
+        public Vector3 anchorMin, anchorMax;
+        [Tooltip("Virtual world center")]
+        public Vector3 worldCenter;
 
         private void Start() {
             // If an instance of this already exists, then this shouldn't do anything
@@ -64,10 +68,16 @@ namespace RDW {
                 // Spatial Calibration
                 Instance.minAnchorRef = this.minAnchorRef;
                 Instance.maxAnchorRef = this.maxAnchorRef;
+                Instance.worldCenterRef = this.worldCenterRef;
                 Instance.onPlaySpaceCalibrated = this.onPlaySpaceCalibrated;
                 // Debugging
                 Instance.debugRayIntersectionRef = this.debugRayIntersectionRef;
                 Instance.debugTextbox = this.debugTextbox;
+                // All remaining children
+                while(transform.childCount > 0) {
+                    Transform child = transform.GetChild(0);
+                    child.SetParent(Instance.transform, false);
+                }
                 // Invoke initialize on the incoming instance
                 Instance.Initialize();
                 // Destroy this version of the instance to make way for the incoming instance.
@@ -174,7 +184,7 @@ namespace RDW {
                     // If detect index trigger, press, then place an anchor.
                     if (OVRInput.GetUp(inputButton) && anchor_count < 2) {
                         // Instantiate new anchor
-                        hits[anchor_count] = transform.InverseTransformPoint(hit.point);
+                        hits[anchor_count] = hit.point;
                         anchor_count += 1;
                     }
                 }
@@ -186,9 +196,11 @@ namespace RDW {
             Destroy(raycast_target);
             Destroy(floor);
 
-            // Assign min and max local anchors, and calibrated status
-            localAnchorMin = hits[0];
-            localAnchorMax = hits[1];
+            // given anchor its 0 (bottom-left)
+            // Assign min and max local anchors as well as the virtual world center, and calibrated status
+            anchorMin = hits[0];
+            anchorMax = hits[1];
+            worldCenter = (hits[0]+hits[1])/2f;
             calibrated = true;
 
             // Call `InitializeSpace()` upon completion
@@ -204,11 +216,23 @@ namespace RDW {
                 maxAnchorRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
                 maxAnchorRef.localScale = Vector3.one * 0.1f;
             }
-
-            // Place min and max anchors
-            minAnchorRef.position = transform.TransformPoint(localAnchorMin);
-            maxAnchorRef.position = transform.TransformPoint(localAnchorMax);
-
+            if (worldCenterRef == null) {
+                worldCenterRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
+                worldCenterRef.localScale = Vector3.one * 0.1f;
+            }
+            // recenter THIS game object based on this alignment
+            transform.position = worldCenter;
+            // Place min, max, and world anchors
+            minAnchorRef.position = anchorMin;
+            maxAnchorRef.position = anchorMax;
+            worldCenterRef.position = worldCenter;
+            // Parent anchors
+            minAnchorRef.parent = this.transform;
+            maxAnchorRef.parent = this.transform;
+            worldCenterRef.parent = this.transform;
+            // Determine local versions of min and max
+            localAnchorMin = minAnchorRef.localPosition;
+            localAnchorMax = maxAnchorRef.localPosition;
             // If any events need to be called, do them here.
             onPlaySpaceCalibrated?.Invoke();
         }
@@ -265,6 +289,7 @@ namespace RDW {
             headPosRef?.gameObject.SetActive(setTo);
             minAnchorRef?.gameObject.SetActive(setTo);
             maxAnchorRef?.gameObject.SetActive(setTo);
+            worldCenterRef?.gameObject.SetActive(setTo);
             debugRayIntersectionRef?.gameObject.SetActive(setTo);
         }
 

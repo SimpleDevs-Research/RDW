@@ -388,7 +388,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 50415164}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -769,7 +769,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 167991247}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3696,7 +3696,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 666112827}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9261,6 +9261,9 @@ MonoBehaviour:
   calibrationHand: 1
   minAnchorRef: {fileID: 0}
   maxAnchorRef: {fileID: 0}
+  worldCenterRef: {fileID: 0}
+  localAnchorMin: {x: 0, y: 0, z: 0}
+  localAnchorMax: {x: 0, y: 0, z: 0}
   onPlaySpaceCalibrated:
     m_PersistentCalls:
       m_Calls: []
@@ -9270,8 +9273,9 @@ MonoBehaviour:
   calibrated: 0
   calibrating: 0
   headPosDisp: {x: 0, y: 0, z: 0}
-  localAnchorMin: {x: 0, y: 0, z: 0}
-  localAnchorMax: {x: 0, y: 0, z: 0}
+  anchorMin: {x: 0, y: 0, z: 0}
+  anchorMax: {x: 0, y: 0, z: 0}
+  worldCenter: {x: 0, y: 0, z: 0}
 --- !u!1 &1471645367
 GameObject:
   m_ObjectHideFlags: 0
@@ -11927,7 +11931,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2001851084}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -12722,8 +12726,8 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1461222851}
   - {fileID: 2001851089}
   - {fileID: 50415167}
   - {fileID: 666112830}
-  - {fileID: 1461222851}
   - {fileID: 167991248}
