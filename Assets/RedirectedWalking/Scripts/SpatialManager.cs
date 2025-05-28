@@ -36,7 +36,8 @@ namespace RDW {
         [Header("=== Debugging ===")]
         public Transform debugRayIntersectionRef;
         public TextMeshPro debugTextbox;
-        public bool visibleAnchors = false;
+        public bool visibleDebugAnchors = false;
+        public bool visibleSpatialAnchors = true;
 
         [Header("=== Spatial Anchoring - Flags (Read-Only) ===")]
         [Tooltip("Are we calibrated already?")]
@@ -62,24 +63,17 @@ namespace RDW {
                 Instance.headPosPrefab = this.headPosPrefab;
                 Instance.spatialAnchorPrefab = this.spatialAnchorPrefab;
                 // Head Calibration
-                Instance.headPosRef = this.headPosRef;
                 Instance.calibrateHeadOnAwake = this.calibrateHeadOnAwake;
                 Instance.onHeadCalibrated = this.onHeadCalibrated;
                 // Spatial Calibration
-                Instance.minAnchorRef = this.minAnchorRef;
-                Instance.maxAnchorRef = this.maxAnchorRef;
-                Instance.worldCenterRef = this.worldCenterRef;
                 Instance.onPlaySpaceCalibrated = this.onPlaySpaceCalibrated;
                 // Debugging
                 Instance.debugRayIntersectionRef = this.debugRayIntersectionRef;
                 Instance.debugTextbox = this.debugTextbox;
-                // All remaining children
-                while(transform.childCount > 0) {
-                    Transform child = transform.GetChild(0);
-                    child.SetParent(Instance.transform, false);
-                }
+                Instance.visibleDebugAnchors = this.visibleDebugAnchors;
+                Instance.visibleSpatialAnchors = this.visibleSpatialAnchors;
                 // Invoke initialize on the incoming instance
-                Instance.Initialize();
+                StartCoroutine(Instance.Initialize());
                 // Destroy this version of the instance to make way for the incoming instance.
                 Destroy(gameObject);
                 return;
@@ -88,10 +82,10 @@ namespace RDW {
             Instance = this;
             DontDestroyOnLoad(gameObject);
             // Initialize this Singleton
-            Initialize();
+            StartCoroutine(Initialize());
         }
 
-        private void Initialize() {
+        private IEnumerator Initialize() {
             // First, calibrate the head if necessary
             if (calibrateHeadOnAwake)   CalibrateHeadPos();
             else                        InitializeHeadPos();
@@ -100,7 +94,7 @@ namespace RDW {
             // The player must dictate TWO spatial anchors - a min and a max. 
             //      The point here is to define localAnchorMin and localAnchorMax.
             //      if we pulled this singleton from another scene (where these were likely to be set) then we don't need to set these.
-            if (!calibrated)    CalibrateSpace();
+            if (!calibrated)    yield return StartCoroutine(CalibrateSpaceUpdate());
             else                InitializeSpace();
 
             // Debug stuff
@@ -110,7 +104,7 @@ namespace RDW {
             }
 
             // Toggle visibility
-            ToggleVisible(visibleAnchors);
+            ToggleVisible(visibleDebugAnchors, visibleSpatialAnchors);
         }
 
         // =================================
@@ -226,6 +220,10 @@ namespace RDW {
             minAnchorRef.position = anchorMin;
             maxAnchorRef.position = anchorMax;
             worldCenterRef.position = worldCenter;
+            // If the anchors have a `SpatialAnchor` component, update its position
+            if (minAnchorRef.GetComponent<SpatialAnchor>() != null) minAnchorRef.GetComponent<SpatialAnchor>().UpdatePosition();
+            if (maxAnchorRef.GetComponent<SpatialAnchor>() != null) maxAnchorRef.GetComponent<SpatialAnchor>().UpdatePosition();
+            if (worldCenterRef.GetComponent<SpatialAnchor>() != null) worldCenterRef.GetComponent<SpatialAnchor>().UpdatePosition();
             // Parent anchors
             minAnchorRef.parent = this.transform;
             maxAnchorRef.parent = this.transform;
@@ -281,16 +279,29 @@ namespace RDW {
             return Vector3.Distance(ahead.Flatten(), headPosRef.position.Flatten()); 
         }
 
-        public void ToggleVisible() {
-            visibleAnchors = !visibleAnchors;
-            ToggleVisible(visibleAnchors);
+        public void ToggleAllVisible() {
+            visibleDebugAnchors = !visibleDebugAnchors;
+            visibleSpatialAnchors = !visibleSpatialAnchors;
+            ToggleVisible(visibleDebugAnchors, visibleSpatialAnchors);
         }
-        public void ToggleVisible(bool setTo) {
-            headPosRef?.gameObject.SetActive(setTo);
-            minAnchorRef?.gameObject.SetActive(setTo);
-            maxAnchorRef?.gameObject.SetActive(setTo);
-            worldCenterRef?.gameObject.SetActive(setTo);
-            debugRayIntersectionRef?.gameObject.SetActive(setTo);
+        public void ToggleDebugVisible() {
+            visibleDebugAnchors = !visibleDebugAnchors;
+            ToggleVisible(visibleDebugAnchors, visibleSpatialAnchors);
+        }
+        public void ToggleSpatialVisible() {
+            visibleSpatialAnchors = !visibleSpatialAnchors;
+            ToggleVisible(visibleDebugAnchors, visibleSpatialAnchors);
+        }
+        public void ToggleVisible(bool debugSetTo, bool spatialSetTo) {
+            // Debug anchors
+            if (headPosRef != null) headPosRef.gameObject.SetActive(debugSetTo);
+            if (debugRayIntersectionRef != null) debugRayIntersectionRef.gameObject.SetActive(debugSetTo);
+            if (worldCenterRef != null) worldCenterRef.gameObject.SetActive(debugSetTo);
+            // Spatial anchors
+            if (minAnchorRef != null) minAnchorRef.gameObject.SetActive(spatialSetTo);
+            if (maxAnchorRef != null) maxAnchorRef.gameObject.SetActive(spatialSetTo);
+            
+            
         }
 
         public void TransitionToScene(string scene) { SceneManager.LoadScene(scene); }

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EndRuntime : MonoBehaviour
+public class Debug_EndRuntime : MonoBehaviour
 {
-    public static EndRuntime current;
+    public static Debug_EndRuntime current;
     public float waitSec = 60f;
     public bool initialize_at_start = true;
     private bool initialized = false;

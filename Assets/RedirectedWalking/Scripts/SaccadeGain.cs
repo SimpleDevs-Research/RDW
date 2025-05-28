@@ -13,7 +13,7 @@ namespace RDW {
         public override float CalculateGain(float deltaTime) {
             // Measure the 
             if (redirector.current_eye_rotation <= saccadeAngleThreshold * Time.deltaTime) return 0f;
-            return saccadeGain * deltaTime * redirector.direction_factor;
+            return saccadeGain * deltaTime * redirector.direction_factor * redirector.speed_factor;
         }
     }
 }

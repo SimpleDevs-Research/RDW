@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class Randomizer : MonoBehaviour
+public class Debug_SpawnRandomizer : MonoBehaviour
 {
-    public static Randomizer current;
+    public static Debug_SpawnRandomizer current;
     public int num_objects = 1000;
     public Vector3 scene_bounds = new Vector3(25, 25, 25);
     public Vector3 lorenz = new Vector3(28, 10, 8/3);

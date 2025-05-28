@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Meta.XR.Util;
 
-public class EyeGazeFixedUpdate : MonoBehaviour
+public class Debug_EyeGaze : MonoBehaviour
 {
     public bool EyeTrackingEnabled => OVRPlugin.eyeTrackingEnabled;
     public EyeId Eye;
@@ -22,7 +22,7 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     public EyeTrackingMode TrackingMode;
 
     private Quaternion _initialRotationOffset;
-    public Transform _viewTransform;
+    private Transform _viewTransform;
 
     private const OVRPermissionsRequester.Permission EyeTrackingPermission =
         OVRPermissionsRequester.Permission.EyeTracking;
