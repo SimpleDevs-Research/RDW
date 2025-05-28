@@ -11468,8 +11468,6 @@ MonoBehaviour:
   boundary_buffer: 0.5
   dynamic_goal_direction: 1
   gain_components:
-  - {fileID: 1833790802}
-  - {fileID: 39291771}
   - {fileID: 1332807521}
   - {fileID: 1380047485}
   goal_direction: -1
