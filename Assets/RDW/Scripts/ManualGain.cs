@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace RDW
 {
-    public class ManualGain2 : GainComponent2
+    public class ManualGain : GainComponent
     {
         Quaternion last_rotation;
 

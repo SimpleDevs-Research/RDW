@@ -6,7 +6,7 @@ namespace RDW {
     // Rotational Gain refers to angular gain achieved during the head's yaw rotation. 
     //      Rate diffs whether the direction of head rotation matches redirection rotation. 
     //      We can rotate via degrees/sec, or by ratio.
-    public class RotationGain2 : GainComponent2
+    public class RotationGain : GainComponent
     {
         [Header("Rotational Gain Options")]
         [Tooltip("The rotational gain for same-direction rotation. Steinicke et al. would suggest a rate of 0.49 for same-direction rotation.")]

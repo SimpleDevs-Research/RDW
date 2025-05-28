@@ -35,6 +35,7 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     private Vector3 prevOrientation;
     private Vector3 currentOrientation;
     private float rotationDisp;
+    public Transform headRef;
     public Transform targetRef = null;
     public float saccadeAngleThreshold = 180f;
     public Color saccadeColor = Color.blue;
@@ -193,7 +194,7 @@ public class EyeGazeFixedUpdate : MonoBehaviour
     }
 
     private void CacheCurrent() {
-        currentOrientation = (_viewTransform != null) ? _viewTransform.InverseTransformDirection(transform.forward) : transform.forward;
+        currentOrientation = (headRef != null) ? headRef.InverseTransformDirection(transform.forward) : transform.forward;
         rotationDisp = Vector3.Angle(prevOrientation, currentOrientation);
     }
     private void CachePrev() {

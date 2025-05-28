@@ -4,17 +4,17 @@ using UnityEngine;
 
 namespace RDW
 {
-    public class GainComponent2 : MonoBehaviour
+    public class GainComponent : MonoBehaviour
     {
-        public Redirector2 redirector;
+        public Redirector redirector;
         public bool active = true;
 
         // Called only once in its lifetime
-        public virtual void Initialize(Redirector2 r) { SetRedirector(r); }
+        public virtual void Initialize(Redirector r) { SetRedirector(r); }
         // Called only once in its lifetime
         public virtual void OnDestroy() { SetRedirector(null);  }
 
-        public virtual void SetRedirector(Redirector2 r) { redirector = r; }
+        public virtual void SetRedirector(Redirector r) { redirector = r; }
         public virtual float CalculateGain(float deltaTime) { return 0f; }
 
         public virtual void Toggle() { active = !active; }

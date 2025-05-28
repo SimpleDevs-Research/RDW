@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace RDW {
-    public class CurvatureGain2 : GainComponent2
+    public class CurvatureGain : GainComponent
     {
         [Header("Rate-based Curvature Gain")]
         /// <summary>
@@ -40,7 +40,7 @@ namespace RDW {
             // What's the dot product between the current move direction and the current forward?
             // Because if we're moving sideways, I think the illusion may break...
             float forward_weight = (weight_by_direction) 
-                ? Mathf.Clamp(Vector3.Dot(redirector.current_move_direction, redirector.current_orientation), 0f, 1f)
+                ? Mathf.Clamp(Vector3.Dot(redirector.current_move_direction, redirector.current_head_orientation), 0f, 1f)
                 : 1f;
             return curvature_rate * redirector.current_displacement.magnitude * forward_weight * redirector.direction_factor * redirector.speed_factor;
         }
