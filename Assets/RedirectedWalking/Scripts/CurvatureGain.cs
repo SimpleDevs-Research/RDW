@@ -5,7 +5,11 @@ using UnityEngine;
 namespace RDW {
     public class CurvatureGain : GainComponent
     {
-        [Header("Rate-based Curvature Gain")]
+        [Header("=== Rate-Based Curvature Gain ===")]
+        [TextArea(4,1000)]
+        public string description = "Curvature gain is the redirection gain obtained while the user is in motion. "
+                                    + "This is one of the most common types of redirected walking, with various "
+                                    + "parameters explored across different situations.";
         /// <summary>
         /// Steinicke et al. = 2.6 degrees/m
         ///     Frank Steinicke, Gerd Bruder, Jason Jerald, Harald Frenz, and Markus Lappe. 2010. 
@@ -20,6 +24,8 @@ namespace RDW {
         ///     Michael Reitzler, Jan Gugenheimer, Teresa Hirzle, Martin Deubzer, Eike Langbehn, and Enrico Rukzio. 2018.
         ///     Rethinking Redirected Walking: On the Use of Curvature Gains Beyond Perceptual Limitations and Revisiting Bending Gains.
         /// </summary>
+        
+        [Space]
         private float[] preset_curvatures = new float[5] { 2.6f, 4.9f, 15.4f, 31.7f, 20f };
         public enum CurvatureRatePresets { Steinicke=0, Grechkin=1, Langbehn1=2, Langbehn2=3, Reitzler=4, Custom=-1 }
          
@@ -27,12 +33,10 @@ namespace RDW {
         public CurvatureRatePresets curvature_preset = CurvatureRatePresets.Custom;
         [Tooltip("The curvature gain (degrees per unit meter). This is replaced by a preset value if not CUSTOM set above.")]
         public float curvature_rate = 0f; 
-        //public float curvature_radius = 0f;
         public bool weight_by_direction = true;
 
         private void Awake() {
             if ((int)curvature_preset != -1) curvature_rate = preset_curvatures[(int)curvature_preset];
-            //curvature_radius = 1f/(curvature_rate * (Mathf.PI/180f));
         }
 
         public override float CalculateGain(float deltaTime) {

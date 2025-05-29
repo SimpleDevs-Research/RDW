@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -262,6 +262,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redirector: {fileID: 0}
   active: 1
+  description: Rotational Gain refers to angular gain achieved during the head's
+    yaw rotation. The sign of the roation depends on the direction of head rotation
+    matches redirection rotation. We can rotate via degrees/sec, or by ratio. In
+    this implementation, we use ratio. The rotational gain is the head rotation multiplied
+    by this ratio, which is 0.49 if rotating in the same direction of of the head
+    and -0.20 if rotating in a different direction.
   rotationGainSame: 0.49
   rotationGainOpposite: -0.2
   rotationMinThreshold: 1.5
@@ -8147,7 +8153,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redirector: {fileID: 0}
   active: 1
-  saccadeAngleThreshold: 180
+  description: Saccade Gain refers to the gain obtained while the user's gaze is
+    performing a saccade maneuver. Saccades are ballistic in nature and behave in
+    a way that lets us take advantage of the "saccadic suppression" phenomenon experienced
+    during them. According to Sun et al., the recommended saccade gain allowed is
+    approximately 12.6 degrees/sec if the saccade detection threshold (the speed
+    the eye rotates) is 180 degrees/sec
+  saccadeThreshold: 180
   saccadeGain: 12.6
 --- !u!1 &1333411387
 GameObject:
@@ -8647,6 +8659,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redirector: {fileID: 0}
   active: 0
+  description: Manual Gain refers to a type of rotation gain that forces the redirection
+    to rotate at the same rate as the user's head. Use this for instances when the
+    user needs to make a rapid rotation, such as next to the play space border.
 --- !u!4 &1380047486
 Transform:
   m_ObjectHideFlags: 0
@@ -11557,6 +11572,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redirector: {fileID: 0}
   active: 1
+  description: Curvature gain is the redirection gain obtained while the user is
+    in motion. This is one of the most common types of redirected walking, with various
+    parameters explored across different situations.
   curvature_preset: 2
   curvature_rate: 0
   weight_by_direction: 1

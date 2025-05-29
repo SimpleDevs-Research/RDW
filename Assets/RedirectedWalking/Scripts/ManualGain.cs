@@ -7,7 +7,15 @@ namespace RDW
 {
     public class ManualGain : GainComponent
     {
-        Quaternion last_rotation;
+        [Header("=== Manual Gain ===")]
+        [TextArea(4, 1000)]
+        public string description = 
+            "Manual Gain refers to a type of rotation gain that forces the redirection "
+            + "to rotate at the same rate as the user's head. Use this for instances "
+            + "when the user needs to make a rapid rotation, such as next to the play "
+            + "space border.";
+
+        private Quaternion last_rotation;
 
         public override float CalculateGain(float deltaTime) {
             if (redirector == null || !active) return 0f;

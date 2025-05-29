@@ -8,6 +8,17 @@ namespace RDW {
     //      We can rotate via degrees/sec, or by ratio.
     public class RotationGain : GainComponent
     {
+        [Header("=== Rotation Gain ===")]
+        [TextArea(4,1000)]
+        public string description = "Rotational Gain refers to angular gain achieved during the head's "
+                                    + "yaw rotation. The sign of the roation depends on the direction "
+                                    + "of head rotation matches redirection rotation. We can rotate via "
+                                    + "degrees/sec, or by ratio. In this implementation, we use "
+                                    + "ratio. The rotational gain is the head rotation multiplied by "
+                                    + "this ratio, which is 0.49 if rotating in the same direction of "
+                                    + "of the head and -0.20 if rotating in a different direction.";
+
+        [Space]
         [Header("Rotational Gain Options")]
         [Tooltip("The rotational gain for same-direction rotation. Steinicke et al. would suggest a rate of 0.49 for same-direction rotation.")]
         public float rotationGainSame = 0.49f;
