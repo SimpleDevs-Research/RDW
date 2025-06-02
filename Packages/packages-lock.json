@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.guciodevs.simple-min-max-slider": {
+      "version": "https://github.com/GucioDevs/SimpleMinMaxSlider.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "46ff35d22982657d55f7861ddc01b115a2db1554"
+    },
     "com.meta.xr.mrutilitykit": {
       "version": "76.0.1",
       "depth": 1,
@@ -101,6 +108,16 @@
       "source": "registry",
       "dependencies": {
         "com.unity.modules.ai": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.burst": {
+      "version": "1.8.21",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.mathematics": "1.2.1",
+        "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
