@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028326, g: 0.22571333, b: 0.30692202, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1015,8 +1015,8 @@ Transform:
   m_GameObject: {fileID: 263453008}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0.5, y: 0, z: 0.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 7.5, y: 0, z: 12.5}
+  m_LocalScale: {x: 16, y: 26, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 167991248}
@@ -1041,7 +1041,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 4b905f60df09c8245b6e0d5af2e04c7f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2084,9 +2084,9 @@ MonoBehaviour:
   agent_parent: {fileID: 490508887}
   agent_prefab: {fileID: 5177237746849340158, guid: 4bb7e65bd790648d983a81a7b258e2d3, type: 3}
   scene_cam: {fileID: 0}
-  floor: {fileID: 263453009}
-  bounds: {x: 15, y: 15}
-  num_agents: 50
+  floor: {fileID: 0}
+  bounds: {x: 15, y: 25}
+  num_agents: 100
   destination_buffer: 0.1
   spawn_orientation: 0
   bound_edge_buffer: 10
@@ -3346,18 +3346,6 @@ MonoBehaviour:
         - m_Target: {fileID: 2064964449}
           m_TargetAssemblyTypeName: RDW.Redirector2, Assembly-CSharp
           m_MethodName: ToggleGainComponents
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-        - m_Target: {fileID: 2064964449}
-          m_TargetAssemblyTypeName: RDW.Redirector2, Assembly-CSharp
-          m_MethodName: TogglePivotOrigin
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -11185,7 +11173,7 @@ MonoBehaviour:
   max_speed_threshold: 1
   pivotOrigin: 0
   boundary_buffer: 0.5
-  dynamic_goal_direction: 1
+  dynamic_goal_direction: 0
   gain_components:
   - {fileID: 1833790802}
   - {fileID: 39291771}

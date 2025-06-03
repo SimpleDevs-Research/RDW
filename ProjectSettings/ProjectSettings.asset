@@ -162,7 +162,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.SimpleDevs.DemoRedirectedWalking
+    Android: com.SimpleDevs.RDWRVO
     Standalone: com.SimpleDevs.RDW-RVO
   buildNumber:
     Standalone: 0
