@@ -4,6 +4,11 @@ This repository adds a basic implementation of redirected walking in VR applicat
 
 This repository initially was a debug project for reading and interpreting the Quest Pro eye tracker.
 
+## Required Add-Ons
+
+* [**Min-Max-Slider**](https://github.com/SimpleDevs-Tools/SimpleMinMaxSlider): Inspector sliders for min-max variables. To install, do NOT follow the instructions provided in this repo. Instead, install the `Standalone.unitypackage` version that's provided among the releases. This is because the normal way to install this repo will produce a project that's safe for inspector runtime but is unsafe for standalone APKs.
+* [**UnityUtils**](https://github.com/SimpleDevs-Tools/UnityUtils): Helper scripts. Simply clone this repo into the `Assets/` directory.
+
 ## Redirected Walking
 
 To implement redirected walking, I recommend the following setup:
