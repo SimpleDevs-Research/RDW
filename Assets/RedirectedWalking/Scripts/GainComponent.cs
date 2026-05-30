@@ -15,6 +15,7 @@ namespace RDW
         public virtual void OnDestroy() { SetRedirector(null);  }
 
         public virtual void SetRedirector(Redirector r) { redirector = r; }
+        // rotational gain contribution
         public virtual float CalculateGain(float deltaTime) { return 0f; }
 
         public virtual void Toggle() { active = !active; }

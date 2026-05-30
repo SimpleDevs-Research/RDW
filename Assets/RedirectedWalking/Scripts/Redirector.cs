@@ -52,6 +52,8 @@ namespace RDW {
         public float current_eye_rotation;
         [Tooltip("The yaw delta induced by RDW")]
         public float current_yaw_delta = 0f;
+        [Tooltip("The translational delta induced by RDW")]
+        public Vector3 current_translation_delta = Vector3.zero;
         [Tooltip("The redirection... direction factor. Some gain components may use this.")]
         public float direction_factor = 1f;
         [Tooltip("The speed factor to control redirection while standing still vs. moving. Some gain components may use this.")]
@@ -75,12 +77,18 @@ namespace RDW {
 
             // Measure the current frame
             CacheCurrent(deltaTime);
+            Vector3 activePivot = pivot;
 
             // Initialize yaw delta, and use each gain component to contribute to it.
             // current_yaw_delta = 0f;  // Note that we set this to 0 in `CacheCurrent()` anyways.
-            foreach(GainComponent gc in gain_components) current_yaw_delta += gc.CalculateGain(deltaTime);
+            foreach(GainComponent gc in gain_components) {
+                current_yaw_delta += gc.CalculateGain(deltaTime);
+                if (gc is ManualGain mg && mg.active) activePivot = mg.GetLockedPivot();
+            }
             // After calculating the entire yaw delta, rotate the environment around the pivot point.
-            environment_ref.RotateAround(pivot, Vector3.up, current_yaw_delta);
+            environment_ref.RotateAround(activePivot, Vector3.up, current_yaw_delta);
+            // After rotation, we also apply translational gain
+            environment_ref.position += current_translation_delta;
 
             // Cache the current data into the previous for the next frame
             CachePrev();

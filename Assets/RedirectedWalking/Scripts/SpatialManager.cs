@@ -17,6 +17,7 @@ namespace RDW {
         public Transform rightHandRef;
         public Transform headPosPrefab;
         public Transform spatialAnchorPrefab;
+        public Transform boundaryPrefab;
 
         [Header("=== Head Calibration ===")]
         public bool calibrateHeadOnAwake = true;
@@ -28,7 +29,7 @@ namespace RDW {
         public CalibrationHand calibrationHand = CalibrationHand.Right;
         // These can be null, or you can define them manually
         [Tooltip("Game Objects representing the position of anchors. Can be set manually; if unset, the system will auto-replace them.")]
-        public Transform minAnchorRef, maxAnchorRef, worldCenterRef;
+        public Transform minAnchorRef, maxAnchorRef, worldCenterRef, boundaryRef;
         [Tooltip("Local-scale min and max anchors")]
         public Vector3 localAnchorMin, localAnchorMax;
         public UnityEvent onPlaySpaceCalibrated;
@@ -213,6 +214,17 @@ namespace RDW {
             if (worldCenterRef == null) {
                 worldCenterRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
                 worldCenterRef.localScale = Vector3.one * 0.1f;
+            }
+            // If world boundary prefab is provided, then we spawn it too.
+            if (boundaryPrefab != null) {
+                boundaryRef = Instantiate(boundaryPrefab, worldCenter, Quaternion.identity);
+                boundaryRef.parent = this.transform;
+                // Determine rectangle dimensions
+                float width = Mathf.Abs(localAnchorMax.x - localAnchorMin.x);
+                float depth = Mathf.Abs(localAnchorMax.z - localAnchorMin.z);
+                boundaryRef.localScale = new Vector3(width, 1f, depth);
+                // Add ref to player if `BoundaryProximity` is a component of boundary ref
+                boundaryRef.GetComponent<BoundaryProximity>()?.SetPlayer(headRef);
             }
             // recenter THIS game object based on this alignment
             transform.position = worldCenter;

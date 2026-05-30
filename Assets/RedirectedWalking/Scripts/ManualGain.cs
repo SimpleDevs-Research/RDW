@@ -16,6 +16,7 @@ namespace RDW
             + "space border.";
 
         private Quaternion last_rotation;
+        private Vector3 locked_pivot;
 
         public override float CalculateGain(float deltaTime) {
             if (redirector == null || !active) return 0f;
@@ -33,7 +34,14 @@ namespace RDW
 
         public override void Toggle() {
             base.Toggle();
-            if (this.active) last_rotation = redirector.head_ref.rotation;
+            if (this.active) {
+                last_rotation = redirector.head_ref.rotation;
+                locked_pivot = redirector.head_ref.position.Flatten();
+            }
+        }
+
+        public Vector3 GetLockedPivot() {
+            return locked_pivot;
         }
     }
 }
