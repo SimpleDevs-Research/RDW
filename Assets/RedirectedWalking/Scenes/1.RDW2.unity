@@ -11904,7 +11904,7 @@ MonoBehaviour:
   description: Curvature gain is the redirection gain obtained while the user is
     in motion. This is one of the most common types of redirected walking, with various
     parameters explored across different situations.
-  curvature_preset: 4
+  curvature_preset: 2
   curvature_rate: 0
   weight_by_direction: 1
 --- !u!4 &1833790803
