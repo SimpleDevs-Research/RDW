@@ -7225,7 +7225,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1176877278}
   - component: {fileID: 1176877280}
-  - component: {fileID: 1176877279}
   m_Layer: 0
   m_Name: 3rdPersonCamera
   m_TagString: Untagged
@@ -7248,14 +7247,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1791656393}
   m_LocalEulerAnglesHint: {x: 39.996, y: 33.666, z: 0}
---- !u!81 &1176877279
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1176877277}
-  m_Enabled: 1
 --- !u!20 &1176877280
 Camera:
   m_ObjectHideFlags: 0
@@ -12897,10 +12888,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   head_ref: {fileID: 2078322759}
-  environment_ref: {fileID: 167991248}
   left_hand_ref: {fileID: 1318685648}
   right_hand_ref: {fileID: 831167289}
   eye_ref: {fileID: 1388414407}
+  environment_ref: {fileID: 167991248}
   min_speed_threshold: 0.5
   max_speed_threshold: 1
   pivotOrigin: 0

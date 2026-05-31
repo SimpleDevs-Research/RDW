@@ -13,15 +13,16 @@ namespace RDW {
         [Tooltip("We need references to two core things: 1) the user's head, and the environment root.\n"
                     + "The user's head can be either the head camera ('CenterEyeAnchor' in Meta SDK, 'Main Camera' in OpenXR), or the `head_pos_ref` of a `Calibration` component in the scene.")]
         public Transform head_ref;
-        [Tooltip("We need references to two core things: 1) the user's head, and the environment root.\n"
-                    + "The environment root is a game object parent that contains all the objects in the virtual environment.")]
-        public Transform environment_ref;
         [Tooltip("We need references to the left and right hand of the user.")]
         public Transform left_hand_ref, right_hand_ref;
         [Tooltip("It's expected that the eye tracking (insofar with Meta SDK) is captured as a Transform." +
                     "If using a Quest Pro, make sure to have the proper eye tracking setup done and" + 
                     "assign the Transform for your chosen eye here.")]
         public Transform eye_ref;
+        [Space]
+        [Tooltip("We need references to two core things: 1) the user's head, and the environment root.\n"
+                    + "The environment root is a game object parent that contains all the objects in the virtual environment.")]
+        public Transform environment_ref;
 
         [Header("=== Gain Components ===")]
         public float min_speed_threshold = 0.5f;
