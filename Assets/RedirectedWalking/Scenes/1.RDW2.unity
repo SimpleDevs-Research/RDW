@@ -12987,6 +12987,12 @@ MonoBehaviour:
   - {fileID: 1332807521}
   - {fileID: 1380047485}
   goal_direction: -1
+  json_writer:
+    fileName: Debug
+    dirName: Debug_Root
+    append_zero_to_filename: 0
+    filePath: 
+  write_log: 1
   current_position: {x: 0, y: 0, z: 0}
   current_displacement: {x: 0, y: 0, z: 0}
   current_move_direction: {x: 0, y: 0, z: 0}

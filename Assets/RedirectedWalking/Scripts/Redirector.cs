@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Helpers;
 
 namespace RDW {
     public class Redirector : MonoBehaviour
@@ -33,8 +34,13 @@ namespace RDW {
         public List<GainComponent> gain_components = new List<GainComponent>();
         public Direction goal_direction = Direction.Left;
 
+        [Header("=== Caching and Saving Records ===")]
+        public JSONWriter json_writer;
+        public bool write_log = true;
+        private Session log_session;
+
+        [Space]
         [Header("=== Cached - READ-ONLY ===")]
-        // ===
         private Vector3 prev_position, prev_head_orientation, prev_eye_orientation;
         private float prev_yaw_delta = 0f;
         [Tooltip("The position of the user in world space.")] 
@@ -69,7 +75,25 @@ namespace RDW {
             prev_eye_orientation = (eye_ref != null) ? head_ref.InverseTransformDirection(eye_ref.forward) : Vector3.zero;
             CacheCurrent(float.MaxValue);
             CachePrev();
-            foreach(GainComponent gc in gain_components) gc.Initialize(this);
+            List<string> gain_modules = new List<string>();
+            foreach(GainComponent gc in gain_components) {
+                gc.Initialize(this);
+                if (gc is CurvatureGain) gain_modules.Add("curvature");
+                else if (gc is RotationGain) gain_modules.Add("rotation");
+                else if (gc is SaccadeGain) gain_modules.Add("saccade");
+                else if (gc is ManualGain) gain_modules.Add("manual");
+            }
+            // Prep log if needed
+            if (write_log) {
+                json_writer.Initialize();
+                log_session = new Session();
+                log_session.session_timestamp = Helpers.SaveSystemMethods.GetCurrentDateTime();
+                log_session.world_center_position = SpatialManager.Instance.worldCenter;
+                log_session.min_anchor_position = SpatialManager.Instance.anchorMin;
+                log_session.max_anchor_position = SpatialManager.Instance.anchorMax;
+                log_session.gain_modules = gain_modules;
+                log_session.state_data = new List<State>();
+            }
         }
 
         public void Update() {
@@ -93,6 +117,9 @@ namespace RDW {
 
             // Cache the current data into the previous for the next frame
             CachePrev();
+
+            // If logging, save
+            if (write_log && json_writer.is_active) AddLogState(deltaTime);
         }
 
         private void CacheCurrent(float deltaTime) {
@@ -149,6 +176,17 @@ namespace RDW {
             prev_eye_orientation = current_eye_orientation;
             prev_yaw_delta = current_yaw_delta;
         }
+        private void AddLogState(float deltaTime) {
+            State s = new State();
+            s.frame = Time.frameCount;
+            s.timestamp = Time.time;
+            s.delta_time = deltaTime;
+            s.world_position = head_ref.position;
+            s.world_rotation = head_ref.rotation;
+            s.env_position = environment_ref.InverseTransformPoint(s.world_position);
+            s.env_rotation = Quaternion.Inverse(environment_ref.rotation) * s.world_rotation;
+            log_session.state_data.Add(s);
+        }
 
         public void ToggleGainComponents() {
             foreach(GainComponent gc in gain_components) gc.Toggle();
@@ -156,6 +194,30 @@ namespace RDW {
 
         public void TogglePivotOrigin() {
             pivotOrigin = (pivotOrigin == PivotOrigin.Head) ? PivotOrigin.BoundaryBuffer : PivotOrigin.Head;
+        }
+
+        private void OnApplicationPause(bool pauseStatus) {
+            if (pauseStatus && write_log && json_writer.is_active) {
+                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
+                    json_writer.Disable();
+                }
+            }
+        }
+
+        private void OnApplicationQuit() {
+            if (write_log && json_writer.is_active) {
+                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
+                    json_writer.Disable();
+                }
+            }
+        }
+
+        private void OnDestroy() {
+            if (write_log && json_writer.is_active) {
+                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
+                    json_writer.Disable();
+                }
+            }
         }
         
     }

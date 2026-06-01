@@ -10,6 +10,9 @@ EditorBuildSettings:
     guid: 23363180b1a1b4a06bf0a676ee0952f5
   - enabled: 1
     path: Assets/RedirectedWalking/Scenes/1.RDW2.unity
+    guid: e90fbf55fc8559b4eb89cec313f4bed7
+  - enabled: 0
+    path: Assets/RedirectedWalking/Scenes/Playback.unity
     guid: b160b15bc5b59944ca01eeae032531fc
   - enabled: 0
     path: Assets/Debug/2.RDW-RVO.unity
