@@ -70,11 +70,24 @@ namespace RDW {
         
 
         public void Start() {
+            // Load from Additive Scene Manager
+            if (!LoadReferencesFromSceneManager()) {
+                Debug.Log("Could not load references from the scene manager. Canceling...");
+                return;
+            }
+            Debug.Log((head_ref != null).ToString());
+            Debug.Log(head_ref.gameObject.name);
+            Debug.Log(left_hand_ref.gameObject.name);
+            Debug.Log(right_hand_ref.gameObject.name);
+            Debug.Log(eye_ref.gameObject.name);
+
             prev_position = head_ref.position.Flatten();
             prev_yaw_delta = 0f;
             prev_eye_orientation = (eye_ref != null) ? head_ref.InverseTransformDirection(eye_ref.forward) : Vector3.zero;
             CacheCurrent(float.MaxValue);
             CachePrev();
+            Debug.Log("Initial Caching Finished!");
+
             List<string> gain_modules = new List<string>();
             foreach(GainComponent gc in gain_components) {
                 gc.Initialize(this);
@@ -83,6 +96,8 @@ namespace RDW {
                 else if (gc is SaccadeGain) gain_modules.Add("saccade");
                 else if (gc is ManualGain) gain_modules.Add("manual");
             }
+            Debug.Log("Gain Module Initialization Finished!");
+
             // Prep log if needed
             if (write_log) {
                 json_writer.Initialize();
@@ -94,6 +109,42 @@ namespace RDW {
                 log_session.gain_modules = gain_modules;
                 log_session.state_data = new List<State>();
             }
+            Debug.Log("JSON Log initialization Finished!");
+        }
+
+        private bool LoadReferencesFromSceneManager() {
+            if (AdditiveSceneManager.Instance == null) {
+                Debug.Log("Additive Scene Manager doesn't have an instance...");
+                return false;
+            }
+            // Load references for the head, left hand, right hand, and eye
+            GameObject go;
+            if (!AdditiveSceneManager.Instance.TryGetRef("head_position_ref", out go)) {
+                Debug.Log("Head reference missing");
+                return false;
+            }
+            head_ref = go.transform;
+
+            if (!AdditiveSceneManager.Instance.TryGetRef("left_hand_anchor", out go)) {
+                Debug.Log("Left Hand reference missing");
+                return false;
+            } 
+            left_hand_ref = go.transform;
+
+            if (!AdditiveSceneManager.Instance.TryGetRef("right_hand_anchor", out go)) {
+                Debug.Log("Right hand reference missing");
+                return false;
+            }
+            right_hand_ref = go.transform;
+
+            if (!AdditiveSceneManager.Instance.TryGetRef("eye_ref", out go)) {
+                Debug.Log("Eye reference missing");
+                return false;
+            }
+            eye_ref = go.transform;
+
+            Debug.Log("All references found!");
+            return true;
         }
 
         public void Update() {
@@ -103,6 +154,7 @@ namespace RDW {
             // Measure the current frame
             CacheCurrent(deltaTime);
             Vector3 activePivot = pivot;
+            Debug.Log("Update: Current cached");
 
             // Initialize yaw delta, and use each gain component to contribute to it.
             // current_yaw_delta = 0f;  // Note that we set this to 0 in `CacheCurrent()` anyways.
@@ -110,13 +162,17 @@ namespace RDW {
                 current_yaw_delta += gc.CalculateGain(deltaTime);
                 if (gc is ManualGain mg && mg.active) activePivot = mg.GetLockedPivot();
             }
+            Debug.Log("Update: All gain components looped");
+
             // After calculating the entire yaw delta, rotate the environment around the pivot point.
             environment_ref.RotateAround(activePivot, Vector3.up, current_yaw_delta);
             // After rotation, we also apply translational gain
             environment_ref.position += current_translation_delta;
+            Debug.Log("Environment Adjusted");
 
             // Cache the current data into the previous for the next frame
             CachePrev();
+            Debug.Log("Update: Previous cached");
 
             // If logging, save
             if (write_log && json_writer.is_active) AddLogState(deltaTime);

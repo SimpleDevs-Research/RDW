@@ -18,6 +18,9 @@ namespace RDW {
         public Transform headPosPrefab;
         public Transform spatialAnchorPrefab;
         public Transform boundaryPrefab;
+        [Space]
+        public GameObject passthroughObjectRef = null;
+        public List<GameObject> ObjectRefs = new List<GameObject>();
 
         [Header("=== Head Calibration ===")]
         public bool calibrateHeadOnAwake = true;
@@ -312,8 +315,17 @@ namespace RDW {
             // Spatial anchors
             if (minAnchorRef != null) minAnchorRef.gameObject.SetActive(spatialSetTo);
             if (maxAnchorRef != null) maxAnchorRef.gameObject.SetActive(spatialSetTo);
-            
-            
+        }
+        public void TogglePassthrough(bool setTo) {
+            if (passthroughObjectRef != null) passthroughObjectRef.SetActive(setTo);
+        }
+        public void TogglePassthrough() {
+            if (passthroughObjectRef != null) TogglePassthrough(!passthroughObjectRef.activeInHierarchy);
+        }
+        public void ToggleGameObjects(bool setTo) {
+            if (ObjectRefs.Count > 0) {
+                foreach(GameObject go in ObjectRefs) go.SetActive(setTo);
+            }
         }
 
         public void TransitionToScene(string scene) { SceneManager.LoadScene(scene); }
