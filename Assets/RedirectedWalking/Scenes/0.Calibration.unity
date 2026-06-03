@@ -6376,7 +6376,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 997790440}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: add57c916e64d144db86bb55464749fa, type: 3}
+  m_Script: {fileID: 11500000, guid: b32be1884c7ab814f83cabee35217031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dirName: Log
@@ -9560,6 +9560,8 @@ MonoBehaviour:
   boundaryRef: {fileID: 0}
   localAnchorMin: {x: 0, y: 0, z: 0}
   localAnchorMax: {x: 0, y: 0, z: 0}
+  spaceWidth: 1
+  spaceHeight: 1
   onPlaySpaceCalibrated:
     m_PersistentCalls:
       m_Calls: []
@@ -12007,7 +12009,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1828734503}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db34dcac322f1a745ad3f88e51fa24a7, type: 3}
+  m_Script: {fileID: 11500000, guid: 98021f8b57b0abb4aa500cfa87fda955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   scenes:
@@ -13359,6 +13361,10 @@ PrefabInstance:
     - target: {fileID: 2835196513922199949, guid: 926a476d5553ba74ca8e018ef5626d72, type: 3}
       propertyPath: m_Name
       value: head position ref
+      objectReference: {fileID: 0}
+    - target: {fileID: 2835196513922199949, guid: 926a476d5553ba74ca8e018ef5626d72, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -35,6 +35,8 @@ namespace RDW {
         public Transform minAnchorRef, maxAnchorRef, worldCenterRef, boundaryRef;
         [Tooltip("Local-scale min and max anchors")]
         public Vector3 localAnchorMin, localAnchorMax;
+        public float spaceWidth = 1f;
+        public float spaceHeight = 1f;
         public UnityEvent onPlaySpaceCalibrated;
 
         [Header("=== Debugging ===")]
@@ -196,8 +198,8 @@ namespace RDW {
 
             // given anchor its 0 (bottom-left)
             // Assign min and max local anchors as well as the virtual world center, and calibrated status
-            anchorMin = hits[0];
-            anchorMax = hits[1];
+            anchorMax = hits[0];
+            anchorMin = hits[1];
             worldCenter = (hits[0]+hits[1])/2f;
             calibrated = true;
 
@@ -218,17 +220,6 @@ namespace RDW {
                 worldCenterRef = Instantiate(spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
                 worldCenterRef.localScale = Vector3.one * 0.1f;
             }
-            // If world boundary prefab is provided, then we spawn it too.
-            if (boundaryPrefab != null) {
-                boundaryRef = Instantiate(boundaryPrefab, worldCenter, Quaternion.identity);
-                boundaryRef.parent = this.transform;
-                // Determine rectangle dimensions
-                float width = Mathf.Abs(localAnchorMax.x - localAnchorMin.x);
-                float depth = Mathf.Abs(localAnchorMax.z - localAnchorMin.z);
-                boundaryRef.localScale = new Vector3(width, 1f, depth);
-                // Add ref to player if `BoundaryProximity` is a component of boundary ref
-                boundaryRef.GetComponent<BoundaryProximity>()?.SetPlayer(headRef);
-            }
             // recenter THIS game object based on this alignment
             transform.position = worldCenter;
             // Place min, max, and world anchors
@@ -246,6 +237,18 @@ namespace RDW {
             // Determine local versions of min and max
             localAnchorMin = minAnchorRef.localPosition;
             localAnchorMax = maxAnchorRef.localPosition;
+            // Determine rectangle dimensions
+            spaceWidth = Mathf.Abs(localAnchorMax.x - localAnchorMin.x);
+            spaceHeight = Mathf.Abs(localAnchorMax.z - localAnchorMin.z);
+            // If world boundary prefab is provided, then we spawn it too.
+            if (boundaryPrefab != null) {
+                boundaryRef = Instantiate(boundaryPrefab, worldCenter, Quaternion.identity);
+                boundaryRef.parent = this.transform;
+                // Set the width and height of the boundary
+                boundaryRef.localScale = new Vector3(spaceWidth, 1f, spaceHeight);
+                // Add ref to player if `BoundaryProximity` is a component of boundary ref
+                boundaryRef.GetComponent<BoundaryProximity>()?.SetPlayer(headRef);
+            }
             // If any events need to be called, do them here.
             onPlaySpaceCalibrated?.Invoke();
         }
