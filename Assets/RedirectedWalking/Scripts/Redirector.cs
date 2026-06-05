@@ -104,8 +104,8 @@ namespace RDW {
                 log_session = new Session();
                 log_session.session_timestamp = Helpers.SaveSystemMethods.GetCurrentDateTime();
                 log_session.world_center_position = SpatialManager.Instance.worldCenter;
-                log_session.min_anchor_position = SpatialManager.Instance.anchorMin;
-                log_session.max_anchor_position = SpatialManager.Instance.anchorMax;
+                log_session.min_anchor_position = SpatialManager.Instance.minSpaceBound;
+                log_session.max_anchor_position = SpatialManager.Instance.maxSpaceBound;
                 log_session.gain_modules = gain_modules;
                 log_session.state_data = new List<State>();
             }
