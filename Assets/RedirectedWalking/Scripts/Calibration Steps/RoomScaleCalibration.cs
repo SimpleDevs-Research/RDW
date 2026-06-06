@@ -10,9 +10,7 @@ namespace RDW {
         public OVRInput.Controller pointerController = OVRInput.Controller.RTouch;
         public OVRInput.Axis1D calibrationTriggerInput = OVRInput.Axis1D.PrimaryIndexTrigger;
         public GameObject raycastTargetPrefab = null;
-        [Space]
         public OVRInput.Button calibrationFinishedInput;
-        public LineRenderer lineRenderer;
 
         [Header("=== Settings ===")]
         [SerializeField] private float triggerThreshold = 0.75f;
@@ -20,24 +18,11 @@ namespace RDW {
 
         private bool tracking = false;
         private GameObject raycastTarget; 
-        private Transform[] spatialAnchors;
 
         // Overriding the base `Calibrate` for our own head calibration.
         public override IEnumerator Calibrate() { 
-            // We cannot proceed with a spatial anchor prefab is not set.
-            if (SpatialManager.Instance.spatialAnchorPrefab == null || SpatialManager.Instance.calibrationEnvRef == null) {
-                Debug.Log("Cannot calibrate room space because of missing spatial anchor prefab or calibration environment reference.");
-                yield break;
-            }
-
-            // Initialize our anchors
-            spatialAnchors = new Transform[2];
-            spatialAnchors[0] = Instantiate(SpatialManager.Instance.spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
-            spatialAnchors[0].parent = SpatialManager.Instance.calibrationEnvRef;
-            spatialAnchors[0].gameObject.SetActive(false);
-            spatialAnchors[1] = Instantiate(SpatialManager.Instance.spatialAnchorPrefab, Vector3.zero, Quaternion.identity) as Transform;
-            spatialAnchors[1].parent = SpatialManager.Instance.calibrationEnvRef;
-            spatialAnchors[1].gameObject.SetActive(true);
+            // Set our calibration status to `false`
+            _calibrated = false;
 
             // We will instantiate a raycast target indicator. 
             // Make sure it doesn't have a collider involved.
@@ -54,11 +39,8 @@ namespace RDW {
 
             // Initialize a reference to the hand being used for pointing
             Transform pointer = (pointerController == OVRInput.Controller.LTouch) 
-                ? SpatialManager.Instance.leftHandAnchorRef 
-                : SpatialManager.Instance.rightHandAnchorRef;
-
-            // If we have a line renderer, we initialize it
-            if (lineRenderer != null) lineRenderer.positionCount = 2;
+                ? RDW.Instance.leftHandAnchor 
+                : RDW.Instance.rightHandAnchor;
 
             // While we're not calibrated, we will loop
             while(!_calibrated) {
@@ -81,18 +63,14 @@ namespace RDW {
                     // Handle the starting of tracking (if we haven't yet)
                     if (!tracking) StartTracking(hit.point);
                     // Update the 2nd spatial anchor and cursor
-                    spatialAnchors[1].position = hit.point;
+                    Calibrator.Instance.minSpaceAnchor.position = hit.point;
                 }
                 // Case 2: we're not holding down the trigger & we're still tracking 
                 if (!triggering && tracking) {
                     // Stop tracking
                     EndTracking();
                 }
-                // Case 3: We are tracking, and we have a line renderer to represent this tracking space
-                if (tracking && lineRenderer != null) {
-                    lineRenderer.SetPosition(0, spatialAnchors[0].position);
-                    lineRenderer.SetPosition(1, spatialAnchors[1].position);
-                }
+
 
                 // Terminate if we're finished
                 if (OVRInput.GetDown(calibrationFinishedInput)) _calibrated = true;
@@ -101,45 +79,22 @@ namespace RDW {
                 yield return null;
             }
 
-            // Upon completion, we must destroy the spatial anchors, raycast cursor, and floor
-            Destroy(spatialAnchors[1]);
-            Destroy(spatialAnchors[0]);
+            // Upon completion, we must destroy the raycast cursor
             Destroy(raycastTarget);
         }
 
         private void StartTracking(Vector3 startPoint) {
             // Initialize the min and max anchors of the calibration space
-            spatialAnchors[0].gameObject.SetActive(true);
-            spatialAnchors[0].position = startPoint;
-            spatialAnchors[1].gameObject.SetActive(false);
-            spatialAnchors[1].position = startPoint;
+            Calibrator.Instance.maxSpaceAnchor.position = startPoint;
+            Calibrator.Instance.minSpaceAnchor.position = startPoint;
             
             // Tracking Check Flag
             tracking = true;
         }
 
         private void EndTracking() {
-            // Update our 2nd spatial anchor to be visible
-            spatialAnchors[1].gameObject.SetActive(true);
-
-            // Our spatial anchors hold the details of our boundary limits.
-            // We must updte SpatialManager with these details
-            SpatialManager.Instance.maxSpaceBound = spatialAnchors[0].position;
-            SpatialManager.Instance.minSpaceBound = spatialAnchors[1].position;
-            SpatialManager.Instance.worldCenter = (spatialAnchors[0].position + spatialAnchors[1].position)/2f;
-            SpatialManager.Instance.spaceWidth = Mathf.Abs(spatialAnchors[0].position.x - spatialAnchors[1].position.x);
-            SpatialManager.Instance.spaceHeight= Mathf.Abs(spatialAnchors[0].position.z - spatialAnchors[1].position.z);
-            
-            // We must set the boundary, if set, to match the scale defined here
-            if (SpatialManager.Instance.boundaryRef != null) {
-                SpatialManager.Instance.boundaryRef.position = SpatialManager.Instance.worldCenter;
-                SpatialManager.Instance.boundaryRef.localScale = new Vector3(
-                    SpatialManager.Instance.spaceWidth, 
-                    1f, 
-                    SpatialManager.Instance.spaceHeight
-                );
-                SpatialManager.Instance.boundaryRef.GetComponent<BoundaryProximity>()?.SetPlayer(SpatialManager.Instance.headPosRef);
-            }
+            // We must update RDW with these details
+            RDW.Instance.SetSpace(Calibrator.Instance.minSpaceAnchor.position, Calibrator.Instance.maxSpaceAnchor.position);
 
             // Update check flag
             tracking = false;

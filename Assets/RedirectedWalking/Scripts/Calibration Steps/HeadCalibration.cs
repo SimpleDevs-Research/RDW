@@ -21,12 +21,15 @@ namespace RDW {
 
         // Overriding the base `Calibrate` for our own head calibration.
         public override IEnumerator Calibrate() { 
+            // Set our calibration status to `false`
+            _calibrated = false;
+
             // Assume that the user's hands and head exists. If not, then we cannot do anything here.
             if (
-                SpatialManager.Instance.centerEyeCameraRef == null 
-                || SpatialManager.Instance.leftHandAnchorRef == null 
-                || SpatialManager.Instance.rightHandAnchorRef == null 
-                || SpatialManager.Instance.headPosRef == null
+                RDW.Instance.centerEyeCamera == null 
+                || RDW.Instance.leftHandAnchor == null 
+                || RDW.Instance.rightHandAnchor == null 
+                || RDW.Instance.headPoseAnchor == null
             ) {
                 Debug.Log("Cannot estimate true head displacement because of missing hand refs or head refs.");
                 yield break;
@@ -39,7 +42,7 @@ namespace RDW {
                 // Terminate if we're finished
                 if (OVRInput.GetDown(calibrationFinishedInput)) _calibrated = true;
                 // Fill the offset textbox if set
-                if (offsetTextboxRef != null) offsetTextboxRef.text = SpatialManager.Instance.headPosRef.localPosition.z.ToString();
+                if (offsetTextboxRef != null) offsetTextboxRef.text = RDW.Instance.headPoseAnchor.localPosition.z.ToString();
                 // Make sure the update loop moves to the next frame
                 yield return null;
             }
@@ -47,14 +50,11 @@ namespace RDW {
 
         private void CalibrateHead() {
             // Get the local positions of both hands
-            Vector3 leftLocalPos = SpatialManager.Instance.centerEyeCameraRef.InverseTransformPoint(SpatialManager.Instance.leftHandAnchorRef.position);
-            Vector3 rightLocalPos = SpatialManager.Instance.centerEyeCameraRef.InverseTransformPoint(SpatialManager.Instance.rightHandAnchorRef.position);
+            Vector3 leftLocalPos = RDW.Instance.centerEyeCamera.InverseTransformPoint(RDW.Instance.leftHandAnchor.position);
+            Vector3 rightLocalPos = RDW.Instance.centerEyeCamera.InverseTransformPoint(RDW.Instance.rightHandAnchor.position);
 
             // Calculate the Z position of both left and right (via averaging). Then set the local position
-            SpatialManager.Instance.headPosRef.localPosition = new Vector3(0f, 0f, (leftLocalPos.z + rightLocalPos.z)/2f);
-
-            // Debug Log
-            Debug.Log("Head Calibrated!");
+            RDW.Instance.headPoseAnchor.localPosition = new Vector3(0f, 0f, (leftLocalPos.z + rightLocalPos.z)/2f);
 
             // Invoke any events
             onHeadPositionSet?.Invoke();

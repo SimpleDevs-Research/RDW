@@ -40,12 +40,16 @@ public class InstructionsCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        distanceToTarget = Vector3.Distance(positionTarget.position, transform.position);
-        gradientValue = Mathf.Clamp(distanceToTarget/distanceThreshold, 0f, 1f);
-        isClose = distanceToTarget <  0.05f;
-        if (positionTarget != null) UpdatePosition();
-        if (rotationTarget != null) UpdateRotation();
-        UpdateOpacity();
+        if (positionTarget != null) {
+            distanceToTarget = Vector3.Distance(positionTarget.position, transform.position);
+            gradientValue = Mathf.Clamp(distanceToTarget/distanceThreshold, 0f, 1f);
+            isClose = distanceToTarget <  0.05f;
+            UpdatePosition();
+            UpdateOpacity();
+        }
+        if (rotationTarget != null) {
+            UpdateRotation();
+        }
     }
 
     private void UpdatePosition() {
@@ -94,4 +98,7 @@ public class InstructionsCanvas : MonoBehaviour
         }
         canvasGroup.alpha = newAlpha;
     }
+
+    public void SetPositionTarget(Transform t = null) { positionTarget = t; }
+    public void SetRotationTarget(Transform t = null) { rotationTarget = t; }
 }

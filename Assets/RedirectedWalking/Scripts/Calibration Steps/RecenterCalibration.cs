@@ -11,6 +11,9 @@ namespace RDW {
 
         // Overriding the base `Calibrate` for our own head calibration.
         public override IEnumerator Calibrate() { 
+            // Set our calibration status to `false`
+            _calibrated = false;
+
             // While we're not calibrated, we will loop
             while(!_calibrated) {
                 // Terminate if we're finished

@@ -37,6 +37,9 @@ namespace RDW {
         // Is a coroutine, so must be instantiated via `StartCoroutine()`.
         public virtual IEnumerator Calibrate() { yield return null; }
 
+        // The toggling of calibration flag
+        public virtual void SetCalibrated(bool setTo) { _calibrated = setTo; }
+
         // The on-offing of UI elements
         protected virtual void ActivateUI() {
             if (UIElements.Length > 0) foreach(GameObject go in UIElements) go.SetActive(true);

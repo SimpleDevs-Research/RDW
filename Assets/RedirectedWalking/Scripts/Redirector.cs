@@ -71,15 +71,10 @@ namespace RDW {
 
         public void Start() {
             // Load from Additive Scene Manager
-            if (!LoadReferencesFromSceneManager()) {
+            if (!LoadReferencesFromRDW()) {
                 Debug.Log("Could not load references from the scene manager. Canceling...");
                 return;
             }
-            Debug.Log((head_ref != null).ToString());
-            Debug.Log(head_ref.gameObject.name);
-            Debug.Log(left_hand_ref.gameObject.name);
-            Debug.Log(right_hand_ref.gameObject.name);
-            Debug.Log(eye_ref.gameObject.name);
 
             prev_position = head_ref.position.Flatten();
             prev_yaw_delta = 0f;
@@ -103,13 +98,34 @@ namespace RDW {
                 json_writer.Initialize();
                 log_session = new Session();
                 log_session.session_timestamp = Helpers.SaveSystemMethods.GetCurrentDateTime();
-                log_session.world_center_position = SpatialManager.Instance.worldCenter;
-                log_session.min_anchor_position = SpatialManager.Instance.minSpaceBound;
-                log_session.max_anchor_position = SpatialManager.Instance.maxSpaceBound;
+                log_session.world_center_position = RDW.Instance.worldCenter;
+                log_session.min_anchor_position = RDW.Instance.minSpaceBound;
+                log_session.max_anchor_position = RDW.Instance.maxSpaceBound;
                 log_session.gain_modules = gain_modules;
                 log_session.state_data = new List<State>();
             }
             Debug.Log("JSON Log initialization Finished!");
+        }
+
+        private bool LoadReferencesFromRDW() {
+            if (RDW.Instance == null) {
+                Debug.Log("RDW doesn't have an instance...");
+                return false;
+            }
+
+            // Get references
+            head_ref = RDW.Instance.headPoseAnchor;
+            left_hand_ref = RDW.Instance.leftHandAnchor;
+            right_hand_ref = RDW.Instance.rightHandAnchor;
+            eye_ref = RDW.Instance.eyeGaze;
+
+            // Return if any are null
+            return (
+                head_ref != null 
+                && left_hand_ref != null 
+                && right_hand_ref != null 
+                && eye_ref != null
+            );
         }
 
         private bool LoadReferencesFromSceneManager() {
@@ -202,7 +218,7 @@ namespace RDW {
             //      always point to the center defined by `SpatialManager`.
             if (dynamic_goal_direction) {
                 float dir_dot = Vector3.Dot(
-                    SpatialManager.Instance.worldCenter-head_ref.position.Flatten(), 
+                    RDW.Instance.worldCenter-head_ref.position.Flatten(), 
                     head_ref.right.Flatten()
                 );
                 goal_direction = (dir_dot < 0f) ? Direction.Left : Direction.Right;
