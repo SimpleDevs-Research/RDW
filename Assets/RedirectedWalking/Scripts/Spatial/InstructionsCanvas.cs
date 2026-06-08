@@ -6,7 +6,7 @@ using UnityEngine;
 public class InstructionsCanvas : MonoBehaviour
 {
 
-    public enum DisplayType { Off, Constant, Fade_In_Out, Fade_Out, Fade_In}
+    public enum DisplayType { None, Off, Constant, Fade_In_Out, Fade_Out, Fade_In}
     public enum RotationType { LookAt, Follow }
 
     [SerializeField]
@@ -20,7 +20,7 @@ public class InstructionsCanvas : MonoBehaviour
     [SerializeField]
     private AnimationCurve movementMultiplier;
     [SerializeField]
-    private DisplayType displayType = DisplayType.Fade_In_Out;
+    private DisplayType opacityControl = DisplayType.Fade_In_Out;
     [SerializeField]
     private RotationType rotationType = RotationType.Follow;
     [SerializeField] private float distanceThreshold = 2f;
@@ -74,29 +74,32 @@ public class InstructionsCanvas : MonoBehaviour
 
     private void UpdateOpacity(float toSetAlpha=1f) {
         float newAlpha = toSetAlpha;
-        switch(displayType) {
+        switch(opacityControl) {
             case DisplayType.Fade_In_Out:
                 newAlpha = (!isClose) ? 1f - gradientValue : 1f;
+                canvasGroup.alpha = newAlpha;
                 break;
             case DisplayType.Constant:
                 newAlpha = 1f;
+                canvasGroup.alpha = newAlpha;
                 break;
             case DisplayType.Fade_Out:
                 newAlpha = (Time.time - startTime < fadeTimeThreshold) 
                     ? 1f 
                     : 1f - Mathf.Clamp((Time.time - startTime+fadeTimeThreshold)/fadeTimeRate, 0f, 1f);
+                canvasGroup.alpha = newAlpha;
                 break;
             case DisplayType.Fade_In:
                 newAlpha = (Time.time - startTime < fadeTimeThreshold) 
                     ? 0f 
                     : Mathf.Clamp((Time.time - startTime+fadeTimeThreshold)/fadeTimeRate, 0f, 1f);
+                canvasGroup.alpha = newAlpha;
                 break;
-            default:
-                // Off is the default
+            case DisplayType.Off:
                 newAlpha = 0f;
+                canvasGroup.alpha = newAlpha;
                 break;
         }
-        canvasGroup.alpha = newAlpha;
     }
 
     public void SetPositionTarget(Transform t = null) { positionTarget = t; }

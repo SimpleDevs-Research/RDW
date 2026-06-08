@@ -76,6 +76,9 @@ namespace RDW {
                 return;
             }
 
+            // Disable Redirector
+            RDW.Instance.enabled = false;
+
             prev_position = head_ref.position.Flatten();
             prev_yaw_delta = 0f;
             prev_eye_orientation = (eye_ref != null) ? head_ref.InverseTransformDirection(eye_ref.forward) : Vector3.zero;

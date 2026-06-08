@@ -33,18 +33,14 @@ namespace RDW {
             // create a new persistent instance
             Instance = this;
         }
+
         private void OnEnable() {
             // Modify RDW to prevent interference
-            RDW.Instance.enabled = false;
             RDW.Instance.ResetSpace();
             floor.localScale = new Vector3(10f, 10f, 1f);
 
             // Have the floor and min/max space anchors match the world positions of the play space, at least initially
             AlignWithPlaySpace();
-
-            // Ensure that the Instructions Canvas properly points to the user's anchors
-            instructionsCanvas.SetPositionTarget(RDW.Instance.canvasTarget);
-            instructionsCanvas.SetRotationTarget(RDW.Instance.centerEyeCamera);
 
             // Initialize the line renderer
             if (spaceLineRenderer != null) spaceLineRenderer.positionCount = 4;
@@ -63,20 +59,11 @@ namespace RDW {
                 yield return step.Initialize();
             }
 
-            // If any events need to be called, do them here.
-            onPlaySpaceCalibrationEnd?.Invoke();
-
-            // Disable self to invoke `OnDisable()`
-            gameObject.SetActive(false);
-        }
-
-        // Called by default at the end of calibration, as we set our game object to be inactive.
-        private void OnDisable() {
             // Align our floor and min-max to be aligned with the bounds again
             AlignWithPlaySpace();
 
-            // Boot up RDW 
-            RDW.Instance.enabled = true;
+            // If any events need to be called, do them here.
+            onPlaySpaceCalibrationEnd?.Invoke();
         }
 
         // =======================

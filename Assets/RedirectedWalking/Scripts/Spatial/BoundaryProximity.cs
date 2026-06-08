@@ -9,6 +9,8 @@ public class BoundaryProximity : MonoBehaviour
 
     private static readonly int PlayerPositionID =
         Shader.PropertyToID("_PlayerPosition");
+    private static readonly int WarningDistanceID = 
+        Shader.PropertyToID("_WarningDistance");
 
     public void SetPlayer(Transform t) {
         player = t;
@@ -21,5 +23,12 @@ public class BoundaryProximity : MonoBehaviour
                 PlayerPositionID,
                 player.position);
         }
+    }
+
+    public void SetWarningDistance(float distance, float multiplier = 1f) {
+        boundaryMaterial.SetFloat(
+            WarningDistanceID,
+            distance * multiplier
+        );
     }
 }

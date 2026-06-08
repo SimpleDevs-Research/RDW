@@ -9,15 +9,22 @@ namespace RDW {
         [Header("=== References ===")]
         public OVRInput.Controller pointerController = OVRInput.Controller.RTouch;
         public OVRInput.Axis1D calibrationTriggerInput = OVRInput.Axis1D.PrimaryIndexTrigger;
+        public OVRInput.Button calibrationButtonInput = OVRInput.Button.One;
         public GameObject raycastTargetPrefab = null;
         public OVRInput.Button calibrationFinishedInput;
 
         [Header("=== Settings ===")]
         [SerializeField] private float triggerThreshold = 0.75f;
-        [SerializeField] private LayerMask raycastLayers;
+        [SerializeField] private LayerMask calibrationLayers;
+        [SerializeField] private LayerMask guiLayers;
+        private LayerMask raycastLayers;
 
         private bool tracking = false;
         private GameObject raycastTarget; 
+
+        private void Start() {
+            raycastLayers = calibrationLayers | guiLayers;
+        }
 
         // Overriding the base `Calibrate` for our own head calibration.
         public override IEnumerator Calibrate() { 
@@ -46,11 +53,16 @@ namespace RDW {
             while(!_calibrated) {
                 
                 // Update values: the trigger's 1D Axis val + if we're hitting the ground
-                bool triggering = OVRInput.Get(calibrationTriggerInput, pointerController) > triggerThreshold;
-                bool hitting = Physics.Raycast(pointer.position, pointer.forward, out hit, 200f, raycastLayers);
-
+                bool triggering = (
+                    OVRInput.Get(calibrationTriggerInput, pointerController) > triggerThreshold 
+                    || OVRInput.Get(calibrationButtonInput)
+                );
+                bool hitting = (
+                    Physics.Raycast(pointer.position, pointer.forward, out hit, 200f, raycastLayers)
+                    && IsInLayerMask(hit.transform.gameObject.layer, calibrationLayers)
+                    && !IsInLayerMask(hit.transform.gameObject.layer, guiLayers)
+                );
                 // 2 distinct states: we're either holding the trigger or not.
-                // Case 0: we're hitting, so we update the raycast target position
                 if (hitting) {
                     raycastTarget.SetActive(true);
                     raycastTarget.transform.position = hit.point;
@@ -58,6 +70,7 @@ namespace RDW {
                 else {
                     raycastTarget.SetActive(false);
                 }
+
                 // Case 1: we're holding down the trigger and we're hitting the floor
                 if (triggering && hitting) {
                     // Handle the starting of tracking (if we haven't yet)
@@ -98,6 +111,10 @@ namespace RDW {
 
             // Update check flag
             tracking = false;
+        }
+
+        private static bool IsInLayerMask(int layer, LayerMask mask) {
+            return (mask.value & (1 << layer)) != 0;
         }
     }
 }

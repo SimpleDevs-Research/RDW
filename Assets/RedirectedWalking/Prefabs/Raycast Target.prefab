@@ -17,6 +17,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1528899761288382197, guid: 6be01f60d6b44174e81e21a8c0aa70dc, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1528899761288382197, guid: 6be01f60d6b44174e81e21a8c0aa70dc, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1528899761288382197, guid: 6be01f60d6b44174e81e21a8c0aa70dc, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 1528899761288382197, guid: 6be01f60d6b44174e81e21a8c0aa70dc, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -62,7 +74,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3590895304498744835, guid: 6be01f60d6b44174e81e21a8c0aa70dc, type: 3}
       propertyPath: m_Name
-      value: Raycast Target' Variant
+      value: Raycast Target
       objectReference: {fileID: 0}
     - target: {fileID: 4673045054039679608, guid: 6be01f60d6b44174e81e21a8c0aa70dc, type: 3}
       propertyPath: m_LocalScale.x

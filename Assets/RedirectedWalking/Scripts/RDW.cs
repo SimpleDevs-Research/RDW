@@ -4,14 +4,6 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace RDW {
-    [System.Serializable]
-    public class ButtonInput {
-        public string name;
-        public OVRInput.Button input;
-        public bool enabled;
-        public UnityEvent events;
-    }
-
     public class RDW : MonoBehaviour
     {
         public static RDW Instance;
@@ -33,11 +25,14 @@ namespace RDW {
         public Calibrator calibrator;
 
         [Header("=== RDW Data Cache ===")]
+        public string id = "";
         public Vector3 worldCenter = Vector3.zero;
         public Vector3 minSpaceBound = new Vector3(-5f, 0f, -5f);
         public Vector3 maxSpaceBound = new Vector3(5f, 0f, 5f);
         public float spaceWidth = 10f;
         public float spaceDepth = 10f;
+        public float minEdgeDistance = 0f;
+        public string currentSceneName = null;
 
         [Header("=== Interactions ===")]
         public List<ButtonInput> buttonInteractions = new List<ButtonInput>();
@@ -46,18 +41,8 @@ namespace RDW {
             Instance = this;
         }
 
-        private void OnEnable() {
-            canvas.gameObject.SetActive(true);
-        }
-
-        private void Update() {
-            foreach(ButtonInput bi in buttonInteractions) 
-                if (bi.enabled && OVRInput.GetDown(bi.input)) 
-                    bi.events?.Invoke();
-        }
-
-        private void OnDisable() {
-            canvas.gameObject.SetActive(false);
+        public void SetID(string id) {
+            this.id = id;
         }
 
         public void TogglePassthrough() { passthrough.enabled = !passthrough.enabled; }
@@ -72,8 +57,8 @@ namespace RDW {
             playSpace.position = worldCenter;
             boundary.position = worldCenter;
             boundary.localScale = new Vector3(10f, 1f, 10f);
+            minEdgeDistance = GetMinDistanceToRectangleEdge(worldCenter);
         }
-
         public void SetSpace(Vector3 minBound, Vector3 maxBound) {
             // Determine the world center, width, and height from maxBound and minBound, which are epxected to be in world space
             worldCenter = (minBound + maxBound)/2f;
@@ -88,6 +73,20 @@ namespace RDW {
             // Let's now calculate `minSpaceBound` and `maxSpaceBound` to be relative to play space
             minSpaceBound = playSpace.InverseTransformPoint(minBound);
             maxSpaceBound = playSpace.InverseTransformPoint(maxBound);
+        }
+
+        public void CurrentSceneLoaded(string sceneName) {
+            // When a scene is loaded, we can store that scene's name as a "current scene"
+            currentSceneName = sceneName;
+        }
+        public void UnloadCurrentScene() {
+            if (!string.IsNullOrEmpty(currentSceneName)) {
+                AdditiveSceneManager.Instance.UnloadScene(currentSceneName);
+            }
+        }
+        public void CurrentSceneUnloaded(string sceneName) {
+            // When a current scene is unloaded, we can remove the reference now
+            currentSceneName = null;
         }
 
         // `start` and `dir` are expected to be relative to world space
@@ -125,6 +124,7 @@ namespace RDW {
             distances[3] = Mathf.Abs(maxSpaceBound.z - point.z);
             return Mathf.Min(distances);
         }
+        
         public float GetDistanceAhead() { 
             Vector3 ahead = GetEdgePointFromRay();
             return Vector3.Distance(ahead.Flatten(), headPoseAnchor.position.Flatten()); 
