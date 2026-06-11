@@ -77,7 +77,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WarningDistance: 0.3682741
+    - _WarningDistance: 2.4046378
     - _ZWrite: 1
     m_Colors:
     - _AxisMask: {r: 1, g: 0, b: 1, a: 0}

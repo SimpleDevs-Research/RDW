@@ -22,19 +22,24 @@ namespace RDW {
 
         public override void Enable() {
             base.Enable();
-            if (Boundary.Instance != null) {
+            if (automated && Boundary.Instance != null) {
                 Boundary.Instance.onWithin.AddListener(this.ToggleOff);
                 Boundary.Instance.onEdge.AddListener(this.ToggleOn);
             }
         }
         public void Disable() {
             base.Disable();
-            if (Boundary.Instance != null) {
+            if (automated && Boundary.Instance != null) {
                 Boundary.Instance.onWithin.RemoveListener(this.ToggleOff);
                 Boundary.Instance.onEdge.RemoveListener(this.ToggleOn);
             }
         }
 
+        public override void ToggleOn() {
+            last_rotation = RDW.Instance.headPoseAnchor.rotation;
+            locked_pivot = RDW.Instance.headPoseAnchor.position.Flatten();
+            base.ToggleOn();
+        }
         public void ToggleOn(Boundary.BoundaryInfo _) {
             last_rotation = RDW.Instance.headPoseAnchor.rotation;
             locked_pivot = RDW.Instance.headPoseAnchor.position.Flatten();
@@ -44,17 +49,30 @@ namespace RDW {
             base.ToggleOff();
         }
 
+        private void DeterminePivot(Redirector2 redirector) {
+            // Pivot is dependent on two factors:
+            // 1. Are we stationary or moving? If stationary, then we use the user's head as the pivot. If not, then we use one of the hands.
+            // 2. Which direciton are we moving? If left, use the left pivot. If right, use the right pivot.
+            // One concern: how do we incorporate controller inputs? If anything, controller inputs should dominate. 
+
+            if (redirector.playerState == Redirector2.PlayerState.Standing) {
+                // not moving, we can default to using the head as the pivot. This is non-conditional.
+                locked_pivot = RDW.Instance.headPoseAnchor.position;
+            }
+            
+        }
+
         public override float CalculateGain(Redirector2 redirector, float deltaTime) {
             // Active state is dependent on if the component's `activeState` matches the current state
-            /*
             if (automated) {
                 if ((activeState & redirector.playerState) != 0) {
                     if (!active) ToggleOn();
                 } 
                 else if (active) ToggleOff();
             }
-            */
-            //active = (activeState & redirector.playerState) != 0);
+            // This handles manual, not automated, input.
+            //bool leftButtonDown = OVRInput.GetDown(OVRInput.Button.Four);
+            //bool rightDownDown = OVRInput.GetDown(OVRInput.Button.Two);
             if (OVRInput.GetDown(toggleButton)) ToggleOn();
             if (OVRInput.GetUp(toggleButton)) ToggleOff();
             if (!active) return 0f;

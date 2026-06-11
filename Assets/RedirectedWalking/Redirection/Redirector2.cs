@@ -33,8 +33,9 @@ namespace RDW {
         public float max_speed_threshold = 1.5f;
         [Tooltip("What should be considered the pivot point of the player during gain calculation?")]
         public PivotOrigin pivotOrigin = PivotOrigin.Head;
-        public float boundary_buffer = 0.5f;
+        [Tooltip("Do we want the redirection direction to change dynamically? Or keep it static?")]
         public bool dynamic_goal_direction = true;
+        [Tooltip("Allows you to define a goal direction of choice, if NOT using dynamic goal direction. If you are using dynamic direction, then this toggle shouldn't change.")]
         public Direction goal_direction = Direction.Left;
 
         [Header("=== Caching and Saving Records ===")]
@@ -111,7 +112,7 @@ namespace RDW {
 
             // Should we toggle passthrough?
             RDW.Instance.TogglePassthrough(gainSettings.usePassthrough);
-            
+
             /*
             // Prep log if needed
             if (write_log) {
@@ -164,7 +165,10 @@ namespace RDW {
                 }
                 if (gainSettings.manualGain.enabled) {
                     current_yaw_delta += gainSettings.manualGain.CalculateGain(this, deltaTime);
-                    if (gainSettings.manualGain.active) activePivot = gainSettings.manualGain.GetLockedPivot();
+                    if (gainSettings.manualGain.active) {
+                        //activePivot = gainSettings.manualGain.GetLockedPivot();
+                        activePivot = Player.Instance.CurrentState.Pivot;
+                    }
                 }
                 Debug.Log("Update: All gain components contributed to gain");
 
@@ -186,19 +190,25 @@ namespace RDW {
         private void CacheCurrent(float deltaTime) {
             // Position is a constant in world space
             current_position = RDW.Instance.headPoseAnchor.position.Flatten();
+
             // Displacement is the vector representing how much the player has moved since the last frame
             current_displacement = current_position - prev_position;
+            
             // The (normalized) direction of the displacement.
             current_move_direction = current_displacement.normalized;
+            
             // NOT A ROTATION. The vector representing the head's current forward direction in world space
             current_head_orientation = Vector3.Normalize(RDW.Instance.headPoseAnchor.forward.Flatten());
+           
             // Head rotation is how much the user's head has rotated since the last frame.
             //  Note that we subtract the amount of yaw rotation induced by RDW from the previous frame.
             current_head_rotation = Vector3.SignedAngle(prev_head_orientation, current_head_orientation, Vector3.up) - prev_yaw_delta;
+            
             // Eye rotation is how much the user's eye has rotated since the last frame
             //  Note that we try to do things locally to the head, which should already account for RDW rotation by proxy
             current_eye_orientation = (RDW.Instance.eyeGaze != null) ? RDW.Instance.headPoseAnchor.InverseTransformDirection(RDW.Instance.eyeGaze.forward) : Vector3.zero;
             current_eye_rotation = Vector3.Angle(prev_eye_orientation, current_eye_orientation);
+            
             // Set the current yaw delta of this frame to 0
             current_yaw_delta = 0f;
 
@@ -241,8 +251,7 @@ namespace RDW {
         // Make sure to call this after calling `CacheCurrent()`
         private void CalculatePlayerState(float deltaTime) {
             // Calculate speed at this frame. Depending on the speed, set the walking vs standing status
-            float speed = current_displacement.magnitude/deltaTime;
-            if (speed < min_speed_threshold) {
+            if (Player.Instance.CurrentState.Translating == Player.TranslationStatus.Stationary) {
                 playerState |= PlayerState.Standing;
                 playerState &= ~PlayerState.Walking;
             } else {
