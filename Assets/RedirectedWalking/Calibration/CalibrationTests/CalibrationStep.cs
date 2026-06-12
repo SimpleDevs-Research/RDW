@@ -27,7 +27,7 @@ namespace RDW {
         // This can be called by any parent MonoBehaviour. We separate this from `Calibrate`
         // because we want the `OnCalibrationStart` and `OnCalibrationEnd` operations to
         // run all the time. So we let people modify `Calibrate` but not `Initialize`.
-        public IEnumerator Initialize() { 
+        public virtual IEnumerator Initialize() { 
             OnCalibrationStart?.Invoke();
             yield return StartCoroutine(Calibrate());
             OnCalibrationEnd?.Invoke();

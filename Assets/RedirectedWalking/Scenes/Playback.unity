@@ -216,7 +216,7 @@ Transform:
   m_GameObject: {fileID: 446357590}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 10, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -271,25 +271,9 @@ MonoBehaviour:
   playSpaceAvatar: {fileID: 8238821182348578134}
   environmentAvatar: {fileID: 1668313045}
   playSpace: {fileID: 446357591}
-  json: {fileID: 4900000, guid: f3a43f6a52c85be48bbed8988c38b67b, type: 3}
-  session:
-    participantID: 
-    sessionTimestamp: 
-    sessionStart: 0
-    sessionEnd: 0
-    duration: 0
-    sceneName: 
-    worldCenter: {x: 0, y: 0, z: 0}
-    playSpaceSize: {x: 0, y: 0}
-    boundaryApproachDist: 0
-    headPoseOffset: 0
-    sessionData: []
-  playing: 0
-  time: 0
-  speed: 1
-  repositionBoundary: 1
+  json: {fileID: 4900000, guid: fa2a5206936bb32419f3bf9b45bdefb9, type: 3}
+  repositionBoundary: 0
   orientEnvironment: 1
-  duration: 0
 --- !u!1001 &980612583
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -298,34 +282,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 446357591}
     m_Modifications:
-    - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
     - target: {fileID: 3263279269124605531, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
@@ -503,13 +459,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1602218145}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.23911765, y: 0.3696438, z: -0.09904577, w: 0.89239913}
+  m_LocalPosition: {x: -5, y: 5, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: 45, z: 0}
 --- !u!81 &1602218147
 AudioListener:
   m_ObjectHideFlags: 0

@@ -18,16 +18,29 @@ namespace RDW {
 
         [Header("=== Data Loaded ===")]
         public TextAsset json = null;
-        public Session session = null;
+        private Session session = null;
         private TextAsset previousJson = null;
 
         [Header("=== Controls ===")]
-        public bool playing = false;
-        public float time = 0f;
-        public float speed = 1f;
+        private bool playing = false;
+        private float time = 0f;
+        private float speed = 1f;
+        private float duration;
         public bool repositionBoundary = false;
         public bool orientEnvironment = false; 
-        public float duration;
+
+        private void OnDrawGizmos() {
+            if (boundary == null) return;
+
+            Vector3 boundaryCenter = boundary.transform.position + new Vector3(
+                0f, 
+                boundary.transform.localScale.y / 2f,
+                0f
+            );
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(boundaryCenter, boundary.transform.localScale);
+        }
 
         private void Awake() {
             Instance = this;
@@ -73,7 +86,7 @@ namespace RDW {
             if (Boundary.Instance != null) {
                 boundary = Boundary.Instance;
                 boundary.SetPlayer(playSpaceAvatar);
-                boundary.transform.localScale = new Vector3(session.playSpaceSize.x, 1f, session.playSpaceSize.y);
+                boundary.transform.localScale = new Vector3(session.playSpaceSize.x, 3f, session.playSpaceSize.y);
                 if (repositionBoundary) playSpace.localPosition = session.worldCenter;
             }
         }
@@ -84,6 +97,7 @@ namespace RDW {
                 environment = Environment.Current;
                 environmentAvatar.parent = environment.envRoot;
                 if (orientEnvironment) environment.transform.position = session.worldCenter;
+                environment.StartEnvironment();
             }
         }
 
@@ -135,6 +149,12 @@ namespace RDW {
             // Adjust the position and rotation of the world and env-relative players
             environmentAvatar.localPosition = Vector3.Lerp(desired_state.playerEnvPosition, next_state.playerEnvPosition, u);
             environmentAvatar.localRotation = Quaternion.Lerp(desired_state.playerEnvRotation, next_state.playerEnvRotation, u);
+
+            // Reorient the environment
+            if (orientEnvironment) {
+                environment.transform.position = Vector3.Lerp(desired_state.envPosition, next_state.envPosition, u);
+                environment.transform.rotation = Quaternion.Lerp(desired_state.envRotation, next_state.envRotation, u);
+            }
         }
 
         public virtual bool TryGetTimestampIndex(float t, out int index) {

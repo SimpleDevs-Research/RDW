@@ -34,6 +34,14 @@ namespace RDW {
         private List<CenterRadiusSample> samples;
         public float estimatedHeadPoseDisplacement = 0f;
         
+        public override IEnumerator Initialize() {
+            estimatedHeadPoseDisplacement = Player.Instance.headPoseOffset;
+            // From the original code
+            OnCalibrationStart?.Invoke();
+            yield return StartCoroutine(Calibrate());
+            OnCalibrationEnd?.Invoke();
+        }
+
         // Overriding the base `Calibrate` for our own head calibration.
         public override IEnumerator Calibrate() { 
             // Set our calibration status to `false`

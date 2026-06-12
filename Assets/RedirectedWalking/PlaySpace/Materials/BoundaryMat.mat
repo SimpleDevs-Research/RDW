@@ -77,12 +77,12 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WarningDistance: 2.2956462
+    - _WarningDistance: 1.1842494
     - _ZWrite: 1
     m_Colors:
     - _AxisMask: {r: 1, g: 0, b: 1, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _PlayerPosition: {r: 0, g: -0.000000059604645, b: -0.099585034, a: 0}
+    - _PlayerPosition: {r: 10.117538, g: -0.2508226, b: 0.021005979, a: 0}
     - _TintColor: {r: 1, g: 0.06041279, b: 0, a: 1}
   m_BuildTextureStacks: []

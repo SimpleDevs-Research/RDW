@@ -37,7 +37,7 @@ namespace RDW {
         [SerializeField, Tooltip("Smooth damp rate for pivot positioning")]
         private float pivotSmoothing = 8f;
         [SerializeField, Tooltip("What's the offset between the eye cam and head pose anchor, in local space?")]
-        private float _headPoseOffset = 0.1f;
+        private float _headPoseOffset = -0.1f;
         public float headPoseOffset => _headPoseOffset;
 
         [Header("=== UI Minimap (Optional) ===")]

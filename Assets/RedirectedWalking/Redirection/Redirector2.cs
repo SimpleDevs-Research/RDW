@@ -292,9 +292,9 @@ namespace RDW {
                 playerWorldForward = forward,
                 playerWorldRotation = rot,
             
-                playerPlaySpacePosition = Boundary.Instance.GetLocalPosition(pos),
-                playerPlaySpaceForward = Boundary.Instance.GetLocalDirection(forward),
-                playerPlaySpaceRotation = Boundary.Instance.GetLocalRotation(rot),
+                playerPlaySpacePosition = Boundary.Instance.GetPlaySpaceLocalPos(pos),
+                playerPlaySpaceForward = Boundary.Instance.GetPlaySpaceLocalDir(forward),
+                playerPlaySpaceRotation = Boundary.Instance.GetPlaySpaceLocalRot(rot),
 
                 playerEnvPosition = Environment.Current.GetLocalPositionInEnv(pos),
                 playerEnvForward = Environment.Current.GetLocalDirectionInEnv(forward),

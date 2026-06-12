@@ -141,6 +141,11 @@ namespace RDW {
         public Quaternion GetLocalRotation(Quaternion worldRotation) {
             return Quaternion.Inverse(collider.transform.rotation) * worldRotation;
         }
+        
+        // This is a another set of getter functions, but this is relative to the play space; i.e. the parent of this boundary
+        public Vector3 GetPlaySpaceLocalPos(Vector3 worldPosition) { return transform.parent.InverseTransformPoint(worldPosition); }
+        public Vector3 GetPlaySpaceLocalDir(Vector3 worldDirection) { return transform.parent.InverseTransformDirection(worldDirection); }
+        public Quaternion GetPlaySpaceLocalRot(Quaternion worldRotation) { return Quaternion.Inverse(transform.parent.rotation) * worldRotation; }
 
         // This is a function to get the closest edge point along the collider.
         // We want to ignore the y-axis, so we only look at the x and z position
