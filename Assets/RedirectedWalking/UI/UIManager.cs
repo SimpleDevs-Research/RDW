@@ -6,10 +6,11 @@ using UnityEngine.UI;
 
 namespace RDW {
     
-    [System.Serializable]
+    [System.Serializable, RequireComponent(typeof(CanvasGroup))]
     public class CanvasGroupRef {
         public string name;
         public CanvasGroup canvas;
+        public bool isActive => canvas.interactable;
         
         public void Toggle() {
             canvas.interactable = !canvas.interactable;
@@ -39,13 +40,19 @@ namespace RDW {
         [Header("=== Canvas Groups ===")]
         public List<CanvasGroupRef> canvasGroups = new List<CanvasGroupRef>();
         private Dictionary<string, CanvasGroupRef> canvasGroupsDict;
+        private CanvasGroupRef self;
 
         // At start, we create a dictionary to make it easier to search/query for specific canvas groups.
         private void Start() {
+            self = new CanvasGroupRef {
+                name = "self",
+                canvas = GetComponent<CanvasGroup>()
+            };
             canvasGroupsDict = new Dictionary<string, CanvasGroupRef>();
             foreach(var group in canvasGroups) {
                 canvasGroupsDict.Add(group.name, group);
             }
+            UpdateSelf();
         }
 
         // Every time we modify this script, we check if there are any duplicate entries 
@@ -64,32 +71,48 @@ namespace RDW {
         // We also contain multiple override versions to account for different situations
 
         public void ToggleGroup(string query, bool interactable, float alpha) {
-            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) group.Toggle(interactable, alpha);
+            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) {
+                group.Toggle(interactable, alpha);
+                UpdateSelf();
+            }
         }
         public void ToggleGroup(string query, bool interactable) {
-            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) group.Toggle(interactable);
+            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) {
+                group.Toggle(interactable);
+                UpdateSelf();
+            }
         }
         public void ToggleGroup(string query, float alpha) {
-            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) group.Toggle(alpha);
+            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) {
+                group.Toggle(alpha);
+                UpdateSelf();
+            }
         }
         public void ToggleGroup(string query) {
-            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) group.Toggle();
+            if (TryGetCanvasGroup(query, out CanvasGroupRef group)) {
+                group.Toggle();
+                UpdateSelf();
+            }
         }
 
         // If we want something more explicitly defined via function call, then we can use these functions
         public void ActivateGroup(string query) {
             ToggleGroup(query, true, 1f);
+            UpdateSelf();
         }
         public void DeactivateGroup(string query) {
             ToggleGroup(query, false, 0f);
+            UpdateSelf();
         }
 
         // These are all-group toggles. Due to this being a niche, we simply activate or deactivate
         public void ActivateAllGroups() {
             foreach(var group in canvasGroups) group.Toggle(true, 1f);
+            self.Toggle(true, 1f);
         }
         public void DeactivateAllGroups() {
             foreach(var group in canvasGroups) group.Toggle(false, 0f);
+            self.Toggle(false, 0f);
         }
 
         // Helper: Does a query string canvas name actually exist in memory?
@@ -101,6 +124,15 @@ namespace RDW {
             }
             group = canvasGroupsDict[query];
             return true;
+        }
+
+        private void UpdateSelf() {
+            bool active = false;
+            foreach(var group in canvasGroups) {
+                active = active || group.isActive;
+            }
+            float alpha = active ? 1f : 0f;
+            self.Toggle(active, alpha);
         }
     }
 }

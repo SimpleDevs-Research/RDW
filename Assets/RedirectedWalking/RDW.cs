@@ -38,6 +38,7 @@ namespace RDW {
         public Vector3 maxSpaceBound = new Vector3(5f, 0f, 5f);
         public float spaceWidth = 10f;
         public float spaceDepth = 10f;
+        public Vector2 spaceSize => new Vector2(spaceWidth, spaceDepth);
         public float minEdgeDistance = 0f;
         public GainSettings settings;
 
