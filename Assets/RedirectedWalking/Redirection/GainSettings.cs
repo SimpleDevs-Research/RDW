@@ -22,8 +22,5 @@ namespace RDW {
 
         [Header("=== Manual Gain ===")]
         public ManualGain2 manualGain;
-
-        [Header("=== Gain Settings by State ===")]
-        public List<GainComponent2> defaultStateComponents;
     }
 }

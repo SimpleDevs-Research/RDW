@@ -49,6 +49,11 @@ namespace RDW {
         private BoundaryInfo _playerInfo;
         public BoundaryInfo playerInfo => _playerInfo;
 
+        // Getters
+        public Vector2 size => new Vector2(transform.localScale.x, transform.localScale.z);
+        public float distance => _playerInfo.Distance;
+        public string boundaryStatusStr => status.ToString();
+
         private void Awake() {
             Instance = this;
 
@@ -69,7 +74,7 @@ namespace RDW {
             
             // Can't do anything if there's no player reference
             if (player == null) {
-                status = BoundaryStatus.Off;
+                _playerInfo.Status = BoundaryStatus.Off;
                 return;
             }
             
@@ -107,25 +112,34 @@ namespace RDW {
         public void SetPlayer(Transform t) {
             player = t;
         }
-        public void SetApproachDistance(float distance) {
-            _approachingDistance = distance;
-            boundaryMaterial.SetFloat(WarningDistanceID, distance*2f);
+        public void SetApproachDistance(float d) {
+            _approachingDistance = d;
+            boundaryMaterial.SetFloat(WarningDistanceID, d*2f);
         }
-        public void SetWarningDistance(float distance) {
-            _warningDistance = distance;
+        public void SetWarningDistance(float d) {
+            _warningDistance = d;
         }
 
         // This is a redundant function if the collider's bounds match exactly the scale of the parent transform.
         // However, if the collider is offset, resized, or repositioned in any way, then we need to account for that.
         // However, it should be emphasized that the bounding box should be automatically defaulted to match
         // the local scale of the parent transform. This is still here as a reminder.
-        private Vector3 GetLocalPosition(Vector3 worldPosition) {
+        public Vector3 GetLocalPosition(Vector3 worldPosition) {
             Vector3 localPos = collider.transform.InverseTransformPoint(worldPosition);
             return localPos - collider.center;
         }
         public Vector3 GetWorldPosition(Vector3 localPosition) {
             Vector3 localPos = localPosition + collider.center;
             return collider.transform.TransformPoint(localPos);
+        }
+
+        // Other helpful public getters
+        public Vector3 GetLocalDirection(Vector3 worldDirection) {
+            // This returns a normalized direction. Doesn't return actual lengthed vectors
+            return collider.transform.InverseTransformDirection(worldDirection);
+        }
+        public Quaternion GetLocalRotation(Quaternion worldRotation) {
+            return Quaternion.Inverse(collider.transform.rotation) * worldRotation;
         }
 
         // This is a function to get the closest edge point along the collider.
@@ -171,7 +185,7 @@ namespace RDW {
         public float GetDistanceToBoundary(Vector3 worldPosition, out Vector3 closestPoint) {
             // Calculate the closest edge point and distance
             closestPoint = GetClosestBoundaryPoint(worldPosition, out Vector3 localPosition);
-            float distance = Vector3.Distance(worldPosition, closestPoint);
+            float d = Vector3.Distance(worldPosition, closestPoint);
 
             // Calculate the sign from local positioning
             Vector3 halfSize = collider.size * 0.5f;
@@ -180,7 +194,7 @@ namespace RDW {
                 && Mathf.Abs(localPosition.z) <= halfSize.z;
 
             // return the distance based on `inside`
-            return inside ? distance : -distance;
+            return inside ? d : -d;
         }
         public float GetDistanceToBoundary(Vector3 worldPosition) {
             return GetDistanceToBoundary(worldPosition, out Vector3 _);

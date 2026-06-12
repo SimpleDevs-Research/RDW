@@ -49,6 +49,7 @@ namespace RDW {
             base.ToggleOff();
         }
 
+        /*
         private void DeterminePivot(Redirector2 redirector) {
             // Pivot is dependent on two factors:
             // 1. Are we stationary or moving? If stationary, then we use the user's head as the pivot. If not, then we use one of the hands.
@@ -58,9 +59,9 @@ namespace RDW {
             if (redirector.playerState == Redirector2.PlayerState.Standing) {
                 // not moving, we can default to using the head as the pivot. This is non-conditional.
                 locked_pivot = RDW.Instance.headPoseAnchor.position;
-            }
-            
+            }   
         }
+        */
 
         public override float CalculateGain(Redirector2 redirector, float deltaTime) {
             // Active state is dependent on if the component's `activeState` matches the current state
@@ -75,22 +76,26 @@ namespace RDW {
             //bool rightDownDown = OVRInput.GetDown(OVRInput.Button.Two);
             if (OVRInput.GetDown(toggleButton)) ToggleOn();
             if (OVRInput.GetUp(toggleButton)) ToggleOff();
-            if (!active) return 0f;
-
+            if (!active) {
+                _contribution = 0f;
+                return _contribution;
+            }
             // Calculate change in rotation
             Quaternion cur_rotation = RDW.Instance.headPoseAnchor.rotation;
             Quaternion delta_rotation = cur_rotation * Quaternion.Inverse(last_rotation);
             delta_rotation.ToAngleAxis(out float angle, out Vector3 axis);
             // Guarantee that the rotation is around Y
-            float yaw_delta = Vector3.Dot(axis, Vector3.up) * angle;
+            _contribution = Vector3.Dot(axis, Vector3.up) * angle;
             // Record the last rotation for the next frame update
             last_rotation = cur_rotation; 
             // return the yaw delta
-            return yaw_delta;
+            return _contribution;
         }
 
+        /*
         public Vector3 GetLockedPivot() {
             return locked_pivot;
         }
+        */
     }
 }

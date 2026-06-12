@@ -32,8 +32,8 @@ namespace RDW {
             // Active state is dependent on if the component's `activeState` matches the current state
             active = (activeState & redirector.playerState) != 0;
             if (!active) {
-                Debug.LogWarning("Rotation Gain is turned off");
-                return 0f;
+                _contribution = 0f;
+                return _contribution;
             }
 
              // What's the difference in angle between the previous head orientation and the current head orientation, relative to the horizon?
@@ -45,15 +45,19 @@ namespace RDW {
             // What's the velocity of the head rotation?
             // We only contribute if the velocity matches a threshold
             float angleVel = angleMagnitude/deltaTime;
-            if (angleVel < rotationMinThreshold) return 0f;
+            if (angleVel < rotationMinThreshold) {
+                _contribution = 0f;
+                return _contribution;
+            }
 
             // Based on `angleRotation` (+ = rightward, - = leftward), calculate the rotational gain
             float redirectionSign = Mathf.Sign(redirector.direction_factor);
             // In the case of the direction of the redirection being the same as the head rotation, then the angle influence is RotationGainSame.
             // However, in the case where the direction of redirection is NOT the same as the head rotation, then the angle influence is RotationGainOpposite
-            return (redirectionSign == angleRotSign) 
+            _contribution = (redirectionSign == angleRotSign) 
                 ? angleRotation * rotationGainSame * redirector.speed_factor
                 : angleRotation * rotationGainOpposite * redirector.speed_factor;
+            return _contribution;
         }
     }
 }

@@ -113,20 +113,29 @@ namespace RDW {
             // Should we toggle passthrough?
             RDW.Instance.TogglePassthrough(gainSettings.usePassthrough);
 
-            /*
             // Prep log if needed
             if (write_log) {
+                // We need to update `json_writer` by setting the file and dir name
+                string dt = Helpers.SaveSystemMethods.GetCurrentDateTime();
+                json_writer.fileName = gainSettings.sceneName + "_" + dt;
+                json_writer.dirName = RDW.Instance.id;
+                // We initialize the writer to prep it
                 json_writer.Initialize();
-                log_session = new Session();
-                log_session.session_timestamp = Helpers.SaveSystemMethods.GetCurrentDateTime();
-                log_session.world_center_position = RDW.Instance.worldCenter;
-                log_session.min_anchor_position = RDW.Instance.minSpaceBound;
-                log_session.max_anchor_position = RDW.Instance.maxSpaceBound;
-                log_session.gain_modules = gain_modules;
-                log_session.state_data = new List<State>();
+                // `log_session` holds our session data
+                log_session = new Session {
+                    participantID = RDW.Instance.id,    // Participant's unique ID
+                    sessionTimestamp = dt,              // Datetime when the session was conducted
+                    sessionStart = Time.time,           // The time since the beginning of the game when the session starts
+                    sessionEnd = Time.time,             // The time since the beginning of the game when the session ends
+                    duration = 0f,                      // How long the session took to complete - WE'LL FILL THIS LATER
+                    sceneName = gainSettings.sceneName, // The name of the scene that was loaded
+                    worldCenter = RDW.Instance.worldCenter, // The world location of the play space, derived from Boundary
+                    playSpaceSize = Boundary.Instance.size, // The XZ plane scale of the play space, derived from Boundary
+                    boundaryApproachDist = Boundary.Instance.approachingDistance, // The distance the user was comfortable approaching the Boundary edge
+                    headPoseOffset = Player.Instance.headPoseOffset,    // The local space offset of the detected head pose
+                };
             }
             Debug.Log("JSON Log initialization Finished!");
-            */
 
             // Set this to be enabled
             this.enabled = true;
@@ -138,6 +147,7 @@ namespace RDW {
             if (gainSettings.rotationGain.enabled)  gainSettings.rotationGain.Disable();
             if (gainSettings.saccadeGain.enabled)   gainSettings.saccadeGain.Disable();
             if (gainSettings.manualGain.enabled)    gainSettings.manualGain.Disable();
+            SaveData();
         }
 
         public void Update() {
@@ -184,7 +194,7 @@ namespace RDW {
             Debug.Log("Update: Previous cached");
 
             // If logging, save
-            if (write_log && json_writer.is_active) AddLogState(deltaTime);
+            if (write_log && json_writer.is_active) AddLogState(deltaTime, activePivot);
         }
 
         private void CacheCurrent(float deltaTime) {
@@ -267,16 +277,59 @@ namespace RDW {
             }
         }
 
-        private void AddLogState(float deltaTime) {
-            State s = new State();
-            s.frame = Time.frameCount;
-            s.timestamp = Time.time;
-            s.delta_time = deltaTime;
-            s.world_position = RDW.Instance.headPoseAnchor.position;
-            s.world_rotation = RDW.Instance.headPoseAnchor.rotation;
-            s.env_position = environmentParent.InverseTransformPoint(s.world_position);
-            s.env_rotation = Quaternion.Inverse(environmentParent.rotation) * s.world_rotation;
-            log_session.state_data.Add(s);
+        private void AddLogState(float dt, Vector3 activePivot) {
+            // Pre-cache data
+            Vector3 pos = RDW.Instance.headPoseAnchor.position;
+            Vector3 forward = RDW.Instance.headPoseAnchor.forward;
+            Quaternion rot = RDW.Instance.headPoseAnchor.rotation;
+            // New struct
+            State s = new State {
+                frame = Time.frameCount,
+                timestamp = Time.time - log_session.sessionStart,
+                deltaTime = dt,
+
+                playerWorldPosition = pos,
+                playerWorldForward = forward,
+                playerWorldRotation = rot,
+            
+                playerPlaySpacePosition = Boundary.Instance.GetLocalPosition(pos),
+                playerPlaySpaceForward = Boundary.Instance.GetLocalDirection(forward),
+                playerPlaySpaceRotation = Boundary.Instance.GetLocalRotation(rot),
+
+                playerEnvPosition = Environment.Current.GetLocalPositionInEnv(pos),
+                playerEnvForward = Environment.Current.GetLocalDirectionInEnv(forward),
+                playerEnvRotation = Environment.Current.GetLocalRotationInEnv(rot),
+
+                envPosition = Environment.Current.envPosition,
+                envRotation = Environment.Current.envRotation,
+
+                curvatureActive = gainSettings.curvatureGain.active,
+                curvatureContribution = gainSettings.curvatureGain.contribution,
+                rotationActive = gainSettings.rotationGain.active,
+                rotationContribution = gainSettings.rotationGain.contribution,
+                saccadeActive = gainSettings.saccadeGain.active,
+                saccadeContribution = gainSettings.saccadeGain.contribution,
+                manualActive = gainSettings.manualGain.active,
+                manualContribution = gainSettings.manualGain.contribution,
+                
+                finalContribution = current_yaw_delta,
+                pivot = activePivot,
+                playerBoundaryState = Boundary.Instance.boundaryStatusStr,
+                playerTranslating = Player.Instance.CurrentState.Translating.ToString(),
+                playerTurning = Player.Instance.CurrentState.Turning.ToString()
+            };
+            // Adding to log session
+            log_session.sessionData.Add(s);
+        }
+
+        private void SaveData() {
+            if (write_log && json_writer.is_active) {
+                log_session.sessionEnd = Time.time;
+                log_session.duration = log_session.sessionEnd - log_session.sessionStart;
+                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
+                    json_writer.Disable();
+                }
+            }
         }
 
         public void TogglePivotOrigin() {
@@ -284,35 +337,19 @@ namespace RDW {
         }
 
         private void OnApplicationPause(bool pauseStatus) {
-            if (pauseStatus && write_log && json_writer.is_active) {
-                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
-                    json_writer.Disable();
-                }
-            }
+            SaveData();
         }
 
         private void OnApplicationQuit() {
-            if (write_log && json_writer.is_active) {
-                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
-                    json_writer.Disable();
-                }
-            }
+            SaveData();
         }
 
         private void OnDisable() {
-            if (write_log && json_writer.is_active) {
-                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
-                    json_writer.Disable();
-                }
-            }
+            SaveData();
         }
 
         private void OnDestroy() {
-            if (write_log && json_writer.is_active) {
-                if (json_writer.SaveJSON(JSONWriter.ConvertToJSON<Session>(log_session))) {
-                    json_writer.Disable();
-                }
-            }
+            SaveData();
         }
         
     }

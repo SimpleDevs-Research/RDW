@@ -5,6 +5,8 @@ using UnityEngine;
 namespace RDW {
     public class Environment : MonoBehaviour
     {
+        public static Environment Current;
+
         public enum BoundaryAnchor
         {
             Center,
@@ -42,6 +44,9 @@ namespace RDW {
         [SerializeField] private Vector3 worldOffset;
         [SerializeField] private Vector3 worldStartPosition;
 
+        public Vector3 envPosition => envRoot.position;
+        public Quaternion envRotation => envRoot.rotation;
+
         private void OnDrawGizmos() {
             Gizmos.color = Color.white;
             Gizmos.DrawWireCube(transform.position, new Vector3(1f,0f,1f) * startScale);
@@ -53,9 +58,14 @@ namespace RDW {
 
         // When the world starts, we determine the placement of this object in relation to the start point
         private void OnEnable() {
+            // To make it easier, let's set THIS environment as the static environment
+            Current = this;
+
             // We need to calcualte the actual start point. 
             // Because the boundary is dynamic, for now we place ourselves at world center
-            transform.position = RDW.Instance.worldCenter;
+            transform.position = (RDW.Instance != null)
+                ? RDW.Instance.worldCenter 
+                : Vector3.zero;
 
             // We need to determine the start point. This is based on the Boundary defined by the user.
             // For now, we need two things:
@@ -94,7 +104,8 @@ namespace RDW {
         }
 
         private void OnDisable() {
-            if (Redirector2.Instance.environmentParent == this.transform) {
+            Current = null;
+            if (Redirector2.Instance != null && Redirector2.Instance.environmentParent == this.transform) {
                 Redirector2.Instance.environmentParent = null;
             }
         }
@@ -102,80 +113,28 @@ namespace RDW {
         public void StartEnvironment() {
             // Initialize the environment
             envRoot.gameObject.SetActive(true);
-            Redirector2.Instance.environmentParent = this.transform;
-            // Initialize redirection
-            Redirector2.Instance.Activate();
+            if (Redirector2.Instance != null) {
+                Redirector2.Instance.environmentParent = this.transform;
+                // Initialize redirection
+                Redirector2.Instance.Activate();
+            }
         }
 
         // This is a special function event handler that can be called if the scene needs to be unloaded from within the scene.
         public void EnvironmentComplete() {
-            RDW.Instance.UnloadEnvironment();
+            if (RDW.Instance != null) RDW.Instance.UnloadEnvironment();
         }
 
-
-
-
-        /*
-
-        [SerializeField]
-        private BoundaryPosition playerStart;
-        [SerializeField] private Transform environmentRoot;
-        [SerializeField] private Transform environmentStart;
-
-        // public Vector3 worldCenterOffset = Vector3.zero;
-        // private void OnDrawGizmosSelected() {
-        //     Gizmos.color = Color.yellow;
-        //     Gizmos.DrawLine(Vector3.zero, worldCenterOffset);
-        //     Gizmos.DrawSphere(worldCenterOffset, 0.05f);
-        // }
-
-        // If enabled, then we must tell `redirector` that this is our current environment
-        private void OnEnable() {
-            Vector3 targetStartPosition = ResolveStartPosition(playerStart);
-            environmentRoot.position += targetStartPosition - environmentStart.position;
-            
-            // if (Redirector2.Instance != null) {
-            //     Redirector2.Instance.environmentParent = this.transform;
-            // }
-            // if (RDW.Instance != null) {
-            //     transform.position = RDW.Instance.worldCenter - worldCenterOffset;
-            // }
+        // Helper functions: Given a world position, direction, or rotation, return their local variants relative to `envRoot`.
+        public Vector3 GetLocalPositionInEnv(Vector3 worldPosition) {
+            return envRoot.InverseTransformPoint(worldPosition);
         }
-
-        // If disabled (e.g. when additive scene is unloaded), try to unset this transform as the environment parent in Redirector
-        private void OnDisable() {
-            //
-            //if (Redirector2.Instance != null && Redirector2.Instance.environmentParent == this.transform) {
-            //    Redirector2.Instance.environmentParent = null;
-            //}
+        public Vector3 GetLocalDirectionInEnv(Vector3 worldDirection) {
+            return envRoot.InverseTransformPoint(worldDirection);
         }
-
-        public void StartRedirection() {
-
+        public Quaternion GetLocalRotationInEnv(Quaternion worldRotation) {
+            return Quaternion.Inverse(envRoot.rotation) * worldRotation;
         }
-
-        // This is a special function event handler that can be called if the scene needs to be unloaded from within the scene.
-        public void EnvironmentComplete() {
-            RDW.Instance.UnloadEnvironment();
-        }
-
-        private Vector3 ResolveStartPosition(BoundaryPosition p) { 
-            Vector3 center = RDW.Instance.worldCenter;
-            Vector2 size = RDW.Instance.spaceSize;
-            Vector3 local =
-                new Vector3(
-                    (p.anchor.x - 0.5f) * size.x,
-                    0f,
-                    (p.anchor.y - 0.5f) * size.y
-                );
-            local += new Vector3(
-                p.offset.x,
-                0f,
-                p.offset.y
-            );
-            return center + local;
-        }
-        */
 
         // =====================================================================
         // Returns an anchor position relative to SW corner, from (-0.5,-0.5) to (0.5,0.5).

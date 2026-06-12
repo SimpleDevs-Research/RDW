@@ -23,10 +23,15 @@ namespace RDW {
         public override float CalculateGain(Redirector2 redirector, float deltaTime) {
             // Active state is dependent on if the component's `activeState` matches the current state
             active = (activeState & redirector.playerState) != 0;
-            if (!active) return 0f;
+            if (!active) {
+                _contribution = 0f;
+                return _contribution;
+            }
 
-            if (redirector.current_eye_rotation <= saccadeThreshold * Time.deltaTime) return 0f;
-            return saccadeGain * deltaTime * redirector.direction_factor * redirector.speed_factor;
+            _contribution = (redirector.current_eye_rotation <= saccadeThreshold * Time.deltaTime) 
+                ? 0f 
+                : saccadeGain * deltaTime * redirector.direction_factor * redirector.speed_factor;
+            return _contribution;
         }
     }
 }

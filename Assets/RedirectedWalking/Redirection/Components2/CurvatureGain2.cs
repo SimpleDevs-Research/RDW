@@ -47,14 +47,16 @@ namespace RDW {
             active = (activeState & redirector.playerState) != 0;
             if (!active) {
                 Debug.LogWarning("Curvature gain is inactive");
-                return 0f;
+                _contribution = 0f;
+                return _contribution;
             }
             // What's the dot product between the current move direction and the current forward?
             // Because if we're moving sideways, I think the illusion may break...
             float forward_weight = (weight_by_direction) 
                 ? Mathf.Clamp(Vector3.Dot(redirector.current_move_direction, redirector.current_head_orientation), 0f, 1f)
                 : 1f;
-            return curvature_rate * redirector.current_displacement.magnitude * forward_weight * redirector.direction_factor * redirector.speed_factor;
+            _contribution = curvature_rate * redirector.current_displacement.magnitude * forward_weight * redirector.direction_factor * redirector.speed_factor;
+            return _contribution;
         }
     }
 }

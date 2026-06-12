@@ -12,6 +12,9 @@ namespace RDW {
         [SerializeField] private bool _active = true;
         [Tooltip("This is a layer mask of sorts; it lets you dictate when this component is active")]
         public Redirector2.PlayerState activeState;
+        [Tooltip("This is how much the gain contribution actually contributed this frame")]
+        [SerializeField] protected float _contribution = 0f;
+        public float contribution => _contribution;
         
         // If external code NEEDS to access these functions, then we can call their public versions. Except:
         // 1. For `enabled`, we enforce that the code doesn't modify this. So we simply set a getter

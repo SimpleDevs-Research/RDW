@@ -97,10 +97,11 @@ namespace RDW {
             Debug.Log("Gain Module Initialization Finished!");
 
             // Prep log if needed
+            /*
             if (write_log) {
                 json_writer.Initialize();
                 log_session = new Session();
-                log_session.session_timestamp = Helpers.SaveSystemMethods.GetCurrentDateTime();
+                log_session.start_timestamp = Helpers.SaveSystemMethods.GetCurrentDateTime();
                 log_session.world_center_position = RDW.Instance.worldCenter;
                 log_session.min_anchor_position = RDW.Instance.minSpaceBound;
                 log_session.max_anchor_position = RDW.Instance.maxSpaceBound;
@@ -108,6 +109,7 @@ namespace RDW {
                 log_session.state_data = new List<State>();
             }
             Debug.Log("JSON Log initialization Finished!");
+            */
         }
 
         private bool LoadReferencesFromRDW() {
@@ -194,7 +196,9 @@ namespace RDW {
             Debug.Log("Update: Previous cached");
 
             // If logging, save
+            /*
             if (write_log && json_writer.is_active) AddLogState(deltaTime);
+            */
         }
 
         private void CacheCurrent(float deltaTime) {
@@ -251,6 +255,7 @@ namespace RDW {
             prev_eye_orientation = current_eye_orientation;
             prev_yaw_delta = current_yaw_delta;
         }
+        /*
         private void AddLogState(float deltaTime) {
             State s = new State();
             s.frame = Time.frameCount;
@@ -262,6 +267,7 @@ namespace RDW {
             s.env_rotation = Quaternion.Inverse(environment_ref.rotation) * s.world_rotation;
             log_session.state_data.Add(s);
         }
+        */
 
         public void ToggleGainComponents() {
             foreach(GainComponent gc in gain_components) gc.Toggle();

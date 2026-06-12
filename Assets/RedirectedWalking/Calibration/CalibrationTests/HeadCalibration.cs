@@ -63,7 +63,7 @@ namespace RDW {
             }
 
             // Update the head pose anchor
-            RDW.Instance.headPoseAnchor.localPosition = new Vector3(0f, 0f, estimatedHeadPoseDisplacement);
+            Player.Instance.UpdateHeadPoseOffset(estimatedHeadPoseDisplacement);
         }
 
         // Overriding the base `SetCalibrated` to account for sampling. We don't want to cancel out if we're sampling
