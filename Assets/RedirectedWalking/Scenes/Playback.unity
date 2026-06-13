@@ -271,9 +271,9 @@ MonoBehaviour:
   playSpaceAvatar: {fileID: 8238821182348578134}
   environmentAvatar: {fileID: 1668313045}
   playSpace: {fileID: 446357591}
-  json: {fileID: 4900000, guid: fa2a5206936bb32419f3bf9b45bdefb9, type: 3}
+  json: {fileID: 4900000, guid: eabecc62ebb1b76418941a68a7c55698, type: 3}
   repositionBoundary: 0
-  orientEnvironment: 1
+  orientEnvironment: 0
 --- !u!1001 &980612583
 PrefabInstance:
   m_ObjectHideFlags: 0
