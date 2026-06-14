@@ -36,8 +36,8 @@ namespace RDW {
 
         private void OnEnable() {
             // Modify RDW to prevent interference
-            RDW.Instance.ResetSpace();
-            floor.localScale = new Vector3(10f, 10f, 1f);
+            //RDW.Instance.ResetSpace();
+            //floor.localScale = new Vector3(10f, 10f, 1f);
 
             // Have the floor and min/max space anchors match the world positions of the play space, at least initially
             AlignWithPlaySpace();
