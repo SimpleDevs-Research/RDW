@@ -582,6 +582,16 @@ namespace RVO {
             return new Vector3(v[0], y, v[1]);
         }
 
+        public static Vector3 Abs(this Vector3 source) {
+            return new Vector3(Mathf.Abs(source.x), Mathf.Abs(source.y), Mathf.Abs(source.z));
+        }
+        public static float3 ToFloat3(this Vector3 source) {
+            return (float3)new(source.x, source.y, source.z);
+        }
+        public static float2 ToFloat2(this Vector3 source) {
+            return (float2)new(source.x, source.z);
+        }
+
     }
 
 

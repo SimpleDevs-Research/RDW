@@ -6,9 +6,8 @@ public class CapsulePrism : MonoBehaviour
 {
     public enum MeshOrigin { Center, Floor }
 
-    [Header("=== Capsule Prism ===")]
-    [SerializeField, TextArea(4, 1250)]
-        private string description = 
+    [HideInInspector] 
+    public string Description = 
             "This is a custom mesh that creates a rectangular prism; the edges connecting the top and bottom faces are beveled. "
             + "This mesh is dynamically sized and will be auto-rebuilt whenever you change one of the following:\n"
             + "\n- Changing the transform's local scale,"
@@ -19,7 +18,8 @@ public class CapsulePrism : MonoBehaviour
             + "\n- Whether the mesh's origin is at the bottom or center."
             + "\n\nDon't mess with the `convex` parameter of the attached Mesh Collider; this script will modify that parameter automatically.";
 
-    [Space]
+
+    [Header("=== Capsule Prism ===")]
     [Min(0f), Tooltip("The radius of the corner bevel, in world-scale meters. If set to 0, the mesh becomes a normal cube; if set to the maximum allowed radius, it becomes a cylinder. Dynamically changeable during runtime.")]
     public float cornerRadius = 0.5f;
     private float prevCornerRadius;
@@ -47,7 +47,6 @@ public class CapsulePrism : MonoBehaviour
     // Private values; nobody else needs to gain access to this.
     private List<Vector3> profile;
     private float maxRayDistance;
-    private bool isAwake = false;
 
     // ==============================
     // AWAKE: initial... initialization
@@ -59,8 +58,6 @@ public class CapsulePrism : MonoBehaviour
         mc = GetComponent<MeshCollider>();
         // Generate the mesh first
         Generate();
-        // Indicate that we're awake
-        isAwake = true;
     }
 
     // ==============================

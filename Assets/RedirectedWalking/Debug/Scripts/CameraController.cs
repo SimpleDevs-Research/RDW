@@ -56,8 +56,8 @@ namespace RDW
         // - Looking Mode
         private bool looking = false;
         // - Agent mode
-        private Transform mountedRoot = null;   // The Agent transform
-        private Transform mountedRef = null;    // The camera mount transform
+        //private Transform mountedRoot = null;   // The Agent transform
+        //private Transform mountedRef = null;    // The camera mount transform
         private Quaternion localLookRotation = Quaternion.identity;
         // - Restore state
         private Vector3 savedPosition;

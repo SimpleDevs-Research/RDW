@@ -27,7 +27,7 @@ namespace RDW {
                 Boundary.Instance.onEdge.AddListener(this.ToggleOn);
             }
         }
-        public void Disable() {
+        public override void Disable() {
             base.Disable();
             if (automated && Boundary.Instance != null) {
                 Boundary.Instance.onWithin.RemoveListener(this.ToggleOff);
