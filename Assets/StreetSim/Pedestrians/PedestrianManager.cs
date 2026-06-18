@@ -28,6 +28,8 @@ namespace StreetSim {
         public int numPedestrians = 10;
         [SerializeField, Tooltip("The transform where the spawned agents will be children of")] 
         private Transform _agentParent;
+        [SerializeField, Tooltip("The transform that acts as the environment parent root")]
+        private Transform _environmentParent;
         [SerializeField, Tooltip("Which demographic preset should we use for determining what kinds of pedestrians are spawned?")] 
         private DemographicsPreset _demographicsPreset;
         [SerializeField, Tooltip("Where will agents be spawned upon initialization in the world? Deactivated agents will reside here")]
@@ -70,6 +72,7 @@ namespace StreetSim {
         public int numActivePedestrians => _activePedestrians.Count;
         public List<Pedestrian> allPedestrians => _allPedestrians;
         public int totalSpawned => _totalSpawned;
+        public Transform environmentParent => _environmentParent;
     
 
         // =============================================
@@ -80,8 +83,9 @@ namespace StreetSim {
             if (_agentParent == null) {             // Set our agent parent GameObject if not set yet. 
                 _agentParent = this.transform;
             }
+            if (_environmentParent == null)
             if (_inactivePosRef != null) {          // Set the inactive spawn position to the ref's position, if set
-                _inactivePos = _inactivePosRef.position;
+                _inactivePos = _inactivePosRef.localPosition;
             }
         }
         
@@ -164,6 +168,7 @@ namespace StreetSim {
                 RouteNode endNode = m_endNodes[endIndex];
 
                 // The start and end position of the Pedestrian itself are random points in the start and end nodes
+                // Note tht these are in world positions
                 Vector3 startPos = startNode.GetRandomHorizontalPosition();
                 Vector3 endPos = endNode.GetRandomHorizontalPosition();
 
@@ -208,7 +213,7 @@ namespace StreetSim {
 
             // Deactivate the pedestrian and move it to the inactive location
             p.gameObject.SetActive(false);
-            p.transform.position = _inactivePos;
+            p.transform.localPosition = _inactivePos;
 
             // Migrate from active to inactive
             _activePedestrians.Remove(p);

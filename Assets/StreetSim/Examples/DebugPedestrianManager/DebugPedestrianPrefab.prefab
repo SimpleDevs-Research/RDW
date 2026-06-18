@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2113277290513858781}
   - component: {fileID: 141899892157587144}
+  - component: {fileID: 943214085159631683}
   - component: {fileID: 2192233768257607100}
-  - component: {fileID: 985466456875079078}
   - component: {fileID: 9009916013653289048}
   - component: {fileID: 6929223516615478194}
   m_Layer: 0
@@ -90,116 +90,7 @@ MonoBehaviour:
   _routeStart: {x: 0, y: 0, z: 0}
   _routeEnd: {x: 0, y: 0, z: 0}
   _currentDestination: {x: 0, y: 0, z: 0}
---- !u!114 &2192233768257607100
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1216810585119567104}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 641f3c4c12d6a7f4d900c50771817a0f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  optimalVelocity: {x: 0, y: 0, z: 0}
-  currentVelocity: {x: 0, y: 0, z: 0}
-  targetRotation: {x: 0, y: 0, z: 0, w: 0}
-  rotateDegrees: 0
-  m_maxAngularAcceleration:
-    value: 90
-    randomize: 0
-    limits: {x: 0, y: 0}
-  m_angularAccelerationCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -0.09941037
-      outSlope: -0.09941037
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.49822065
-      value: 0.9504717
-      inSlope: 0.009757824
-      outSlope: 0.009757824
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.90340596
-      value: 0.9986588
-      inSlope: 0.037971277
-      outSlope: 0.037971277
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.81578994
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0.013885161
-      outSlope: 0.013885161
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_maxAngularSpeed:
-    value: 160
-    randomize: 0
-    limits: {x: 0, y: 0}
-  m_AngularSpeedCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -1.9511312
-      outSlope: -1.9511312
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 0.5088968
-      value: 0.0070755053
-      inSlope: 0.035346687
-      outSlope: 0.035346687
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 2.0218246
-      outSlope: 2.0218246
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  m_angularSpeed: 0
-  m_maxPossibleSpeed: 5
-  m_maxAngularSpeedStanding:
-    value: 90
-    randomize: 0
-    limits: {x: 0, y: 0}
-  m_translateAcceleration:
-    value: 2
-    randomize: 0
-    limits: {x: 0, y: 0}
---- !u!114 &985466456875079078
+--- !u!114 &943214085159631683
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -261,8 +152,8 @@ MonoBehaviour:
     randomize: 1
     limits: {x: 0.25, y: 0.75}
   m_viewRadius: 5
-  m_rvoLayer: 1
-  m_rvoMask: -1
+  m_rvoLayer: 0
+  m_rvoMask: 0
   m_drawPath: 0
   m_drawSuitableDirections: 0
   m_scaleViewedPedestrians: 0
@@ -271,6 +162,101 @@ MonoBehaviour:
   m_dirPenaltiesSanple: []
   m_showNeighbors: 0
   m_gizmos_result_transforms: []
+--- !u!114 &2192233768257607100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216810585119567104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 641f3c4c12d6a7f4d900c50771817a0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  optimalVelocity: {x: 0, y: 0, z: 0}
+  targetRotation: {x: 0, y: 0, z: 0, w: 0}
+  currentVelocity: {x: 0, y: 0, z: 0}
+  rotateDegrees: 0
+  _maxAngularSpeed:
+    value: 160
+    randomize: 0
+    limits: {x: 0, y: 0}
+  _angularSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.5
+      value: 0
+      inSlope: -0.009607264
+      outSlope: -0.009607264
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.2065445
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _maxAngularAcceleration:
+    value: 90
+    randomize: 0
+    limits: {x: 0, y: 0}
+  _angularAccelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.5
+      value: 0
+      inSlope: -0.009607264
+      outSlope: -0.009607264
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.2065445
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_translateAcceleration:
+    value: 2
+    randomize: 0
+    limits: {x: 0, y: 0}
+  _currentAngularSpeed: 0
 --- !u!54 &9009916013653289048
 Rigidbody:
   m_ObjectHideFlags: 0

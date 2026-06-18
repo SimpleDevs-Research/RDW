@@ -29,7 +29,6 @@ namespace RVO {
 
         [Header("=== References, Environment Setup ===")]
         [Tooltip("The Transform parent of all agents")]         public Transform agent_parent;
-        [Tooltip("The agent prefab that should be spawned")]    public GameObject agent_prefab;
         [Tooltip("The main camera (Optional)")]                 public Camera scene_cam;
         [Tooltip("The floor transform (Optional)")]             public Transform floor;
         [Space]
@@ -187,7 +186,7 @@ namespace RVO {
             Personality p = demographics.GetRandomPersonality();
 
             // Step 2: Instantiate the agent itself
-            GameObject go = Instantiate(agent_prefab, pos, Quaternion.LookRotation(forward));
+            GameObject go = Instantiate(p.agent_prefab, pos, Quaternion.LookRotation(forward));
             Transform t = go.transform;
             t.parent = agent_parent;
 
@@ -294,6 +293,7 @@ namespace RVO {
                 destination_buffer = destination_buffer,
                 positions = vo_op.positions,
                 velocities = vo_op.velocities,
+                max_rotation_speeds = vo_op.max_rotation_speeds,
                 reached_destination = vo_op.reached_destination
             };
             velocityJobHandle = movement_job.Schedule(vo_op.transforms);
@@ -388,6 +388,7 @@ namespace RVO {
             [ReadOnly] public NativeArray<float3> new_velocities;
             [ReadOnly] public NativeArray<float> accelerations;
             [ReadOnly] public NativeArray<float3> destinations;
+            [ReadOnly] public NativeArray<float> max_rotation_speeds;
             [ReadOnly] public NativeArray<bool> active;
 
             // Delta time must be copied to the job since jobs generally don't have concept of a frame.
@@ -445,7 +446,14 @@ namespace RVO {
                 // Rotation is dependent on new velocity
                 if (!at_destination && math.length(new_velocity)>0f) {
                     float3 dir_to_destination = math.normalize(diff);
-                    transform.rotation = quaternion.LookRotation(math.normalize(new_velocity), new float3(0,1,0));
+                    quaternion currentRotation = transform.localRotation;
+                    quaternion targetRotation = quaternion.LookRotation(math.normalize(new_velocity), new float3(0,1,0));
+                    float t = math.saturate(max_rotation_speeds[index] * deltaTime);
+                    transform.localRotation = math.slerp(
+                        currentRotation,
+                        targetRotation,
+                        t
+                    );
                 }
             }
         }
@@ -580,16 +588,6 @@ namespace RVO {
         // Helper: convert a float2 into a Vector3 by setting the 0thand 1st coordinates
         public static Vector3 ToVector3(this float2 v, float y = 0f) {
             return new Vector3(v[0], y, v[1]);
-        }
-
-        public static Vector3 Abs(this Vector3 source) {
-            return new Vector3(Mathf.Abs(source.x), Mathf.Abs(source.y), Mathf.Abs(source.z));
-        }
-        public static float3 ToFloat3(this Vector3 source) {
-            return (float3)new(source.x, source.y, source.z);
-        }
-        public static float2 ToFloat2(this Vector3 source) {
-            return (float2)new(source.x, source.z);
         }
 
     }

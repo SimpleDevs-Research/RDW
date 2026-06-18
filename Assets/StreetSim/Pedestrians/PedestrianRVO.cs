@@ -62,7 +62,7 @@ namespace StreetSim {
         [Header("=== Movement Settings ===")]
         [SerializeField] public bool RVOActive = false;
         [SerializeField] private RandomFloat m_maxTranslateSpeed = new RandomFloat(1.5f, true, new Vector2(1.25f, 1.75f)); //new RandomFloat(1.25f, true, new Vector2(1.25f, 1.75f));
-        [SerializeField] public Vector3 m_localDestination;
+        [SerializeField] private Vector3 m_localDestination;
 
         [SerializeField] private RandomFloat m_destinationRange = new RandomFloat(0.5f);
         [SerializeField] private RandomFloat m_repathTimeGap = new RandomFloat(1f);
@@ -97,11 +97,14 @@ namespace StreetSim {
         [SerializeField] private bool m_showNeighbors = false;
         [SerializeField] private List<Transform> m_gizmos_result_transforms = new List<Transform>();
 
+        public float maxTranslateSpeed => m_maxTranslateSpeed;
+        public Vector3 localDestination => m_localDestination;
+
         #if UNITY_EDITOR
         private void OnDrawGizmos() {
             if (m_drawPath && m_pathPositions.Count == 0) {
                 Gizmos.color = Color.blue; 
-                Gizmos.DrawLine(transform.position+Vector3.up, m_pathPositions[0]+Vector3.up);
+                Gizmos.DrawLine(transform.localPosition+Vector3.up, m_pathPositions[0]+Vector3.up);
                 for(int i = 0; i < m_pathPositions.Count; i++) {
                     Gizmos.DrawSphere(m_pathPositions[i]+Vector3.up, 0.05f);
                     if (i < m_pathPositions.Count-1) Gizmos.DrawLine(m_pathPositions[i]+Vector3.up, m_pathPositions[i+1]+Vector3.up);
@@ -111,7 +114,7 @@ namespace StreetSim {
             if (m_drawSuitableDirections && m_suitableDirections.Count > 0) {
                 Gizmos.color = Color.red;
                 foreach(DirData d in m_suitableDirections) {
-                    Gizmos.DrawRay(transform.position, d.direction.ToVector3());
+                    Gizmos.DrawRay(transform.localPosition, d.direction.ToVector3());
                 }
             }
 
@@ -119,12 +122,12 @@ namespace StreetSim {
                 Gizmos.color = Color.blue;
                 List<int> result_indices = new List<int>();
                 m_gizmos_result_transforms = new List<Transform>();
-                PedestrianTree.Instance.QueryRadius(transform.position, m_viewRadius, result_indices);
+                PedestrianTree.Instance.QueryRadius(transform.localPosition, m_viewRadius, result_indices);
 
                 if (result_indices.Count > 0) {
                     for (int i = 0; i < result_indices.Count; i++) {
                         Pedestrian ped = PedestrianManager.Instance.allPedestrians[result_indices[i]];
-                        Gizmos.DrawLine(transform.position, ped.transform.position);
+                        Gizmos.DrawLine(transform.localPosition, ped.transform.localPosition);
                         m_gizmos_result_transforms.Add(ped.transform);
                     }
                 }
@@ -170,19 +173,23 @@ namespace StreetSim {
                     m_pathPositions = new List<Vector3>();
                     bool pathFound = NavMesh.CalculatePath(
                         transform.position,
-                        new Vector3(_pedestrian.currentDestination.x, transform.position.y, _pedestrian.currentDestination.z),
+                        transform.parent.TransformPoint(_pedestrian.currentDestination),
                         NavMesh.AllAreas,
                         m_navPath
                     );
                     if (pathFound) {
-                        print("pathfound");
+                        print("Path Found");
                         NavMeshHit hit;
-                        foreach (Vector3 p in m_navPath.corners)
-                        {
-                            if (NavMesh.FindClosestEdge(p, out hit, NavMesh.AllAreas))
-                            {
-                                if (hit.distance < m_avoidanceRadius) m_pathPositions.Add(hit.position + hit.normal * m_avoidanceRadius);
-                                else m_pathPositions.Add(p);
+                        // Note: all positions in navpath are in world space
+                        // We'll need an additional step to convert them into local position
+                        foreach (Vector3 p in m_navPath.corners) {
+                            if (NavMesh.FindClosestEdge(p, out hit, NavMesh.AllAreas)) {
+                                if (hit.distance < m_avoidanceRadius) {
+                                    m_pathPositions.Add(transform.parent.InverseTransformPoint(hit.position + hit.normal) * m_avoidanceRadius);
+                                }
+                                else {
+                                    m_pathPositions.Add(transform.parent.InverseTransformPoint(p));
+                                }
                             }
                         }
                     }
@@ -208,8 +215,7 @@ namespace StreetSim {
 
                 // Initialize the direction and direction penalties arrays. We ensure that the desired direction is also added
                 Vector2 vD = new Vector2(m_rvoData.desiredVelocity[0], m_rvoData.desiredVelocity[1]);
-                for (int i = 0; i < m_directionsTemplate.Length; i++)
-                {
+                for (int i = 0; i < m_directionsTemplate.Length; i++) {
                     Vector2 dir = m_directionsTemplate[i];
                     float diff = (vD - dir).magnitude;
                     m_directionsArray[i] = new DirData(i, dir, diff);
@@ -234,9 +240,9 @@ namespace StreetSim {
             // 2. its current velocity, and
             // 3. its desired velocity (max speed in the direction of its current target)
             int guid = this.GetInstanceID();
-            Vector2 pA = transform.position.ToVector2();
-            Vector2 vA = _pedestrianMover.currentVelocity.ToVector2();
-            Vector2 vD = (m_localDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
+            Vector2 pA = transform.localPosition.ToVector2();
+            Vector2 vA = _pedestrianMover.currentVelocity.ToVector2();  // We expect current velocity to be within local space
+            Vector2 vD = (m_localDestination - transform.localPosition).ToVector2().normalized * m_maxTranslateSpeed;
 
             m_rvoData = new RVOData(guid, pA, vA, vD, m_avoidanceRadius, m_rvoLayer);
         }
@@ -245,9 +251,9 @@ namespace StreetSim {
             // 1. its current position,
             // 2. its current velocity, and
             // 3. its desired velocity (max speed in the direction of its current target)
-            Vector2 pA = transform.position.ToVector2();
+            Vector2 pA = transform.localPosition.ToVector2();
             Vector2 vA = _pedestrianMover.currentVelocity.ToVector2();
-            Vector2 vD = (m_localDestination - transform.position).ToVector2().normalized * m_maxTranslateSpeed;
+            Vector2 vD = (m_localDestination - transform.localPosition).ToVector2().normalized * m_maxTranslateSpeed;
             UpdateRVOData(pA, vA, vD);
         }
 
@@ -256,7 +262,7 @@ namespace StreetSim {
             if (m_pathPositions.Count == 0) return _pedestrian.currentDestination;
             bool destinationFound = false;
             while(m_pathPositions.Count > 0 && !destinationFound) {
-                destinationFound = Vector3.Distance(m_pathPositions[0], transform.position) > m_destinationRange;
+                destinationFound = Vector3.Distance(m_pathPositions[0], transform.localPosition) > m_destinationRange;
                 if (!destinationFound) m_pathPositions.RemoveAt(0);
             }
             if (destinationFound) return new Vector3(m_pathPositions[0].x, 0f, m_pathPositions[0].z);
@@ -269,17 +275,15 @@ namespace StreetSim {
             List<RVOData> pedData = GetPedData();
             LayerMask layerMask = LayerMask.GetMask("NavObstruction");
             RaycastHit hit;
-            if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit, 1.4f, layerMask))
-            {
+            // This is a world space operation
+            if (Physics.Raycast(transform.position, transform.forward, out hit, 1.4f, layerMask)) {
                 //DON'T stop if *inside* the obstruction. Just keep going.
-                if (!Physics.Raycast(transform.position, transform.TransformDirection(Vector3.back), out hit, 0.1f, layerMask))
-                {
+                if (!Physics.Raycast(transform.position, -transform.forward, out hit, 0.1f, layerMask)) {
                     _pedestrianMover.optimalVelocity = Vector3.zero;
                     m_jobScheduled = false;
                     return;
                 }
             }
-                    
             if (pedData.Count == 0) {
                 _pedestrianMover.optimalVelocity = new Vector3(m_rvoData.desiredVelocity[0], 0f, m_rvoData.desiredVelocity[1]);
                 m_jobScheduled = false;

@@ -40,6 +40,8 @@ namespace StreetSim {
         // === GETTERS ===
         // =================================
         public Vector3 position => transform.position;
+        public Vector3 localPosition => transform.localPosition;
+        public Quaternion localRotation => transform.localRotation;
         public float avoidanceRadius => m_avoidanceRadius;
         public Color color { get => m_color; set {} }
         public float speed => velocity.magnitude;
@@ -80,13 +82,13 @@ namespace StreetSim {
         protected virtual void Start() {
             displacement = Vector3.zero;
             velocity = Vector3.zero;
-            _prevPosition = transform.position;        
+            _prevPosition = transform.localPosition;        
         }
 
         protected virtual void FixedUpdate() {
-            displacement = transform.position - _prevPosition;
+            displacement = transform.localPosition - _prevPosition;
             velocity = displacement / Time.fixedDeltaTime;
-            _prevPosition = transform.position;
+            _prevPosition = transform.localPosition;
         }
 
         private void OnEnable() {

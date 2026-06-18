@@ -35,8 +35,6 @@ namespace StreetSim {
         // === SOMETHING HAS ENTERED! ===
         // ==========================================
         public void OnTriggerEnter(Collider other) {
-
-            Debug.Log(this.gameObject.name + " <- " + other.gameObject.name);
             
             // --------------------
             // DENSITY UPDATE
@@ -69,8 +67,6 @@ namespace StreetSim {
         // === SOMETHING HAS EXITED! ===
         // ==========================================
         public void OnTriggerExit(Collider other) {
-
-            Debug.Log(this.gameObject.name + " -> " + other.gameObject.name);
             
             // --------------------
             // Density Update

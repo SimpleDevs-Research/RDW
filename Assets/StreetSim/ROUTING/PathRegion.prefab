@@ -62,7 +62,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 2, z: 2}
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &841824682806198145
 MonoBehaviour:
@@ -76,11 +76,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55086e96706fb414093da9b683b4f57c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Description: This component acts as the physical manifestation of a Route inside
+    RouteManager. It stores data for its connected Route, and Route will use that
+    data during cost computation. For your part, there's no need to modify ANY of
+    these values. RouteManager needs to initialize this during its `Awake()` function
+    anyways.
   density: 0
   dirtiness: 0
   risk: 0
-  peoplewithin: []
-  effectors: []
   size: 0
 --- !u!54 &2899772406211514443
 Rigidbody:

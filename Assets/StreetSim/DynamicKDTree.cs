@@ -8,37 +8,54 @@ namespace StreetSim {
         [Header("=== Tree Preparation ===")]
         [SerializeField, Tooltip("List of active entities. Whenever this is changed (which is only possible via the inspector, `AddEntity()` or `RemoveEntity()`, we also update our tree.")]
         private List<Entity> _entities = new();
-        private HashSet<Entity> _entitiesHash = new();
-        private Vector3[] _pointCloud;
-
-        public List<Entity> entities => _entities;
+        [SerializeField, Tooltip("The Transform that acts as the parent. It's recommended to set this as the environment root transform (e.g. you want to translate the environment, and the tree must move along with it). If not set, it'll auto-set to this transform.")]
+        private Transform _rootTransform;
+        [SerializeField, Tooltip("When loaded during Awake, should we attempt to update the point cloud? Turn this OFF if you want to add elements to `entities` first")]
+        private bool _updateOnAwake = true;
 
         [Header("=== DEBUGGING ===")]
         [SerializeField, Tooltip("Just slap on a Transform to start querying closest within a radius.")]
         private Transform _debugTransform;
-        [SerializeField, Tooltip("Radius for the debug querying.")]
+        [SerializeField, Tooltip("Radius for the debug querying Radius search.")]
         private float _debugRadius = 5f;
+        [SerializeField, Tooltip("K for debug querying KNearest search.")]
+        private int _debugK = 3;
+        [SerializeField, Tooltip("Should we yell out warnings and such? Mostly for debugging, toggle this on if you need to test thinsg out. Just don't forget to disable this in production.")]
+        private bool _verboseMessages = false;
 
         protected KDTree _tree = null;
         protected KDQuery _query = null;
+        private Vector3[] _pointCloud;
+        private HashSet<Entity> _entitiesHash = new();
+        public List<Entity> entities => _entities;
 
         protected virtual void Awake() {
+            // Set root transform
+            if (_rootTransform == null) _rootTransform = this.transform;
+
             // Pre-emptively initialize our query
             _query = new KDQuery();
             
             // As a first step, we update our point cloud.
             // If this is successful, we will automatically update our tree.
-            TryUpdatePointCloud();
+            if (_updateOnAwake) TryUpdatePointCloud();
         }
 
+        // ==============================
+        // This is a dynamic tree, so we gotta update our tree
+        // ==============================
         protected virtual void Update() {
             FillAndRebuild();
         }
 
+        // ==============================
+        // We do this if we changed anything in our `_entities` List.
+        // This is different from rebuilding the tree, which has no change to the size
+        // ==============================
         public virtual bool TryUpdatePointCloud() {
             // can't build a point cloud if there's no entities!
             if (_entities.Count == 0) {
-                Debug.LogWarning("Cannot build a KDTree with no entities!");
+                if (_verboseMessages) Debug.LogWarning("Cannot build a KDTree with no entities!");
                 _tree = null;
                 return false;
             }
@@ -57,7 +74,7 @@ namespace StreetSim {
                     if(newEntitiesHash.Add(e)) {
                         // Basically ensure that we aren't looking at duplicates
                         newEntities.Add(e);
-                        newPoints.Add(e.transform.position);
+                        newPoints.Add(_rootTransform.InverseTransformPoint(e.transform.position));
                         e.onEnabled.AddListener(TryAddEntity);
                         e.onDisabled.AddListener(TryRemoveEntity);
                     }
@@ -71,7 +88,7 @@ namespace StreetSim {
             
             // If pointCloud is empty, then there's nothing we can do.
             if (newPoints.Count == 0) {
-                Debug.LogError("Cannot build a KDTree with no entities... after filtering.");
+               if (_verboseMessages) Debug.LogError("Cannot build a KDTree with no entities... after filtering.");
                 _tree = null;
                 return false;
             }
@@ -81,36 +98,78 @@ namespace StreetSim {
             return true;
         }
 
+        // ==============================
+        // We do this if nothing has changed in the number of entities we want to track, 
+        // but maybe some positions have changed.
+        // ==============================
         public virtual void FillAndRebuild() {
             if (_tree == null) {
-                Debug.LogWarning("Cannot fill and rebuild tree if null");
+                if (_verboseMessages) Debug.LogWarning("Cannot fill and rebuild tree if null");
                 return;
             }
             for (int i = 0; i < _entities.Count; i++) {
-                _tree.Points[i] = _entities[i].transform.position;
+                _tree.Points[i] = _rootTransform.InverseTransformPoint(_entities[i].transform.position);
             }
             _tree.Rebuild();
         }
 
-        public virtual void TryAddEntity(Entity e) {
+        // ==============================
+        // Adders and Removers. Two variants exist: those that just pass Entity, and those with Entity + bool.
+        // The 2nd bool ensures that you update the tree upon being added, and it's the default.
+        // If you need more control and, for example, DON'T want to update the tree yet, then you must use the Entity + bool variant.
+        // ==============================
+        public virtual void TryAddEntity(Entity e, bool updateTree = true) {
             if (_entitiesHash.Add(e)) {
                 _entities.Add(e);
-                TryUpdatePointCloud();
+                if (updateTree) TryUpdatePointCloud();
             }
         }
-        public virtual void TryRemoveEntity(Entity e) {
+        public virtual void TryAddEntity(Entity e) { 
+            TryAddEntity(e, true); 
+        }
+        public virtual void TryRemoveEntity(Entity e, bool updateTree = true) {
             if (_entitiesHash.Remove(e)) {
                 _entities.Remove(e);
-                TryUpdatePointCloud();
+                if (updateTree) TryUpdatePointCloud();
             }
         }
+        public virtual void TryRemoveEntity(Entity e) { 
+            TryRemoveEntity(e, true); 
+        }
 
-        public virtual bool QueryRadius(Vector3 queryPosition, float queryRadius, List<int> resultIndices) {
+        // ==============================
+        // Ways to query the tree. This expects a world position query. 
+        // These will return the indices in `_entities` that are within 
+        // the radius of the provided position. You'll have to decipher 
+        // and process that on your own though.
+        // ==============================
+        public virtual bool QueryRadius(Vector3 worldPosition, float radius, List<int> resultIndices) {
             if (_tree == null) {
-                Debug.LogError("Cannot query radius: tree is not built");
+                if (_verboseMessages) Debug.LogError("Cannot query radius: tree is not built");
                 return false;
             }
-            _query.Radius(_tree, queryPosition, queryRadius, resultIndices);
+            _query.Radius(_tree, _rootTransform.InverseTransformPoint(worldPosition), radius, resultIndices);
+            return true;
+        }
+        public bool QueryKNearest(Vector3 worldPosition, int k, List<int> resultIndices) {
+            if (_tree == null) {
+                if (_verboseMessages) Debug.LogError("Cannot query KNearest: tree is not built");
+                return false;
+            }
+            _query.KNearest(_tree, _rootTransform.InverseTransformPoint(worldPosition), k, resultIndices);
+            return true;
+        }
+        public bool QueryNearest(Vector3 worldPosition, out int closestIndex, out Entity closestEntity) {
+            if (_tree == null) {
+                closestIndex = -1;
+                closestEntity = null;
+                if (_verboseMessages) Debug.LogError("Cannot query Nearest: tree is not built");
+                return false;
+            }
+            List<int> resultIndices = new List<int>();
+            _query.ClosestPoint(_tree, _rootTransform.InverseTransformPoint(worldPosition), resultIndices);
+            closestIndex = resultIndices[0];
+            closestEntity = _entities[closestIndex];
             return true;
         }
 
@@ -124,18 +183,36 @@ namespace StreetSim {
         private void OnDrawGizmos() {
             if (!Application.isPlaying || _debugTransform == null) return;
 
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(_debugTransform.position, _debugRadius);
+            Vector3 debugLocalPos = _rootTransform.InverseTransformPoint(_debugTransform.position);
 
-            List<int> resultIndices = new();
-            if (QueryRadius(_debugTransform.position, _debugRadius, resultIndices)) {
-                if (resultIndices.Count > 0) {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(_rootTransform.TransformPoint(debugLocalPos), _debugRadius);
+            
+            List<int> radiusResults = new();
+            if (QueryRadius(_debugTransform.position, _debugRadius, radiusResults)) {
+                if (radiusResults.Count > 0) {
                     Gizmos.color = Color.blue;
-                    foreach(int i in resultIndices) {
-                        Gizmos.DrawLine(_debugTransform.position, _pointCloud[i]);
+                    foreach(int i in radiusResults) {
+                        Gizmos.DrawLine(_rootTransform.TransformPoint(debugLocalPos), _rootTransform.TransformPoint(_pointCloud[i]));
                     }
                 }
             }
+
+            List<int> knearestResults = new();
+            if (QueryKNearest(_debugTransform.position, _debugK, knearestResults)) {
+                if (knearestResults.Count > 0) {
+                    Gizmos.color = Color.green;
+                    foreach(int k in knearestResults) {
+                        Gizmos.DrawLine(_rootTransform.TransformPoint(debugLocalPos), _rootTransform.TransformPoint(_pointCloud[k]));
+                    }
+                }
+            }
+
+            if (QueryNearest(_debugTransform.position, out int j, out Entity closestEntity)) {
+                Gizmos.color = Color.white;
+                Gizmos.DrawLine(_rootTransform.TransformPoint(debugLocalPos), closestEntity.transform.position);
+            }
+
         }
     }
 }

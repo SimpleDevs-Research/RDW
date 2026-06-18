@@ -14,4 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   demographicName: Debug Demographic
   pedestrians:
-  - {fileID: 141899892157587144, guid: 2ce6f767b375eb846817a2dce680f9d3, type: 3}
+  - {fileID: 5183564033142943804, guid: b44159590a6fdcc4a91c1739e272bef7, type: 3}
+  - {fileID: 8860451259274285260, guid: 054764f347eaf3a49839074c0886c9e2, type: 3}

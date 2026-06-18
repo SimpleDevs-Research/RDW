@@ -37,19 +37,26 @@ namespace StreetSim {
         // ==========================================
         [Header("=== ROUTE MANAGEMENT ===")]
         // ==========================================
-        [SerializeField, Tooltip(
-            "You must define the routes within your environment here. You must have at least one route defined by "
-            + "runtime for this to work." )]
+
+        // We need a KDTree - specifically, a DynamicKDTree. Create one, make sure it does NOT 
+        // build the tree on Awake, and reference it here.
+        [SerializeField, Tooltip("We need a KDTree - specifically, a DynamicKDTree. Create one, make sure it does NOT build the tree on Awake, and reference it here.")]
+        private DynamicKDTree _kdTree;
+
+        // You must define the routes within your environment here. You must have at 
+        // least one route defined by runtime for this to work.
+        [SerializeField, Tooltip("You must define the routes within your environment here. You must have at least one route defined by runtime for this to work.")]
         private List<Route> _routes = new();
         
-        [SerializeField, Tooltip(
-            "You must set a path region prefab here. This prefab will be used to auto-generete path regions "
-            + "for each route you've defined above.")]
+        // You must set a path region prefab here. This prefab will be used to auto-generete 
+        // path regions for each route you've defined above.
+        [SerializeField, Tooltip("You must set a path region prefab here. This prefab will be used to auto-generete path regions for each route you've defined above.")]
         private PathRegion _pathRegionPrefab;
 
-        [SerializeField, Tooltip(
-            "If you don't want any kind of Dijkstra's logic to path calculation, then toggle this off. This "
-            + "variable determines whether the path returned is optimal (true) or naive (false).")]
+        // If you don't want any kind of Dijkstra's logic to path calculation, then toggle 
+        // this off. This variable determines whether the path returned is optimal (true) 
+        // or naive (false).
+        [SerializeField, Tooltip("If you don't want any kind of Dijkstra's logic to path calculation, then toggle this off. This variable determines whether the path returned is optimal (true) or naive (false).")]
         private bool _useDijkstras = true;
 
 
@@ -142,22 +149,24 @@ namespace StreetSim {
             RouteNode n1, n2;
             Vector3 n1p, n2p;
             List<Vector3> nodePositions = new();
+
             foreach(Route route in _routes) {
-                
                 // Get references to each node in the current route
                 n1 = route.node1;
-                n1p = n1.position;
+                n1p = n1.position;  // Note that n1.position effectively queries the localposition of `RouteNode` #1
                 n2 = route.node2;
-                n2p = n2.position;
+                n2p = n2.position;  // Same as `RouteNode` #2.
 
                 // Add nodes to our nodes lists
                 if (!_nodes.Contains(n1)) {
                     _nodes.Add(n1);
                     nodePositions.Add(n1p);
+                    _kdTree.TryAddEntity((Entity)n1, false);
                 }
                 if (!_nodes.Contains(n2)) {
                     _nodes.Add(n2);
                     nodePositions.Add(n2p);
+                    _kdTree.TryAddEntity((Entity)n2, false);
                 }
 
                 // Update route's distance based on node positions
@@ -168,10 +177,10 @@ namespace StreetSim {
                 n2.acceptableRadius = route.pathWidth;
                 
                 // We want to generate a path region
-                PathRegion pr = Instantiate<PathRegion>(_pathRegionPrefab);
+                PathRegion pr = Instantiate<PathRegion>(_pathRegionPrefab, transform);
                 
                 // Modify the path region's position, rotation and local scale
-                pr.transform.position = (n1p + n2p) / 2;
+                pr.transform.localPosition = (n1p + n2p) / 2;
                 pr.transform.LookAt(n2p);
                 pr.transform.localScale = new Vector3(
                     route.pathWidth*2, 
@@ -198,9 +207,13 @@ namespace StreetSim {
 
             // --------------------
             // KDTree Initialization
+            // Note that `nodePositions` are consisting of localpositions
             // --------------------
+            /*
             query = new KDQuery();
             tree = new KDTree(nodePositions.ToArray(), 32);
+            */
+            _kdTree.TryUpdatePointCloud();
         }
 
         // =======================================================
@@ -248,36 +261,32 @@ namespace StreetSim {
         // This function is primarily called by any pedestrian who needs to recalculate their path.
         // Two variants exist: one with a start and end that are Vector3's, while the other handles RouteNodes.
         // 1. The first variant does an additional step for finding which RouteNode is closest to both the start and end, 
-        //      before calling the latter variant. 
+        //      before calling the latter variant. WE EXPECT THESE POSITIONS TO BE IN WORLD SPACE
         // 2. The latter is the true power where we call `RecomputeRoutes()` and do our Dijkstra's calculation.
         // We can actually stop at that point if `_useDijkstras` is FALSE. Doing so will just return the start and end RouteNodes.
         // Otherwise, we do a full Dijkstras implementation to calculate the optimal path based on recomputed route (and edge) costs
         // =======================================================
         public List<RouteNode> GetRouteFromPositions(Vector3 start, Vector3 end, Pedestrian.Personality personalityData) {
             // Calculate the closest RouteNode to `start`
-            List<int> resultIndices = new();
-            KNearestQuery(start, 1, resultIndices);
-            RouteNode startNode = _nodes[resultIndices[0]];
+            _kdTree.QueryNearest(start, out int _, out Entity startNodeEntity);
+            RouteNode startNode = (RouteNode)startNodeEntity;
 
             // Calculate the closest RouteNode to `end`
-            resultIndices = new();
-            KNearestQuery(end, 1, resultIndices);
-            RouteNode endNode = _nodes[resultIndices[0]];
+            _kdTree.QueryNearest(end, out int _, out Entity endNodeEntity);
+            RouteNode endNode = (RouteNode)endNodeEntity;
 
             // Call `GetRoute()` but with the proper RouteNodes for the closest start and end route nodes.
             return GetRoute(startNode, endNode, personalityData);
         }
         public List<RouteNode> GetRouteFromCustomNodes(RouteNode start, RouteNode end, Pedestrian.Personality personalityData) {
             // Calculate the closest RouteNode to `start`
-            List<int> resultIndices = new();
-            KNearestQuery(start.position, 1, resultIndices);
-            RouteNode startNode = _nodes[resultIndices[0]];
+            _kdTree.QueryNearest(start.position, out int _, out Entity startNodeEntity);
+            RouteNode startNode = (RouteNode)startNodeEntity;
 
             // Calculate the closest RouteNode to `end`
-            resultIndices = new();
-            KNearestQuery(end.position, 1, resultIndices);
-            RouteNode endNode = _nodes[resultIndices[0]];
-            
+            _kdTree.QueryNearest(end.position, out int _, out Entity endNodeEntity);
+            RouteNode endNode = (RouteNode)endNodeEntity;
+
             // Call `GetRoute()` but with the proper RouteNodes for the closest start and end route nodes.
             List<RouteNode> predictedRoute = GetRoute(startNode, endNode, personalityData);
 
@@ -413,6 +422,7 @@ namespace StreetSim {
         }
         #endif
 
+        /*
         // =======================================================
         // === KDTREE SHENANIGANS ===
         // We use a KDTree to query for RouteNodes based on query positions and query radii.
@@ -445,6 +455,7 @@ namespace StreetSim {
             KNearestQuery(position, 1, resultIndices);
             return _nodes[resultIndices[0]];
         }
+        */
 
     }
 }
