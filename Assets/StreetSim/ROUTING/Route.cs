@@ -1,28 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-/*
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-*/
+using RVO;
 
 namespace StreetSim {
 
     [System.Serializable]
     public class Route {
         
-        /*
-        #if UNITY_EDITOR        
-        [Help(
-            "A \"Route\" is described as the straight path between two nodes on a graph with a constant `width`. Each "
-            + "Route has some basic properties, such as a `baseCost` and `safety` metric. Other properties are computed "
-            + "during runtime.", 
-            UnityEditor.MessageType.None
-        )]
-        #endif
-        */
-
         // ==========================================
         [Header("=== Manual - You Must Set These! ===")]
         // ==========================================

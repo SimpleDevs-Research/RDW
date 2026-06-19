@@ -13,11 +13,6 @@ using UnityEngine;
 
 namespace StreetSim {
 
-    public enum EnvironmentType {
-        Sidewalk,
-        Crosswalk
-    }
-
     public class RouteManager : MonoBehaviour
     {
         // ==========================================
@@ -52,6 +47,11 @@ namespace StreetSim {
         // path regions for each route you've defined above.
         [SerializeField, Tooltip("You must set a path region prefab here. This prefab will be used to auto-generete path regions for each route you've defined above.")]
         private PathRegion _pathRegionPrefab;
+
+        // Please note that if your Environment will be translating, rotating, or otherwise be tranforming, then it's wise to parent your path regions under your environment.
+        // This will let you define that parent. If unset, it will default to this gameobject (i.e. all path regions will be made children of this game object).
+        [SerializeField, Tooltip("Please note that if your Environment will be translating, rotating, or otherwise be tranforming, then it's wise to parent your path regions under your environment. This will let you define that parent. If unset, it will default to this gameobject (i.e. all path regions will be made children of this game object).")]
+        private Transform _pathRegionParent;
 
         // If you don't want any kind of Dijkstra's logic to path calculation, then toggle 
         // this off. This variable determines whether the path returned is optimal (true) 
@@ -144,29 +144,38 @@ namespace StreetSim {
             Instance = this;
 
             // --------------------
+            // Set Path Region Parent
+            // --------------------
+            if (_pathRegionParent == null) _pathRegionParent = this.transform;
+
+            // --------------------
             // Route Initialization
             // --------------------
             RouteNode n1, n2;
             Vector3 n1p, n2p;
-            List<Vector3> nodePositions = new();
+            Quaternion n1r, n2r;
 
             foreach(Route route in _routes) {
                 // Get references to each node in the current route
                 n1 = route.node1;
-                n1p = n1.position;  // Note that n1.position effectively queries the localposition of `RouteNode` #1
+                n1p = n1.transform.localPosition;
+                n1r = n1.transform.localRotation;
                 n2 = route.node2;
-                n2p = n2.position;  // Same as `RouteNode` #2.
+                n2p = n2.transform.localPosition;
+                n2r = n2.transform.localRotation;
 
                 // Add nodes to our nodes lists
                 if (!_nodes.Contains(n1)) {
+                    n1.position = n1p;
+                    n1.rotation = n1r;
                     _nodes.Add(n1);
-                    nodePositions.Add(n1p);
-                    _kdTree.TryAddEntity((Entity)n1, false);
+                    _kdTree.TryAdd(n1.gameObject, false);
                 }
                 if (!_nodes.Contains(n2)) {
+                    n2.position = n2p;
+                    n2.rotation = n2r;
                     _nodes.Add(n2);
-                    nodePositions.Add(n2p);
-                    _kdTree.TryAddEntity((Entity)n2, false);
+                    _kdTree.TryAdd(n2.gameObject, false);
                 }
 
                 // Update route's distance based on node positions
@@ -177,7 +186,7 @@ namespace StreetSim {
                 n2.acceptableRadius = route.pathWidth;
                 
                 // We want to generate a path region
-                PathRegion pr = Instantiate<PathRegion>(_pathRegionPrefab, transform);
+                PathRegion pr = Instantiate<PathRegion>(_pathRegionPrefab, _pathRegionParent);
                 
                 // Modify the path region's position, rotation and local scale
                 pr.transform.localPosition = (n1p + n2p) / 2;
@@ -207,22 +216,9 @@ namespace StreetSim {
 
             // --------------------
             // KDTree Initialization
-            // Note that `nodePositions` are consisting of localpositions
             // --------------------
-            /*
-            query = new KDQuery();
-            tree = new KDTree(nodePositions.ToArray(), 32);
-            */
-            _kdTree.TryUpdatePointCloud();
-        }
-
-        // =======================================================
-        // === LATE UPDATE: Resetting some things ===
-        // Some things (like the flag for whether the KDTree is rebuilt in a frame) need to be reset.
-        // We use LateUpdate() to achieve this, after the frame has passed.
-        // =======================================================
-        private void LateUpdate() {
-            _builtThisFrame = false;
+            _kdTree.TryUpdatePointCloud();  // Update point cloud
+            _kdTree.enabled = false;        // There's no need to update this KDTree per frame. To save on computation, we disable it.
         }
 
         // =======================================================
@@ -231,7 +227,7 @@ namespace StreetSim {
         // `GetRoute` is called. All you need is a reference to the requesting 
         // agent's personality
         // =======================================================
-        public void RecomputeRoutes(Pedestrian.Personality personalityData) {
+        public void RecomputeRoutes(RVO.Personality personality) {
             // We must loop through all our routes and their edges
             foreach(Route route in _routes) {
 
@@ -243,10 +239,10 @@ namespace StreetSim {
                 // We now have to calculate the cost of this route.
                 route.computedCost = 
                     route.baseCost
-                    + (_considerDistance ? 1f : 0f)     * _distanceWeight       * route.distance                    * personalityData.distanceAversion
-                    + (_considerCrowdDensity ? 1 : 0)   * _crowdDensityWeight   * route.density * route.distance    * personalityData.crowdednessAversion
-                    + (_considerSafety ? 1 : 0)         * _safetyWeight         * route.safety                      * personalityData.riskAversion
-                    + (_considerDirtiness ? 1 : 0)      * _dirtinessWeight      * route.dirtiness                   * personalityData.dirtinessAversion;
+                    + (_considerDistance ? 1f : 0f)     * _distanceWeight       * route.distance                    * personality.distance_aversion
+                    + (_considerCrowdDensity ? 1 : 0)   * _crowdDensityWeight   * route.density * route.distance    * personality.crowdedness_aversion
+                    + (_considerSafety ? 1 : 0)         * _safetyWeight         * route.safety                      * personality.risk_aversion
+                    + (_considerDirtiness ? 1 : 0)      * _dirtinessWeight      * route.dirtiness                   * personality.dirtiness_aversion;
 
                 // Update the edge associated with this route
                 int ind1 = _nodes.IndexOf(route.node1);
@@ -266,29 +262,29 @@ namespace StreetSim {
         // We can actually stop at that point if `_useDijkstras` is FALSE. Doing so will just return the start and end RouteNodes.
         // Otherwise, we do a full Dijkstras implementation to calculate the optimal path based on recomputed route (and edge) costs
         // =======================================================
-        public List<RouteNode> GetRouteFromPositions(Vector3 start, Vector3 end, Pedestrian.Personality personalityData) {
+        public List<RouteNode> GetRouteFromPositions(Vector3 localStartPos, Vector3 localEndPos, RVO.Personality personality) {
             // Calculate the closest RouteNode to `start`
-            _kdTree.QueryNearest(start, out int _, out Entity startNodeEntity);
-            RouteNode startNode = (RouteNode)startNodeEntity;
+            _kdTree.QueryNearest(localStartPos, out int _, out GameObject startGO);
+            RouteNode startNode = startGO.GetComponent<RouteNode>();
 
             // Calculate the closest RouteNode to `end`
-            _kdTree.QueryNearest(end, out int _, out Entity endNodeEntity);
-            RouteNode endNode = (RouteNode)endNodeEntity;
+            _kdTree.QueryNearest(localEndPos, out int _, out GameObject endGO);
+            RouteNode endNode = endGO.GetComponent<RouteNode>();
 
             // Call `GetRoute()` but with the proper RouteNodes for the closest start and end route nodes.
-            return GetRoute(startNode, endNode, personalityData);
+            return GetRoute(startNode, endNode, personality);
         }
-        public List<RouteNode> GetRouteFromCustomNodes(RouteNode start, RouteNode end, Pedestrian.Personality personalityData) {
+        public List<RouteNode> GetRouteFromCustomNodes(RouteNode start, RouteNode end, RVO.Personality personality) {
             // Calculate the closest RouteNode to `start`
-            _kdTree.QueryNearest(start.position, out int _, out Entity startNodeEntity);
-            RouteNode startNode = (RouteNode)startNodeEntity;
+            _kdTree.QueryNearest(start.position, out int _, out GameObject startGO);
+            RouteNode startNode = startGO.GetComponent<RouteNode>();
 
             // Calculate the closest RouteNode to `end`
-            _kdTree.QueryNearest(end.position, out int _, out Entity endNodeEntity);
-            RouteNode endNode = (RouteNode)endNodeEntity;
+            _kdTree.QueryNearest(end.position, out int _, out GameObject endGO);
+            RouteNode endNode = endGO.GetComponent<RouteNode>();
 
             // Call `GetRoute()` but with the proper RouteNodes for the closest start and end route nodes.
-            List<RouteNode> predictedRoute = GetRoute(startNode, endNode, personalityData);
+            List<RouteNode> predictedRoute = GetRoute(startNode, endNode, personality);
 
             // Self-insert our start and end as new nodes
             predictedRoute.Insert(0, start);
@@ -298,9 +294,9 @@ namespace StreetSim {
             return predictedRoute;
         }
         // `start` and `end` are expected to be part of our existing routes
-        public List<RouteNode> GetRoute(RouteNode start, RouteNode end, Pedestrian.Personality personalityData) {
+        public List<RouteNode> GetRoute(RouteNode start, RouteNode end, RVO.Personality personality) {
             // We update the route costs based on the requesting agent's personality
-            RecomputeRoutes(personalityData);
+            RecomputeRoutes(personality);
 
             // Initialize the return List. And if we don't want to use Dijkstra's, we just end it here.
             List<RouteNode> bestPath = new();
@@ -385,77 +381,42 @@ namespace StreetSim {
                 ) {
 
                     Gizmos.color = Color.green;
-                    Gizmos.DrawCube(route.node1.position, Vector3.one*0.5f);
-                    Gizmos.DrawCube(route.node2.position, Vector3.one*0.5f);
+                    Gizmos.DrawCube(route.node1.transform.position, Vector3.one*0.5f);
+                    Gizmos.DrawCube(route.node2.transform.position, Vector3.one*0.5f);
 
                     Gizmos.color = Color.red;
 
-                    float dist = Vector3.Distance(route.node1.position, route.node2.position);
-                    Vector3 routeCenter = route.node1.position + (route.node2.position - route.node1.position) / 2;
+                    float dist = Vector3.Distance(route.node1.transform.position, route.node2.transform.position);
+                    Vector3 routeCenter = route.node1.transform.position + (route.node2.transform.position - route.node1.transform.position) / 2;
 
-                    Gizmos.DrawLine(route.node1.position, route.node2.position);
+                    Gizmos.DrawLine(route.node1.transform.position, route.node2.transform.position);
                     Handles.Label(routeCenter, route.baseCost.ToString());
 
                     Gizmos.color = Color.blue;
 
-                    Vector3 dir = (route.node2.position - route.node1.position).normalized;
+                    Vector3 dir = (route.node2.transform.position - route.node1.transform.position).normalized;
                     Vector3 perpendicular = new Vector3(-dir.z, 0f, dir.x);
                     Vector3 offset = perpendicular * route.pathWidth;
 
                     Gizmos.DrawLine(
-                        route.node1.position + offset,
-                        route.node2.position + offset
+                        route.node1.transform.position + offset,
+                        route.node2.transform.position + offset
                     );
 
                     Gizmos.DrawLine(
-                        route.node1.position - offset,
-                        route.node2.position - offset
+                        route.node1.transform.position - offset,
+                        route.node2.transform.position - offset
                     );
                 }
             }
 
             if(drawResults) {
                 for(int i = 0; i < _nodes.Count; i++) {
-                    Handles.Label(_nodes[i].position, resultsSet[i].ToString());
+                    Handles.Label(_nodes[i].transform.position, resultsSet[i].ToString());
                 }
             }
         }
         #endif
-
-        /*
-        // =======================================================
-        // === KDTREE SHENANIGANS ===
-        // We use a KDTree to query for RouteNodes based on query positions and query radii.
-        // Any component can use this to call the closest node in the graph connected to Dijkstra's, for example.
-        // As a blanket, we just leave this description here and don't touch anything else.
-        // =======================================================
-        public void FillAndBuild() {
-            for (int i = 0; i < _nodes.Count; i++) {
-                tree.Points[i] = _nodes[i].position;
-            }
-            tree.Rebuild();
-            _builtThisFrame = true;
-        }
-
-        public void DoRadiusQuery(Vector3 queryPosition, float queryRadius, List<int> resultIndices) {
-            if (!_builtThisFrame) {
-                FillAndBuild();
-            }
-            query.Radius(tree, queryPosition, queryRadius, resultIndices);
-        }
-        public void KNearestQuery(Vector3 queryPosition, int k, List<int> resultIndices) {
-            if (!_builtThisFrame) {
-                FillAndBuild();
-            }
-            query.KNearest(tree, queryPosition, k, resultIndices);
-        }
-
-        public RouteNode GetNearestNode(Vector3 position) {
-            List<int> resultIndices = new List<int>();
-            KNearestQuery(position, 1, resultIndices);
-            return _nodes[resultIndices[0]];
-        }
-        */
 
     }
 }
