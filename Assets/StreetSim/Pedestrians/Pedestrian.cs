@@ -13,6 +13,8 @@ namespace StreetSim {
 
         [Header("=== Pedestrian References ===")]
         public Animator _animator;
+        public LODGroup _lodGroup;
+        public List<Renderer> _renderers = new();
 
         // ============================================
         [Header("=== ROUTING DATA - Read-Only ===")]
@@ -121,6 +123,12 @@ namespace StreetSim {
                 float forward = velocity.magnitude;
                 _animator.SetFloat("Forward", forward * 0.3f, 0.1f, Time.deltaTime);
             }
+        }
+
+        public void ToggleAnimation(bool set_to) {
+            if (_animator != null) _animator.enabled = set_to;
+            if (_lodGroup != null) _lodGroup.enabled = set_to;
+            if (_renderers.Count > 0) foreach(Renderer _renderer in _renderers) _renderer.enabled = set_to;
         }
 
 

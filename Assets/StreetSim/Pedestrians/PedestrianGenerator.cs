@@ -28,6 +28,7 @@ namespace StreetSim {
         public RouteNode[] startNodes;                  // The route nodes that pedestrians can start at. 
         public RouteNode[] endNodes;                    // The route nodes that pedestrians can end at.
         public Vector2 spawnDelayMinMax;                // In seconds, the min and max time to wait between spawns.
+        public bool hideAnimationOnStart;               // The `Pedestrian` class has a `ToggleAnimation(bool)`. Toggle this to initialize animation on start.
 
         [Header("=== CACHED DATA - READ-ONLY ===")]
         [SerializeField] private int _totalSpawned = 0;         // How many agents have been spawned in total?
@@ -65,9 +66,10 @@ namespace StreetSim {
             // MAKE SURE TO MAKE THE PREFAB NOT ACTIVE IN HIERARCHY BY DEFAULT
             Vector3 forward = Vector3.forward;
             Personality p = demographics.GetRandomPersonality();
+            GameObject personality_agent_prefab = p.GetRandomAgent();
 
             // Step 2: Instantiate the agent itself. This is just lifted from the original function.
-            GameObject go = Instantiate(p.agent_prefab, pos, Quaternion.LookRotation(forward));
+            GameObject go = Instantiate(personality_agent_prefab, pos, Quaternion.LookRotation(forward));
             Transform t = go.transform;
             t.parent = agent_parent;
 
@@ -203,6 +205,7 @@ namespace StreetSim {
                 // Pedestrian.UpdatePose(start, rotation)
                 pedestrian.UpdatePose(startPos, startNode.rotation); 
                 pedestrian.SetRoute(startPos, endPos, route);
+                pedestrian.ToggleAnimation(!hideAnimationOnStart);
                 vo_op.reached_destination[pedestrian.agent_index] = false;
 
                 // In closing, we now make sure to set it to active and update our spawn count

@@ -6,7 +6,9 @@ using RVO;
 namespace StreetSim {
 
     [System.Serializable]
-    public class Route {
+    public class Route : ISerializationCallbackReceiver {
+
+        public string name = "";
         
         // ==========================================
         [Header("=== Manual - You Must Set These! ===")]
@@ -30,6 +32,13 @@ namespace StreetSim {
         public float dirtiness;
 
         public float computedCost;
+
+        private void OnValidate() {
+            if (node1 != null && node2 != null) name = $"{node1.gameObject.name} - {node2.gameObject.name}";
+        }
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize () => this.OnValidate();
+        void ISerializationCallbackReceiver.OnAfterDeserialize () {}
 
     }
 }
