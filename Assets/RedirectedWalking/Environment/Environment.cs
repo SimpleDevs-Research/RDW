@@ -27,7 +27,7 @@ namespace RDW {
         }
         
         [Header("=== Environment ===")]
-        public Transform envRoot;
+        public EnvironmentRoot environmentRoot;
 
         [Header("=== Start Point Logic ===")]
         public Transform startPointRef;
@@ -38,22 +38,36 @@ namespace RDW {
         [SerializeField, Tooltip("Should we start this environment on enable? Otherwise, wait until toggled.")]
         public bool startOnLoad = true;
 
+        [Header("=== Debug ===")]
+        public Transform boundaryDebugRef;
+
         [Header("=== Data Cache - READ-ONLY ===")]
         [SerializeField] private Vector2 localBoundaryAnchor;
         [SerializeField] private Vector3 localStartPosition;
         [SerializeField] private Vector3 worldOffset;
         [SerializeField] private Vector3 worldStartPosition;
 
-        public Vector3 envPosition => envRoot.position;
-        public Quaternion envRotation => envRoot.rotation;
+        public Vector3 envPosition => environmentRoot.transform.position;
+        public Quaternion envRotation => environmentRoot.transform.rotation;
 
         private void OnDrawGizmos() {
+            // Draw scale cube
             Gizmos.color = Color.white;
             Gizmos.DrawWireCube(transform.position, new Vector3(1f,0f,1f) * startScale);
+            // Draw Scale Cube +X-Axis
             Gizmos.color = Color.red;
             Gizmos.DrawRay(transform.position, Vector3.right*startScale);
+            // Draw Scale Cube +Z-Axis
             Gizmos.color = Color.blue;
             Gizmos.DrawRay(transform.position, Vector3.forward*startScale);
+
+            // Get what the local transform of `startPointRef ought to be
+            Gizmos.color = Color.yellow;
+            Vector3 localScaleStartPoint = startPointRef.position / startScale;
+            Gizmos.DrawSphere(localScaleStartPoint, 0.25f);
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawSphere(GetPointRelativeToBoundary(startPointRef.position, startRelativeTo, startRelativeUnits), 0.25f);
         }
 
         // When the world starts, we determine the placement of this object in relation to the start point
@@ -61,60 +75,45 @@ namespace RDW {
             // To make it easier, let's set THIS environment as the static environment
             Current = this;
 
-            // We need to calcualte the actual start point. 
+            // We need to calculate the actual start point. 
             // Because the boundary is dynamic, for now we place ourselves at world center
             transform.position = (RDW.Instance != null)
                 ? RDW.Instance.worldCenter 
                 : Vector3.zero;
 
-            // We need to determine the start point. This is based on the Boundary defined by the user.
-            // For now, we need two things:
-            // 1. The local position of the anchor point based on BoundaryAnchor.
-            // 2. The local position of the start position relative to this transform
-            localBoundaryAnchor = GetLocalAnchorPosition(startRelativeTo);
-            localStartPosition = transform.InverseTransformPoint(startPointRef.position) / startScale;
+            // We need to get the start point reference's position relative to the boundary.
+            // Assuming that we are refering to the start point reference's world position, 
+            // We can calculate that same world position in reference to our boundary
+            Vector3 boundaryStartInWorld = GetPointRelativeToBoundary(
+                startPointRef.position, 
+                startRelativeTo, 
+                startRelativeUnits
+            );
+            startPointRef.position = boundaryStartInWorld;
 
-            // Right now, both are in a scale between (-1:1, -1:1) relative to the center. 
-            // For example, (0.5, 0.5) is the northeast corner; (-0.5, -0.5) is the southwest corner.
-            // We need to calculate the offset from the anchor point in local space
-            // So for example, if we have an anchor of (0.5,0.5) (northeast) and we have a start of (0.2, -0.1),
-            // then offset (relative to the anchor) is (0.2, -0.1) - (0.5, 0.5) = (-0.3, -0.6)
-            Vector2 offset = new Vector2(localStartPosition.x, localStartPosition.z) - localBoundaryAnchor;
+            // Now, let's assume our environment root (which should have an `EnvironmentRoot` component)
+            // has its own starting point relative to itself. Our goal now is to make `EnvironmentRoot`
+            // line up such that its starting point's orientation matches the orientation of `startPointRef`.
 
-            // The world space offset is defined by whether it should be in meters or relative.
-            worldOffset = (startRelativeUnits == BoundaryScale.Meters)
-                ? new Vector3(offset.x, 0f, offset.y) 
-                : Boundary.Instance.transform.TransformVector(new Vector3(offset.x, 0f, offset.y));
-            
-            // Now, the true start point can be converted to Boundary space
-            worldStartPosition = 
-                Boundary.Instance.transform.TransformPoint(new Vector3(localBoundaryAnchor.x, 0f, localBoundaryAnchor.y)) 
-                + worldOffset;
-            
-            // With that defined, we actually need to move `envRoot` such that 
-            // the start ref is actually placed on top of `worldStartPosition`.
-            // The fortunate thing is that since we know the world positions of both the start ref and world start position,
-            // we can easily just translate `envRoot` to align
-            envRoot.position += worldStartPosition - startPointRef.position;
-            startPointRef.position = worldStartPosition;
+            // 1. Match Rotation
+            environmentRoot.transform.rotation = startPointRef.rotation * Quaternion.Inverse(environmentRoot.startRef.localRotation);
+            // 2. Match positions
+            environmentRoot.transform.position = boundaryStartInWorld - environmentRoot.transform.rotation * environmentRoot.startRef.localPosition;
 
-            // At this point, we ask if we want to start the redirection and world upon completing the translation or not.
-            if (startOnLoad) StartEnvironment();
-            else envRoot.gameObject.SetActive(false);
         }
 
         private void OnDisable() {
             Current = null;
-            if (Redirector2.Instance != null && Redirector2.Instance.environmentParent == this.transform) {
+            if (Redirector2.Instance != null && Redirector2.Instance.environmentParent == environmentRoot.transform) {
                 Redirector2.Instance.environmentParent = null;
             }
         }
 
         public void StartEnvironment() {
             // Initialize the environment
-            envRoot.gameObject.SetActive(true);
+            environmentRoot.gameObject.SetActive(true);
             if (Redirector2.Instance != null) {
-                Redirector2.Instance.environmentParent = this.transform;
+                Redirector2.Instance.environmentParent = environmentRoot.transform;
                 // Initialize redirection
                 Redirector2.Instance.Activate();
             }
@@ -125,15 +124,39 @@ namespace RDW {
             if (RDW.Instance != null) RDW.Instance.UnloadEnvironment();
         }
 
-        // Helper functions: Given a world position, direction, or rotation, return their local variants relative to `envRoot`.
+        
+        // Helper functions: Given a world position, direction, or rotation, return their local variants relative to `environmentRoot`.
         public Vector3 GetLocalPositionInEnv(Vector3 worldPosition) {
-            return envRoot.InverseTransformPoint(worldPosition);
+            return environmentRoot.transform.InverseTransformPoint(worldPosition);
         }
         public Vector3 GetLocalDirectionInEnv(Vector3 worldDirection) {
-            return envRoot.InverseTransformPoint(worldDirection);
+            return environmentRoot.transform.InverseTransformPoint(worldDirection);
         }
         public Quaternion GetLocalRotationInEnv(Quaternion worldRotation) {
-            return Quaternion.Inverse(envRoot.rotation) * worldRotation;
+            return Quaternion.Inverse(environmentRoot.transform.rotation) * worldRotation;
+        }
+
+        private Vector3 GetPointRelativeToBoundary(Vector3 worldPosition, BoundaryAnchor anchor, BoundaryScale relative) {
+            // Determine the transformation referencing the boundary. Fallback in case something happens
+            Transform boundaryRef = (Boundary.Instance != null) 
+                ? Boundary.Instance.transform
+                : (boundaryDebugRef != null)
+                    ? boundaryDebugRef
+                    : this.transform;
+            // Get the "local" position, as our start anchor was probably situated in world space
+            Vector3 localPosition = worldPosition / startScale;
+            // We also need to calculte our anchor's local position too
+            Vector2 localAnchor = GetLocalAnchorPosition(anchor);
+            Vector3 localAnchor3D = new Vector3(localAnchor.x, 0f, localAnchor.y);
+            // We must calculate the offset between the anchor and local position. 
+            Vector3 localPositionToAnchor = localPosition - localAnchor3D;
+            // The moment of truth: what's the new start position relative to the boundary itself?
+            // The calculation will differ based on if we want our relativity to be in meters or percentge
+            //  - if in meters, then we only transform the local anchor to be relative to the boundary space scale. The offset is re-multiplied with the `startScale` and added.
+            //  - if in percentag,e then it's really just the same as if we were to do `boundary.TrnsformPoint(localPosition)
+            return (relative == BoundaryScale.Meters)
+                ? boundaryRef.TransformPoint(localAnchor3D) + localPositionToAnchor * startScale
+                : boundaryRef.TransformPoint(localAnchor3D + localPositionToAnchor);
         }
 
         // =====================================================================

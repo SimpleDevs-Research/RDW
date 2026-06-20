@@ -17,6 +17,7 @@ namespace RDW {
             public void ToggleUI(bool setTo = true) {
                 selectedUI.interactable = setTo;
                 selectedUI.alpha = (setTo) ? 1f : 0f;
+                selectedUI.blocksRaycasts = setTo;
             }
         }
 

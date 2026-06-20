@@ -20,7 +20,7 @@ namespace RDW {
             AtBoundary  = 0x04,
         }
 
-        [Header("=== Referenecs ===")]
+        [Header("=== References ===")]
         [Tooltip("The environment parent is a game object parent that contains all the objects in the virtual environment.")]
         public Transform environmentParent;
         [Tooltip("This is the gain settings associated with this. The RDW gain setting is priority, so this is just a reference. It WILL be overwritten, so don't bother setting it in the inspector.")]
@@ -71,6 +71,8 @@ namespace RDW {
         public float speed_factor = 0f;
         [Tooltip("The pivot position where the environment is rotating around")]
         public Vector3 pivot = Vector3.zero;
+        [Tooltip("The \"CURRENT\" pivot. Could be `pivot`, but could also be something else.")]
+        public Vector3 current_pivot = Vector3.zero;
         [Tooltip("What's the current state of the player?")]
         public PlayerState playerState = PlayerState.Standing;
         
@@ -156,7 +158,7 @@ namespace RDW {
 
             // Measure the current frame
             CacheCurrent(deltaTime);
-            Vector3 activePivot = pivot;
+            current_pivot = pivot;
             CalculatePlayerState(deltaTime);
             Debug.Log("Update: Current cached");
 
@@ -177,16 +179,10 @@ namespace RDW {
                     current_yaw_delta += gainSettings.manualGain.CalculateGain(this, deltaTime);
                     if (gainSettings.manualGain.active) {
                         //activePivot = gainSettings.manualGain.GetLockedPivot();
-                        activePivot = Player.Instance.CurrentState.Pivot;
+                        current_pivot = Player.Instance.CurrentState.Pivot;
                     }
                 }
                 Debug.Log("Update: All gain components contributed to gain");
-
-                // After calculating the entire yaw delta, rotate the environment around the pivot point.
-                environmentParent.RotateAround(activePivot, Vector3.up, current_yaw_delta);
-                // After rotation, we also apply translational gain
-                environmentParent.position += current_translation_delta;
-                Debug.Log("Environment Adjusted");
             }
 
             // Cache the current data into the previous for the next frame
@@ -194,7 +190,21 @@ namespace RDW {
             Debug.Log("Update: Previous cached");
 
             // If logging, save
-            if (write_log && json_writer.is_active) AddLogState(deltaTime, activePivot);
+            if (write_log && json_writer.is_active) AddLogState(deltaTime, current_pivot);
+        }
+
+        private void LateUpdate() {
+            if (environmentParent != null) {
+                // After calculating the entire yaw delta, rotate the environment around the pivot point.
+                environmentParent.RotateAround(current_pivot, Vector3.up, current_yaw_delta);
+                // After rotation, we also apply translational gain
+                environmentParent.position += current_translation_delta;
+                // We rotate the skybox to adhere to our environmentParent's rotation
+                RenderSettings.skybox.SetFloat(
+                    "_Rotation",
+                    -environmentParent.eulerAngles.y
+                );
+            }
         }
 
         private void CacheCurrent(float deltaTime) {

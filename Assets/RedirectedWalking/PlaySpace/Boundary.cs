@@ -116,6 +116,8 @@ namespace RDW {
         }
         public void SetApproachDistance(float d) {
             _approachingDistance = d;
+            boundaryMaterial.SetFloat( WarningDistanceID, d*3f );
+
         }
         public void SetWarningDistance(float d) {
             _warningDistance = d;

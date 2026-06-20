@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97db5a29a334c4345a7bb06fc1cb91a0, type: 3}
-  m_Name: DemoCorridor
+  m_Name: DemoStreetSim
   m_EditorClassIdentifier: 
-  sceneName: DemoCorridor
+  sceneName: DemoStreetSim
   usePassthrough: 0
   curvatureGain:
     _enabled: 1

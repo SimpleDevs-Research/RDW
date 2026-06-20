@@ -28,7 +28,6 @@ namespace StreetSim {
         public RouteNode[] startNodes;                  // The route nodes that pedestrians can start at. 
         public RouteNode[] endNodes;                    // The route nodes that pedestrians can end at.
         public Vector2 spawnDelayMinMax;                // In seconds, the min and max time to wait between spawns.
-        public bool hideAnimationOnStart;               // The `Pedestrian` class has a `ToggleAnimation(bool)`. Toggle this to initialize animation on start.
 
         [Header("=== CACHED DATA - READ-ONLY ===")]
         [SerializeField] private int _totalSpawned = 0;         // How many agents have been spawned in total?
@@ -37,6 +36,8 @@ namespace StreetSim {
         private List<Pedestrian> _activePedestrians = new();   // This is a List for all ACTIVE pedestrians
         private List<Pedestrian> _inactivePedestrians = new();  // This is a List for all INACTIVE pedestrians
         private Coroutine spawnCoroutine = null;
+        public bool hideAnimationOnStart = false;               // The `Pedestrian` class has a `ToggleAnimation(bool)`. Toggle this to initialize animation on start.
+
 
         // `Generator` has an `Awake()` function already that does a ton of prep. We won't overwrite it.
         // This `Awake` subsequently alls a `Generate` function. However, there's nothing wrong with spawning
@@ -44,6 +45,7 @@ namespace StreetSim {
         // RouteManager time to process all nodes first
 
         protected void Start() {
+            hideAnimationOnStart = Object.FindAnyObjectByType<PedestrianOccluder>() != null;
             // Invoke the coroutine to initialize the loop to activate robots over time
             spawnCoroutine = StartCoroutine(SpawnCoroutine());
         }

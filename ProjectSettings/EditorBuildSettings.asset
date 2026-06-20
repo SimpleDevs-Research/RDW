@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/RedirectedWalking/Scenes/Scenarios/DemoCorridor.unity
     guid: 4471586c00e52e546b8349d0c0d62e5c
+  - enabled: 1
+    path: Assets/RedirectedWalking/Scenes/Scenarios/DemoStreetSim.unity
+    guid: 872530ce7279e854bb31e2f9713cf68a
   - enabled: 0
     path: Assets/RedirectedWalking/Debug/Scenes/1.RDW-Backup.unity
     guid: e90fbf55fc8559b4eb89cec313f4bed7

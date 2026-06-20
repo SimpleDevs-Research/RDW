@@ -95,7 +95,7 @@ namespace RDW {
             // If environment exists, make sure it's positioned properly
             if (Environment.Current != null) {
                 environment = Environment.Current;
-                environmentAvatar.parent = environment.envRoot;
+                environmentAvatar.parent = environment.environmentRoot.transform;
                 if (orientEnvironment) environment.transform.position = session.worldCenter;
                 environment.StartEnvironment();
             }
