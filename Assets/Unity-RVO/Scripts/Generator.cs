@@ -40,6 +40,11 @@ namespace RVO {
         [Tooltip("Spawn Orientation Setting")]                  public SpawnStyle spawn_orientation = SpawnStyle.Random;
         [Tooltip("Distance between start and end pos. ONLY with a non-random spawn orientation")]   public float bound_edge_buffer = 10f;
         
+        [Header("=== Non-Agent Trackables ===")]
+        [Tooltip("Buffer number of expected non-agent trackables that should be considered.")]                          public int num_non_agents = 0;
+        [Tooltip("List of transforms that ought to be tracked as non-agents. Size cannot exceed `num_non_agents`.")]    public List<NonAgent> non_agents;
+        public int num_total_agents => num_agents + num_non_agents; // Total number of agents
+        
         [Header("=== RVO Global Settings ===")]
         [Tooltip("Which RVO style should we use?")]             public RVOMethod rvo_method = RVOMethod.RVO;
         [Tooltip("All demographic groups used when generating agents. Note that the demographic groups' chances must total to 100")]
@@ -52,6 +57,7 @@ namespace RVO {
         public VisionMethod visionMethod = VisionMethod.SpatialHash;
         [Tooltip("For spatial hashing, what should be the grid size?")] public float grid_cell_size = 1f;
         [Space]
+        
 
         //[Header("=== Non-RVO ===")]
         /*
@@ -93,16 +99,15 @@ namespace RVO {
         }
 #endif
 
-        private void Awake()
-        {
+        private void Awake() {
+            // Set initial instance
             current = this;
 
             // If the agent_parent is null, we set to ourselves
             if (agent_parent == null) agent_parent = this.transform;
 
             // If camera is assigned, then prep it
-            if (scene_cam != null)
-            {
+            if (scene_cam != null) {
                 Vector3 cam_pos = new Vector3(bounds.x / 2f, 100f, bounds.y / 2f);
                 float screen_ratio = (float)Screen.width / (float)Screen.height;
                 float target_ratio = bounds.x / bounds.y;
@@ -117,8 +122,7 @@ namespace RVO {
             }
 
             // If the floor is assigned, then prep it
-            if (floor != null)
-            {
+            if (floor != null) {
                 floor.rotation = Quaternion.Euler(90f, 0f, 0f);
                 floor.position = new Vector3(bounds.x / 2f, 0f, bounds.y / 2f);
                 floor.localScale = new Vector3(bounds.x, bounds.y, 0f);
@@ -144,14 +148,18 @@ namespace RVO {
 
         public virtual void Generate() {
             // Step 1: Generate some arrays specific to Generator
-            this.agent_positions = new Vector3[num_agents];
-            // Step 2: Use a FOR loop to instantiate agent values. Set their respective values in our native/normal arrays
+            this.agent_positions = new Vector3[num_total_agents];
+            // Step 2a: Use a FOR loop to instantiate agent-only values. Set their respective values in our native/normal arrays
             for (int i = 0; i < num_agents; i++) GenerateAgent(i);
+            // Step 2b. Search for non-agents. Then use a FOR loop to initialize non-agent values.
+            GenerateNonAgents();
             // Step 3: For our VO_OP, inform its transform access array
             vo_op.UpdateTransforms();     
             // Step 4: Initialize our KDTree and Query
-            tree = new KDTree(this.agent_positions, 32);
-            query = new KDQuery();
+            if (visionMethod == VisionMethod.KDTree) {
+                tree = new KDTree(this.agent_positions, 32);
+                query = new KDQuery();
+            }
         }
 
         // By default, the base Generator class will randomize the start and end positions of each agent.
@@ -211,10 +219,42 @@ namespace RVO {
             }
         }
 
+        protected virtual void GenerateNonAgents() {
+            // We search the hierarchy for all game objects with the `NonAgent` component
+            // There may be more or less than `num_non_agents`
+            NonAgent[] detected_non_agents = FindObjectsByType<NonAgent>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
+            // Start to populate `non_agents` list. At most, we can have `num_non_agents` amount of NonAgents.
+            // if we happen to detect a smaller number than expected, then we need to fill the remaining amount
+            // in our NativeArrays with dummy data and set them to be inactive.
+            non_agents = new List<NonAgent>();
+            for(int i = 0; i < num_non_agents; i++) {
+                if (i < detected_non_agents.Length ) {
+                    // This is a legit robot. We must Initialize it and add to our NativeArray
+                    NonAgent robot = detected_non_agents[i];
+                    robot.agent_index = num_agents + i;
+                    robot.generator = this;
+                    robot.prev_position = robot.position;
+                    vo_op.AddNonAgent(robot);
+                    non_agents.Add(robot);
+                } 
+                else {
+                    // This is a dummy; no record exists in the detected agents. So we must fill with dummy data
+                    vo_op.AddNonAgent(num_agents + i);
+                }
+            }
+
+            // Unfortunately for this part, if we happened to detect more than the max number of `non_agents`, then 
+            // We have to leave them alone...
+        }
+
 
         // ============================================
         // NOTE: HOW THIS SCRIPT OPERATES
         // This script encompasses 3 distinct levels of a simulation: 
+        // 0. UPDATE NON-AGENTS: Non-agents must be updated in our `vo_op` array buffers
         // 1. OBSERVATION: Agents identify who their closest neighbors are
         // 2. PROCESSING: Agents will determine optimal velocities to move towards based on RVO
         // 3. MOVEMENT: Agents will adjust their positions and current velocities to reflect Step 2.
@@ -222,6 +262,15 @@ namespace RVO {
         // We provide the base classes for Observation, Processing, and Movement as well.
         // If you want to modify any of these operations, you can create your own inherited child of this script and modify them.
         // ============================================
+
+
+        // The UPDATE NON-AGENTS step. For each non-agent, update and then migrate data to our Array Buffers
+        protected virtual void UpdateNonAgents(float deltaTime) {
+            foreach(NonAgent non_agent in non_agents) {
+                non_agent.UpdateAgent(deltaTime);
+                vo_op.UpdateNonAgent(non_agent);
+            }
+        }
 
 
         // The OBSERVATION step: For each agent, perform a KDTree search.
@@ -238,14 +287,17 @@ namespace RVO {
 
         // This observation variant uses spatial hashing to observe other agents. This is a parallelized variant.
         private void SpatialHashObservation() {
+
+            // Grid updates have to be called for ALL agents (both agents and non-agents)
             vo_op.grid.Clear();
             var buildJob = new BuildGridJob {
                 positions = vo_op.positions,    // vo_op positions in float3 space
                 cellSize = visual_radius,       // static float 
                 grid = vo_op.grid.AsParallelWriter()
             };
-            buildGridHandle = buildJob.Schedule(num_agents, 64);
+            buildGridHandle = buildJob.Schedule(num_total_agents, 64);  // note `num_total_agents` to update everyone
 
+            // However, `ObservationJob` only needs to update agent-agents, not non-agents.
             var observationJob = new ObservationJob {
                 positions = vo_op.positions,
                 radii = vo_op.radii,
@@ -259,8 +311,7 @@ namespace RVO {
                 neighbor_indices = vo_op.neighbor_indices,
                 colliding = vo_op.colliding
             };
-
-            observationHandle = observationJob.Schedule(num_agents, 64, buildGridHandle);
+            observationHandle = observationJob.Schedule(num_agents, 64, buildGridHandle);   // Note `num_agents` instead of `num_total_agents`
             observationHandle.Complete();
         }
 
@@ -332,13 +383,14 @@ namespace RVO {
 
         // The MOVEMENT step: Knowing the optimal velocities to move in, adjust the position of each agent.
         protected virtual void Movement(float deltaTime) {
-            // Initialize the job data
+            // Initialize the job data. This is a job only for agent-agents, not non-agents
             var movement_job = new ApplyVelocityJobParallelFor() {
                 new_velocities = vo_op.new_velocities,
                 destinations = vo_op.destinations,
                 deltaTime = deltaTime,
                 accelerations = vo_op.accelerations,
                 active = vo_op.active,
+                is_agent = vo_op.is_agent,
                 destination_buffer = destination_buffer,
                 positions = vo_op.positions,
                 velocities = vo_op.velocities,
@@ -352,16 +404,16 @@ namespace RVO {
 
         // In this base class, we call Steps 1 and 2 in the Update loop and Step 3 in the LateUpdate loop.
         protected virtual void Update() {
-            Observation();                  // Vision
-            Processing(Time.deltaTime);     // Local Collision Avoidance
-            Movement(Time.deltaTime);       // Movement
+            float deltaTime = Time.deltaTime;   // Get latest delta time
+            UpdateNonAgents(deltaTime);         // Non-Agents update
+            Observation();                      // Vision
+            Processing(deltaTime);              // Local Collision Avoidance
+            Movement(deltaTime);                // Movement
         }
         protected virtual void LateUpdate() {
             // Simpe: Rebuild our Tree after moving data from `positions` into `agent_positions`
-            if (visionMethod == VisionMethod.KDTree) {
-                tree.Rebuild();
-                vo_op.positions.Reinterpret<Vector3>().CopyTo(agent_positions);
-            }
+            vo_op.positions.Reinterpret<Vector3>().CopyTo(agent_positions);
+            if (visionMethod == VisionMethod.KDTree) tree.Rebuild();
 
             /*
             // Handle the cse that our `reached_destination_count` matches the total number of agents
@@ -545,6 +597,7 @@ namespace RVO {
             [ReadOnly] public NativeArray<float3> destinations;
             [ReadOnly] public NativeArray<float> max_rotation_speeds;
             [ReadOnly] public NativeArray<bool> active;
+            [ReadOnly] public NativeArray<bool> is_agent;
 
             // Delta time must be copied to the job since jobs generally don't have concept of a frame.
             // The main thread waits for the job same frame or next frame, but the job should do work deterministically
@@ -558,8 +611,12 @@ namespace RVO {
 
             // The code actually running on the job
             public void Execute(int index, TransformAccess transform) {
-                // Skip early if inactive
-                if (!active[index] || reached_destination[index]) {
+                // Skip early without modifying velocity if we're a non-agent
+                if (!is_agent[index]) {
+                    return;
+                }
+                // Skip early if we're inactive, or have reached our destination already
+                if (!is_agent[index] || !active[index] || reached_destination[index]) {
                     // Don't update position or reached destination
                     velocities[index] = new_velocities[index];
                     return;

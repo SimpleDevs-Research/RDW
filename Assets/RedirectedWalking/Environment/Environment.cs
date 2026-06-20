@@ -99,7 +99,6 @@ namespace RDW {
             environmentRoot.transform.rotation = startPointRef.rotation * Quaternion.Inverse(environmentRoot.startRef.localRotation);
             // 2. Match positions
             environmentRoot.transform.position = boundaryStartInWorld - environmentRoot.transform.rotation * environmentRoot.startRef.localPosition;
-
         }
 
         private void OnDisable() {
@@ -195,5 +194,8 @@ namespace RDW {
             // Now simply return the not-local anchor position
             return new Vector2(localPos.x * size.x, localPos.y * size.y) + center;
         }
+
+        // ======================================================================
+        // If your scene adds a query 
     }
 }
