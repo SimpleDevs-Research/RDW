@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Helpers;
+using RVO;
 
 namespace RDW {
     public class Redirector2 : MonoBehaviour
@@ -25,6 +26,7 @@ namespace RDW {
         public Transform environmentParent;
         [Tooltip("This is the gain settings associated with this. The RDW gain setting is priority, so this is just a reference. It WILL be overwritten, so don't bother setting it in the inspector.")]
         [SerializeField] private GainSettings gainSettings;
+        [SerializeField] private List<RVO.NonAgent> rvo_non_agents = new();
 
         [Header("=== Gain Components ===")]
         [Tooltip("The minimum speed expected for a player in motion. If the user's speed is smaller than this, then they're classified as `Standing`.")]
@@ -160,7 +162,6 @@ namespace RDW {
             CacheCurrent(deltaTime);
             current_pivot = pivot;
             CalculatePlayerState(deltaTime);
-            Debug.Log("Update: Current cached");
 
             // We ONLY update our gain if `environmentParent` is not null
             if (environmentParent != null) {
@@ -182,12 +183,10 @@ namespace RDW {
                         current_pivot = Player.Instance.CurrentState.Pivot;
                     }
                 }
-                Debug.Log("Update: All gain components contributed to gain");
             }
 
             // Cache the current data into the previous for the next frame
             CachePrev();
-            Debug.Log("Update: Previous cached");
 
             // If logging, save
             if (write_log && json_writer.is_active) AddLogState(deltaTime, current_pivot);
@@ -344,6 +343,18 @@ namespace RDW {
 
         public void TogglePivotOrigin() {
             pivotOrigin = (pivotOrigin == PivotOrigin.Head) ? PivotOrigin.BoundaryBuffer : PivotOrigin.Head;
+        }
+
+        public void SetEnvironmentParent(Transform t) {
+            environmentParent = t;
+        }
+        public void SetNonAgentParents(Transform t) {
+            if (rvo_non_agents.Count > 0) {
+                foreach(RVO.NonAgent non_agent in rvo_non_agents) {
+                    Debug.Log($"Set Environment for {non_agent.gameObject.name}");
+                    non_agent.environment_parent = t;
+                }
+            }
         }
 
         private void OnApplicationPause(bool pauseStatus) {

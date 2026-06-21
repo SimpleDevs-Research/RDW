@@ -328,7 +328,8 @@ public class CapsulePrism : MonoBehaviour
         Vector3 raycastPoint = queryPoint;
         float raycastDistance = 0f;
         Ray ray = new Ray(prismPoint, dir);
-        if (mc.Raycast(ray, out RaycastHit hit,  float.MaxValue)) {
+        RaycastHit hit;
+        if (mc.Raycast(ray, out hit, float.MaxValue)) {
             raycastPoint = hit.point;
             raycastDistance = hit.distance;
         }

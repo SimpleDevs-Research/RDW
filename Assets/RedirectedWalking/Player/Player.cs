@@ -68,7 +68,7 @@ namespace RDW {
             Instance = this;
         }
 
-        private void Start() {
+        private void OnEnable() {
             _currentState = new Status {
                 Position = headPoseAnchor.position,
                 Forward = headPoseAnchor.forward
@@ -78,9 +78,7 @@ namespace RDW {
                 Forward = headPoseAnchor.forward
             };
             headPoseAnchor.localPosition = new Vector3(0f, 0f, _headPoseOffset);
-        }
 
-        private void OnEnable() {
             // Current state gets updated anyways in update loop
             CachePreviousState();
         }

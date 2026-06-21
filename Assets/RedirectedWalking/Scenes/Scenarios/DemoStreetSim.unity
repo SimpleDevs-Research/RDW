@@ -2098,6 +2098,8 @@ MonoBehaviour:
   destination_buffer: 0.1
   spawn_orientation: 0
   bound_edge_buffer: 1
+  num_non_agents: 3
+  non_agents: []
   rvo_method: 0
   demographics:
     demographics:
@@ -2118,7 +2120,7 @@ MonoBehaviour:
   endNodes:
   - {fileID: 403308244}
   - {fileID: 170343454}
-  spawnDelayMinMax: {x: 0.4, y: 0.6}
+  spawnDelayMinMax: {x: 0.5, y: 0.75}
   _totalSpawned: 0
   _totalActive: 0
   hideAnimationOnStart: 1

@@ -99,12 +99,9 @@ namespace RDW {
             environmentRoot.transform.rotation = startPointRef.rotation * Quaternion.Inverse(environmentRoot.startRef.localRotation);
             // 2. Match positions
             environmentRoot.transform.position = boundaryStartInWorld - environmentRoot.transform.rotation * environmentRoot.startRef.localPosition;
-        }
 
-        private void OnDisable() {
-            Current = null;
-            if (Redirector2.Instance != null && Redirector2.Instance.environmentParent == environmentRoot.transform) {
-                Redirector2.Instance.environmentParent = null;
+            if (Redirector2.Instance != null) {
+                Redirector2.Instance.SetNonAgentParents(environmentRoot.transform);
             }
         }
 
@@ -112,8 +109,8 @@ namespace RDW {
             // Initialize the environment
             environmentRoot.gameObject.SetActive(true);
             if (Redirector2.Instance != null) {
-                Redirector2.Instance.environmentParent = environmentRoot.transform;
                 // Initialize redirection
+                Redirector2.Instance.SetEnvironmentParent(environmentRoot.transform);
                 Redirector2.Instance.Activate();
             }
         }
@@ -121,6 +118,14 @@ namespace RDW {
         // This is a special function event handler that can be called if the scene needs to be unloaded from within the scene.
         public void EnvironmentComplete() {
             if (RDW.Instance != null) RDW.Instance.UnloadEnvironment();
+        }
+
+        private void OnDisable() {
+            Current = null;
+            if (Redirector2.Instance != null && Redirector2.Instance.environmentParent == environmentRoot.transform) {
+                Redirector2.Instance.SetEnvironmentParent(null);
+                Redirector2.Instance.SetNonAgentParents(null);
+            }
         }
 
         

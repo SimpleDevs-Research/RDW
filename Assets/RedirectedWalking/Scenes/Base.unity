@@ -2927,6 +2927,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   environmentParent: {fileID: 0}
   gainSettings: {fileID: 0}
+  rvo_non_agents:
+  - {fileID: 1160775555}
+  - {fileID: 1740749106}
+  - {fileID: 454340592}
   min_speed_threshold: 0.25
   max_speed_threshold: 1.5
   pivotOrigin: 0
@@ -4464,7 +4468,7 @@ MonoBehaviour:
   agent_index: 0
   generator: {fileID: 0}
   personality: {fileID: 0}
-  parent: {fileID: 0}
+  environment_parent: {fileID: 0}
   radius: 0.15
   position: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
@@ -10745,7 +10749,7 @@ MonoBehaviour:
   agent_index: 0
   generator: {fileID: 0}
   personality: {fileID: 0}
-  parent: {fileID: 0}
+  environment_parent: {fileID: 0}
   radius: 0.5
   position: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
@@ -16324,7 +16328,7 @@ MonoBehaviour:
   agent_index: 0
   generator: {fileID: 0}
   personality: {fileID: 0}
-  parent: {fileID: 0}
+  environment_parent: {fileID: 0}
   radius: 0.15
   position: {x: 0, y: 0, z: 0}
   velocity: {x: 0, y: 0, z: 0}
@@ -16750,17 +16754,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6330027917477505182, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      insertIndex: -1
+      insertIndex: 1
+      addedObject: {fileID: 1854862631}
+    - targetCorrespondingSourceObject: {fileID: 6330027917477505182, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
+      insertIndex: 2
       addedObject: {fileID: 1854862632}
     - targetCorrespondingSourceObject: {fileID: 6330027917477505182, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1854862631}
+      insertIndex: 3
+      addedObject: {fileID: 1854862629}
     - targetCorrespondingSourceObject: {fileID: 6330027917477505182, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1854862630}
-    - targetCorrespondingSourceObject: {fileID: 6330027917477505182, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1854862629}
   m_SourcePrefab: {fileID: 100100000, guid: 442bd51d31fefd04199dd4aba7e33bbb, type: 3}
 --- !u!4 &1854862626 stripped
 Transform:
@@ -23371,11 +23375,11 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1828734505}
+  - {fileID: 20072625}
   - {fileID: 1262323430}
   - {fileID: 1248658036}
   - {fileID: 50415167}
   - {fileID: 216013263}
-  - {fileID: 20072625}
   - {fileID: 7400852529839785661}
   - {fileID: 331262022}
   - {fileID: 1972560489}
