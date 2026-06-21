@@ -21,7 +21,7 @@ MonoBehaviour:
   inertia_factor: 0
   spatial_radius: 0.25
   max_speed: 1
-  max_rotation_speed: 5
+  max_rotation_speed: 90
   acceleration: 3
   risk_aversion: 0
   dirtiness_aversion: 0

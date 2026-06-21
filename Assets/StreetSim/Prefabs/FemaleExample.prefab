@@ -12,6 +12,26 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 457395244749272085, guid: 8714e3d791849f94a9b1fed5c80d2460, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 457395244749272085, guid: 8714e3d791849f94a9b1fed5c80d2460, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 457395244749272085, guid: 8714e3d791849f94a9b1fed5c80d2460, type: 3}
+      propertyPath: m_LODs.Array.data[0].screenRelativeHeight
+      value: 0.5966058
+      objectReference: {fileID: 0}
+    - target: {fileID: 457395244749272085, guid: 8714e3d791849f94a9b1fed5c80d2460, type: 3}
+      propertyPath: m_LODs.Array.data[1].screenRelativeHeight
+      value: 0.29722446
+      objectReference: {fileID: 0}
+    - target: {fileID: 457395244749272085, guid: 8714e3d791849f94a9b1fed5c80d2460, type: 3}
+      propertyPath: m_LODs.Array.data[2].screenRelativeHeight
+      value: 0.10313209
+      objectReference: {fileID: 0}
     - target: {fileID: 1560565717286918721, guid: 8714e3d791849f94a9b1fed5c80d2460, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
