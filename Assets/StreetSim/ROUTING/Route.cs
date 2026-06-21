@@ -8,13 +8,14 @@ namespace StreetSim {
     [System.Serializable]
     public class Route : ISerializationCallbackReceiver {
 
-        public string name = "";
+        [HideInInspector] public string name = "";
         
         // ==========================================
-        [Header("=== Manual - You Must Set These! ===")]
+        // === Manual - You Must Set These! ===
         // ==========================================
         public RouteNode node1;
         public RouteNode node2;
+        public bool is_active = true;
         public float pathWidth = 5;
         public float baseCost = 1;
         public float safety = 1;
@@ -34,7 +35,10 @@ namespace StreetSim {
         public float computedCost;
 
         private void OnValidate() {
-            if (node1 != null && node2 != null) name = $"{node1.gameObject.name} - {node2.gameObject.name}";
+            if (node1 != null && node2 != null) {
+                name = $"{node1.gameObject.name} - {node2.gameObject.name}";
+                if (!is_active) name += " (INACTIVE)";
+            }
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize () => this.OnValidate();

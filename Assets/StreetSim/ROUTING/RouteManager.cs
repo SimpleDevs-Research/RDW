@@ -42,6 +42,7 @@ namespace StreetSim {
         // least one route defined by runtime for this to work.
         [SerializeField, Tooltip("You must define the routes within your environment here. You must have at least one route defined by runtime for this to work.")]
         private List<Route> _routes = new();
+        private List<Route> _active_routes = new();
         
         // You must set a path region prefab here. This prefab will be used to auto-generete 
         // path regions for each route you've defined above.
@@ -156,6 +157,9 @@ namespace StreetSim {
             Quaternion n1r, n2r;
 
             foreach(Route route in _routes) {
+                // Double-check: is this an active route? If not, then skip
+                if (!route.is_active) continue;
+
                 // Get references to each node in the current route
                 n1 = route.node1;
                 n1p = n1.transform.localPosition;
@@ -202,6 +206,9 @@ namespace StreetSim {
                 
                 // Set the route's path region
                 route.pathRegion = pr;
+
+                // Add our route to `_active_routes`
+                _active_routes.Add(route);
             }
 
             // --------------------
@@ -229,7 +236,7 @@ namespace StreetSim {
         // =======================================================
         public void RecomputeRoutes(RVO.Personality personality) {
             // We must loop through all our routes and their edges
-            foreach(Route route in _routes) {
+            foreach(Route route in _active_routes) {
 
                 // We take up this moment to update ourselves via our PathRegion
                 route.dirtiness = route.pathRegion.dirtiness;
@@ -372,12 +379,13 @@ namespace StreetSim {
         #if UNITY_EDITOR
         private void OnDrawGizmosSelected() {
 
-            foreach (Route route in _routes) {
+            foreach (Route route in _active_routes) {
                 if(
                     route.node1 != null 
                     && route.node1.transform != null
                     && route.node2 != null
                     && route.node2.transform != null
+                    && route.is_active
                 ) {
 
                     Gizmos.color = Color.green;

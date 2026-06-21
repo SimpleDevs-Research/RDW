@@ -149,7 +149,7 @@ Transform:
   m_GameObject: {fileID: 12289122}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: 0, z: -45}
+  m_LocalPosition: {x: 2.5, y: 0, z: -45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -625,7 +625,7 @@ Transform:
   m_GameObject: {fileID: 292050854}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: 0, z: -15}
+  m_LocalPosition: {x: 2.5, y: 0, z: -15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -765,7 +765,7 @@ GameObject:
   m_Component:
   - component: {fileID: 416183161}
   m_Layer: 0
-  m_Name: Eas Buildings
+  m_Name: East Buildings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -780,7 +780,7 @@ Transform:
   m_GameObject: {fileID: 416183160}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.5, y: 0, z: 0}
+  m_LocalPosition: {x: -5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -949,13 +949,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 450913740}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.2577059, y: -0.120251514, z: 0.18861957, w: 0.9399734}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1904438054}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 31.994, y: -8.739, z: 20.183}
 --- !u!1 &455480961
 GameObject:
   m_ObjectHideFlags: 0
@@ -1303,7 +1303,7 @@ Transform:
   m_GameObject: {fileID: 508268818}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5, y: 0, z: 0}
+  m_LocalPosition: {x: 5, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1473,7 +1473,7 @@ Transform:
   m_GameObject: {fileID: 587731090}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0, z: 15}
+  m_LocalPosition: {x: -2.5, y: 0, z: 15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1519,7 +1519,7 @@ Transform:
   m_GameObject: {fileID: 615312300}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -50}
+  m_LocalPosition: {x: 0, y: 0, z: -30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1924,7 +1924,7 @@ Transform:
   m_GameObject: {fileID: 718449942}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0, z: -15}
+  m_LocalPosition: {x: -2.5, y: 0, z: -15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2094,7 +2094,7 @@ MonoBehaviour:
   scene_cam: {fileID: 0}
   floor: {fileID: 0}
   bounds: {x: 30, y: 130}
-  num_agents: 100
+  num_agents: 140
   destination_buffer: 0.1
   spawn_orientation: 0
   bound_edge_buffer: 1
@@ -2476,9 +2476,10 @@ MonoBehaviour:
     are set in the Inspector.'
   _kdTree: {fileID: 908227479}
   _routes:
-  - name: EndNode North - N1 Center
+  - name: EndNode North - N1 Center (INACTIVE)
     node1: {fileID: 403308244}
     node2: {fileID: 154021618}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2487,9 +2488,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: EndNode North - N1 West
+  - name: EndNode North - N1 West (INACTIVE)
     node1: {fileID: 403308244}
     node2: {fileID: 1782661036}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2498,9 +2500,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: EndNode North - N1 East
+  - name: EndNode North - N1 East (INACTIVE)
     node1: {fileID: 403308244}
     node2: {fileID: 1873343155}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2509,9 +2512,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 Center - N1 East
+  - name: N1 Center - N1 East (INACTIVE)
     node1: {fileID: 154021618}
     node2: {fileID: 1873343155}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2520,9 +2524,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 Center - N1 West
+  - name: N1 Center - N1 West (INACTIVE)
     node1: {fileID: 154021618}
     node2: {fileID: 1782661036}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2531,9 +2536,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 Center - N2 Center
+  - name: N1 Center - N2 Center (INACTIVE)
     node1: {fileID: 154021618}
     node2: {fileID: 479044602}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2542,9 +2548,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 Center - N2 Center
+  - name: N1 Center - N2 Center (INACTIVE)
     node1: {fileID: 154021618}
     node2: {fileID: 479044602}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2553,9 +2560,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 West - N2 Center
+  - name: N1 West - N2 Center (INACTIVE)
     node1: {fileID: 1782661036}
     node2: {fileID: 479044602}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2564,9 +2572,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 East - N2 Center
+  - name: N1 East - N2 Center (INACTIVE)
     node1: {fileID: 1873343155}
     node2: {fileID: 479044602}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2575,9 +2584,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 West - N2 West
+  - name: N1 West - N2 West (INACTIVE)
     node1: {fileID: 1782661036}
     node2: {fileID: 587731092}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2586,9 +2596,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 Center - N2 West
+  - name: N1 Center - N2 West (INACTIVE)
     node1: {fileID: 154021618}
     node2: {fileID: 587731092}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2597,9 +2608,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 East - N2 West
+  - name: N1 East - N2 West (INACTIVE)
     node1: {fileID: 1873343155}
     node2: {fileID: 587731092}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2608,9 +2620,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 Center - N2 West
+  - name: N2 Center - N2 West (INACTIVE)
     node1: {fileID: 479044602}
     node2: {fileID: 587731092}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2619,9 +2632,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 East - N2 East
+  - name: N1 East - N2 East (INACTIVE)
     node1: {fileID: 1873343155}
     node2: {fileID: 1888402500}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2630,9 +2644,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 Center - N2 East
+  - name: N1 Center - N2 East (INACTIVE)
     node1: {fileID: 154021618}
     node2: {fileID: 1888402500}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2641,9 +2656,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N1 West - N2 East
+  - name: N1 West - N2 East (INACTIVE)
     node1: {fileID: 1782661036}
     node2: {fileID: 1888402500}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2652,9 +2668,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 Center - N2 East
+  - name: N2 Center - N2 East (INACTIVE)
     node1: {fileID: 479044602}
     node2: {fileID: 1888402500}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2663,9 +2680,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 Center - N3 Center
+  - name: N2 Center - N3 Center (INACTIVE)
     node1: {fileID: 479044602}
     node2: {fileID: 1416950862}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2674,9 +2692,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 West - N3 Center
+  - name: N2 West - N3 Center (INACTIVE)
     node1: {fileID: 587731092}
     node2: {fileID: 1416950862}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2685,9 +2704,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 East - N3 Center
+  - name: N2 East - N3 Center (INACTIVE)
     node1: {fileID: 1888402500}
     node2: {fileID: 1416950862}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2696,9 +2716,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 West - N3 West
+  - name: N2 West - N3 West (INACTIVE)
     node1: {fileID: 587731092}
     node2: {fileID: 718449944}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2707,9 +2728,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 Center - N3 West
+  - name: N2 Center - N3 West (INACTIVE)
     node1: {fileID: 479044602}
     node2: {fileID: 718449944}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2718,9 +2740,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 East - N3 West
+  - name: N2 East - N3 West (INACTIVE)
     node1: {fileID: 1888402500}
     node2: {fileID: 718449944}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2729,9 +2752,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 Center - N3 West
+  - name: N3 Center - N3 West (INACTIVE)
     node1: {fileID: 1416950862}
     node2: {fileID: 718449944}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2740,9 +2764,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 East - N3 East
+  - name: N2 East - N3 East (INACTIVE)
     node1: {fileID: 1888402500}
     node2: {fileID: 292050856}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2751,9 +2776,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 Center - N3 East
+  - name: N2 Center - N3 East (INACTIVE)
     node1: {fileID: 479044602}
     node2: {fileID: 292050856}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2762,9 +2788,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N2 West - N3 East
+  - name: N2 West - N3 East (INACTIVE)
     node1: {fileID: 587731092}
     node2: {fileID: 292050856}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2773,9 +2800,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 Center - N3 East
+  - name: N3 Center - N3 East (INACTIVE)
     node1: {fileID: 1416950862}
     node2: {fileID: 292050856}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2784,9 +2812,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 Center - N4 Center
+  - name: N3 Center - N4 Center (INACTIVE)
     node1: {fileID: 1416950862}
     node2: {fileID: 1941634206}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2795,9 +2824,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 West - N4 Center
+  - name: N3 West - N4 Center (INACTIVE)
     node1: {fileID: 718449944}
     node2: {fileID: 1941634206}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2806,9 +2836,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 East - N4 Center
+  - name: N3 East - N4 Center (INACTIVE)
     node1: {fileID: 292050856}
     node2: {fileID: 1941634206}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2817,9 +2848,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 West - N4 West
+  - name: N3 West - N4 West (INACTIVE)
     node1: {fileID: 718449944}
     node2: {fileID: 2005674357}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2828,9 +2860,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 Center - N4 West
+  - name: N3 Center - N4 West (INACTIVE)
     node1: {fileID: 1416950862}
     node2: {fileID: 2005674357}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2839,9 +2872,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 East - N4 West
+  - name: N3 East - N4 West (INACTIVE)
     node1: {fileID: 292050856}
     node2: {fileID: 2005674357}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2850,9 +2884,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N4 Center - N4 West
+  - name: N4 Center - N4 West (INACTIVE)
     node1: {fileID: 1941634206}
     node2: {fileID: 2005674357}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2861,9 +2896,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 East - N4 East
+  - name: N3 East - N4 East (INACTIVE)
     node1: {fileID: 292050856}
     node2: {fileID: 12289124}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2872,9 +2908,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 Center - N4 East
+  - name: N3 Center - N4 East (INACTIVE)
     node1: {fileID: 1416950862}
     node2: {fileID: 12289124}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2883,9 +2920,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N3 West - N4 East
+  - name: N3 West - N4 East (INACTIVE)
     node1: {fileID: 718449944}
     node2: {fileID: 12289124}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2894,9 +2932,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N4 Center - N4 East
+  - name: N4 Center - N4 East (INACTIVE)
     node1: {fileID: 1941634206}
     node2: {fileID: 12289124}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2905,9 +2944,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N4 Center - EndNode South
+  - name: N4 Center - EndNode South (INACTIVE)
     node1: {fileID: 1941634206}
     node2: {fileID: 170343454}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2916,9 +2956,10 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N4 West - EndNode South
+  - name: N4 West - EndNode South (INACTIVE)
     node1: {fileID: 2005674357}
     node2: {fileID: 170343454}
+    is_active: 0
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -2927,9 +2968,22 @@ MonoBehaviour:
     density: 0
     dirtiness: 0
     computedCost: 0
-  - name: N4 East - EndNode South
+  - name: N4 East - EndNode South (INACTIVE)
     node1: {fileID: 12289124}
     node2: {fileID: 170343454}
+    is_active: 0
+    pathWidth: 2.5
+    baseCost: 0
+    safety: 0
+    pathRegion: {fileID: 0}
+    distance: 0
+    density: 0
+    dirtiness: 0
+    computedCost: 0
+  - name: EndNode North - EndNode South
+    node1: {fileID: 403308244}
+    node2: {fileID: 170343454}
+    is_active: 1
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -4164,7 +4218,7 @@ Transform:
   m_GameObject: {fileID: 1648666659}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 50}
+  m_LocalPosition: {x: 0, y: 0, z: 30}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4394,7 +4448,7 @@ Transform:
   m_GameObject: {fileID: 1782661034}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0, z: 45}
+  m_LocalPosition: {x: -2.5, y: 0, z: 45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4445,7 +4499,7 @@ Transform:
   m_GameObject: {fileID: 1831098887}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.22270364, z: -0, w: 0.97488624}
-  m_LocalPosition: {x: -4.9, y: 0, z: -2.4}
+  m_LocalPosition: {x: -2.8, y: 0, z: -2.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4887,7 +4941,7 @@ Transform:
   m_GameObject: {fileID: 1873343153}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: 0, z: 45}
+  m_LocalPosition: {x: 2.5, y: 0, z: 45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4934,7 +4988,7 @@ Transform:
   m_GameObject: {fileID: 1888402498}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: 0, z: 15}
+  m_LocalPosition: {x: 2.5, y: 0, z: 15}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5127,7 +5181,7 @@ Transform:
   m_GameObject: {fileID: 2005674355}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4, y: 0, z: -45}
+  m_LocalPosition: {x: -2.5, y: 0, z: -45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5365,6 +5419,67 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4444c067bcd3a8746a40a01df92e898e, type: 3}
   m_PrefabInstance: {fileID: 2136710491}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5867176241574164855
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1705496087617365778, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_Name
+      value: CustomizableCharacter
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365778, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1705496087617365780, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e3250274e98616c44b6d67da6c558e5e, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -5372,3 +5487,4 @@ SceneRoots:
   - {fileID: 908227481}
   - {fileID: 895364086}
   - {fileID: 708361619}
+  - {fileID: 5867176241574164855}
