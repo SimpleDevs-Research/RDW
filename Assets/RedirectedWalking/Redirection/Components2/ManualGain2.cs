@@ -18,7 +18,7 @@ namespace RDW {
         public OVRInput.Button toggleButton = OVRInput.Button.Two;
 
         private Quaternion last_rotation;
-        private Vector3 locked_pivot;
+        //public Vector3 pivot_offset = Vector3.zero;
 
         public override void Enable() {
             base.Enable();
@@ -37,15 +37,16 @@ namespace RDW {
 
         public override void ToggleOn() {
             last_rotation = RDW.Instance.headPoseAnchor.rotation;
-            locked_pivot = RDW.Instance.headPoseAnchor.position.Flatten();
+            //pivot_offset = Vector3.zero;
             base.ToggleOn();
         }
         public void ToggleOn(Boundary.BoundaryInfo _) {
             last_rotation = RDW.Instance.headPoseAnchor.rotation;
-            locked_pivot = RDW.Instance.headPoseAnchor.position.Flatten();
+            //pivot_offset = Vector3.zero;
             base.ToggleOn();
         }
         public void ToggleOff(Boundary.BoundaryInfo _) {
+            //pivot_offset = Vector3.zero;
             base.ToggleOff();
         }
 
@@ -80,6 +81,10 @@ namespace RDW {
                 _contribution = 0f;
                 return _contribution;
             }
+            
+            // ===================
+            // Gain Contribution Calculation
+            // ===================
             // Calculate change in rotation
             Quaternion cur_rotation = RDW.Instance.headPoseAnchor.rotation;
             Quaternion delta_rotation = cur_rotation * Quaternion.Inverse(last_rotation);
@@ -87,7 +92,32 @@ namespace RDW {
             // Guarantee that the rotation is around Y
             _contribution = Vector3.Dot(axis, Vector3.up) * angle;
             // Record the last rotation for the next frame update
-            last_rotation = cur_rotation; 
+            last_rotation = cur_rotation;
+
+            /*
+            // ===================
+            // Pivot offset calculation
+            // ===================
+            // Position displacement in world space
+            Vector3 pivotToPlayer = Player.Instance.CurrentState.Position - Player.Instance.CurrentState.Pivot;
+            pivotToPlayer.y = 0f;
+            // Radial (toward/away from pivot) and Tangential (around the pivot) Directions
+            Vector3 radialDir = pivotToPlayer.normalized;
+            Vector3 tangentDir = Vector3.Cross(Vector3.up, radialDir);
+            float radialDisplacement = Vector3.Dot(Player.Instance.CurrentState.HorizontalDisplacement, radialDir);
+            float tangentialDisplacement = Vector3.Dot(Player.Instance.CurrentState.HorizontalDisplacement, tangentDir);
+            // Meaning:
+            // - radialDisplacement > 0       --> player moved away from pivot
+            // - radialDisplacement < 0       --> player moved toward pivot
+            // - tangentialDisplacement > 0   --> player moved clockwise around pivot (depending on basis orientation)
+            // - tangentialDisplacement < 0   --> player moved counterclockwise
+            // Radial and Tangential Displacement
+            float sidewaysDisplacement = Vector3.Dot(Player.Instance.CurrentState.HorizontalDisplacement, radialDir);
+            float forwardDisplacement = Vector3.Dot(Player.Instance.CurrentState.HorizontalDisplacement, tangentDir);
+            // Offset setting
+            pivot_offset = new Vector3(sidewaysDisplacement, 0f, forwardDisplacement);
+            */
+
             // return the yaw delta
             return _contribution;
         }

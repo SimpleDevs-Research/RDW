@@ -161,6 +161,7 @@ namespace RDW {
             // Measure the current frame
             CacheCurrent(deltaTime);
             current_pivot = pivot;
+            current_translation_delta = Vector3.zero;
             CalculatePlayerState(deltaTime);
 
             // We ONLY update our gain if `environmentParent` is not null
@@ -179,8 +180,8 @@ namespace RDW {
                 if (gainSettings.manualGain.enabled) {
                     current_yaw_delta += gainSettings.manualGain.CalculateGain(this, deltaTime);
                     if (gainSettings.manualGain.active) {
-                        //activePivot = gainSettings.manualGain.GetLockedPivot();
                         current_pivot = Player.Instance.CurrentState.Pivot;
+                        //current_translation_delta -= gainSettings.manualGain.pivot_offset;
                     }
                 }
             }
