@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using StreetSim;
 
 namespace RDW {
     public class Environment : MonoBehaviour
@@ -28,6 +29,7 @@ namespace RDW {
         
         [Header("=== Environment ===")]
         public EnvironmentRoot environmentRoot;
+        public PedestrianGenerator generator;
 
         [Header("=== Start Point Logic ===")]
         public Transform startPointRef;
@@ -102,6 +104,15 @@ namespace RDW {
 
             if (Redirector2.Instance != null) {
                 Redirector2.Instance.SetNonAgentParents(environmentRoot.transform);
+            }
+
+            if (generator != null && RDW.Instance != null) {
+                // Set generator's directory to that of participant's unique id
+                // We know that all scripts wil call `Awake()` and `OnEnable()` before `Start()`.
+                // Since this runs on `OnEnable()` and we forced `PedestrianGenerator` to initialize
+                // recording on Start(), we can be ssured that hte dir name will be properly changed 
+                // before recording starts
+                generator.recorder.dirName = RDW.Instance.id;
             }
         }
 

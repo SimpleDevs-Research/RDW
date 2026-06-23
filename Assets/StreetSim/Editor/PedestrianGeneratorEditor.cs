@@ -19,7 +19,13 @@ namespace StreetSim {
 
             DrawPropertiesExcluding(
                 serializedObject, 
-                "spawn_orientation"
+                "spawn_orientation",
+                "record_data",
+                "recorder"
+            );
+
+            EditorGUILayout.PropertyField(
+                serializedObject.FindProperty("recorder")
             );
 
             serializedObject.ApplyModifiedProperties();

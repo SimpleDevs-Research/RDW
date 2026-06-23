@@ -39,13 +39,25 @@ namespace StreetSim {
         public bool hideAnimationOnStart = false;               // The `Pedestrian` class has a `ToggleAnimation(bool)`. Toggle this to initialize animation on start.
 
 
-        // `Generator` has an `Awake()` function already that does a ton of prep. We won't overwrite it.
-        // This `Awake` subsequently alls a `Generate` function. However, there's nothing wrong with spawning
-        // all pedestrians at the beginning, so we won't overwrite this. We instead use `Start()`, which gives
-        // RouteManager time to process all nodes first
+        // `Generator` has an `Awake()` function already that does a ton of prep. This `Awake` calls a `Generate` 
+        // function that generates all agents before the first frame. There's nothing wrong with spawning
+        // all pedestrians at the beginning, so we won't overwrite this part... at least, in principle.
+
+        // The one change we have to do though is ensure that `record_data` is UNCHECKED.
+        // This prevents the base `Generator` script from writing stuff down first.
+        // Instead, we'll force it to call in `Start()`. We'll use `OnValidate()` to
+        // ensure that it stays unchecked no matter what. We'll expose a new variable, `record_pedestrians`, 
+        // that fulfills the role instead in `Start()`.
+        
+        [Header("=== Recording Pedestrians Data ===")]
+        public bool record_pedestrians = true;
+
+        // In `Start()`, we give RouteManager time to process all nodes first
 
         protected void Start() {
             hideAnimationOnStart = Object.FindAnyObjectByType<PedestrianOccluder>() != null;
+            // Initialize recorder
+            if (record_pedestrians) recorder.StartRecording(this);
             // Invoke the coroutine to initialize the loop to activate robots over time
             spawnCoroutine = StartCoroutine(SpawnCoroutine());
         }
@@ -253,6 +265,7 @@ namespace StreetSim {
 
 
         private void OnValidate() {
+            record_data = false;    // force data recording in awake to initialize. We'll use `record_pedestrians` for this.
             if (inactivePosRef != null) inactivePos = inactivePosRef.position;
         }
 

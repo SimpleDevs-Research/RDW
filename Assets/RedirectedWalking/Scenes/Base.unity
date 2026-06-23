@@ -4471,6 +4471,7 @@ MonoBehaviour:
   environment_parent: {fileID: 0}
   radius: 0.15
   position: {x: 0, y: 0, z: 0}
+  rotation: {x: 0, y: 0, z: 0, w: 1}
   velocity: {x: 0, y: 0, z: 0}
   prev_position: {x: 0, y: 0, z: 0}
 --- !u!1 &459470098
@@ -6000,8 +6001,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 15
-  m_Center: {x: 0, y: 0, z: 12.5}
+  m_Radius: 20
+  m_Center: {x: 0, y: 0, z: 17.5}
 --- !u!1 &632477795
 GameObject:
   m_ObjectHideFlags: 0
@@ -10797,6 +10798,7 @@ MonoBehaviour:
   environment_parent: {fileID: 0}
   radius: 0.5
   position: {x: 0, y: 0, z: 0}
+  rotation: {x: 0, y: 0, z: 0, w: 1}
   velocity: {x: 0, y: 0, z: 0}
   prev_position: {x: 0, y: 0, z: 0}
 --- !u!1 &1160967707
@@ -16389,6 +16391,7 @@ MonoBehaviour:
   environment_parent: {fileID: 0}
   radius: 0.15
   position: {x: 0, y: 0, z: 0}
+  rotation: {x: 0, y: 0, z: 0, w: 1}
   velocity: {x: 0, y: 0, z: 0}
   prev_position: {x: 0, y: 0, z: 0}
 --- !u!1 &1760661677
