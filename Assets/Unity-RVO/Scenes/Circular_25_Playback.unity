@@ -132,9 +132,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 95509513}
-  - component: {fileID: 95509514}
+  - component: {fileID: 95509515}
   m_Layer: 0
-  m_Name: RVO
+  m_Name: Playback
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -155,7 +155,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &95509514
+--- !u!114 &95509515
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -164,33 +164,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 95509511}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81f4d4230bbc0425182e4630c0ee6f7c, type: 3}
+  m_Script: {fileID: 11500000, guid: 7c877021336214744bc4a727b2fbbf8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent_parent: {fileID: 1976767657}
+  logFile: {fileID: 4900000, guid: cfdf6a424cd59d045bb320d11548a7aa, type: 3}
   scene_cam: {fileID: 963194227}
-  floor: {fileID: 1553761265}
-  bounds: {x: 10, y: 10}
-  num_agents: 12
-  destination_buffer: 0.05
-  spawn_orientation: 2
-  bound_edge_buffer: 1
-  num_non_agents: 10
-  non_agents: []
-  rvo_method: 0
-  demographics:
-    demographics:
-    - value: {fileID: 11400000, guid: bb6b95f6d25444c8897ea537c0f85ee9, type: 2}
-      spawn_chance: {x: 0, y: 100}
-    - value: {fileID: 11400000, guid: 5ef587ea6ea054eeda7e04bc0527a207, type: 2}
-      spawn_chance: {x: 0, y: 0}
-  num_candidate_directions: 24
-  max_neighbors: 8
-  visual_radius: 5
-  visionMethod: 1
-  grid_cell_size: 1
-  draw_bounds: 1
-  bounds_color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  simulation_start_frame: 0
+  simulation_start_time: 0
+  bounds: {x: 15, y: 15}
+  num_total_agents: 25
+  num_agents: 25
+  num_non_agents: 0
+  num_frames: 8906
+  duration: 23.954939
+  _robotPrefab: {fileID: 5177237746849340158, guid: 4bb7e65bd790648d983a81a7b258e2d3, type: 3}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,13 +233,13 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
-    height: 1
+    width: 20
+    height: 20
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
-  orthographic size: 5
+  orthographic: 1
+  orthographic size: 7.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -276,13 +263,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 7.5, y: 100, z: 7.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1553761261
 GameObject:
   m_ObjectHideFlags: 0
@@ -383,8 +370,8 @@ Transform:
   m_GameObject: {fileID: 1553761261}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 7.5, y: 0, z: 7.5}
+  m_LocalScale: {x: 15, y: 15, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

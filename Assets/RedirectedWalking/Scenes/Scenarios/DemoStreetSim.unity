@@ -2110,6 +2110,11 @@ MonoBehaviour:
   visual_radius: 5
   visionMethod: 1
   grid_cell_size: 5
+  record_data: 1
+  recorder:
+    dirName: DemoStreetSim
+    fileName: 
+    append_zero_to_filename: 1
   draw_bounds: 0
   bounds_color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   inactivePos: {x: 0, y: 0, z: 0}
@@ -2476,6 +2481,18 @@ MonoBehaviour:
     are set in the Inspector.'
   _kdTree: {fileID: 908227479}
   _routes:
+  - name: EndNode North - EndNode South
+    node1: {fileID: 403308244}
+    node2: {fileID: 170343454}
+    is_active: 1
+    pathWidth: 2.5
+    baseCost: 0
+    safety: 0
+    pathRegion: {fileID: 0}
+    distance: 0
+    density: 0
+    dirtiness: 0
+    computedCost: 0
   - name: EndNode North - N1 Center (INACTIVE)
     node1: {fileID: 403308244}
     node2: {fileID: 154021618}
@@ -2972,18 +2989,6 @@ MonoBehaviour:
     node1: {fileID: 12289124}
     node2: {fileID: 170343454}
     is_active: 0
-    pathWidth: 2.5
-    baseCost: 0
-    safety: 0
-    pathRegion: {fileID: 0}
-    distance: 0
-    density: 0
-    dirtiness: 0
-    computedCost: 0
-  - name: EndNode North - EndNode South
-    node1: {fileID: 403308244}
-    node2: {fileID: 170343454}
-    is_active: 1
     pathWidth: 2.5
     baseCost: 0
     safety: 0
@@ -4168,6 +4173,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1646284539}
+  - component: {fileID: 1646284540}
   m_Layer: 0
   m_Name: Agents
   m_TagString: Untagged
@@ -4191,6 +4197,19 @@ Transform:
   - {fileID: 1831098888}
   m_Father: {fileID: 1839959056}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1646284540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1646284538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83a1a115a0d5484a8bdf2f3f3ab9662, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customSeed: 42395
 --- !u!1 &1648666659
 GameObject:
   m_ObjectHideFlags: 0
@@ -5046,6 +5065,51 @@ Transform:
   - {fileID: 163491442}
   m_Father: {fileID: 1839959056}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1905767837
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1905767839}
+  - component: {fileID: 1905767838}
+  m_Layer: 0
+  m_Name: Random Seed Initializer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1905767838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905767837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c83a1a115a0d5484a8bdf2f3f3ab9662, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customSeed: 42395
+--- !u!4 &1905767839
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905767837}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1907993746
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5484,6 +5548,7 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1905767839}
   - {fileID: 908227481}
   - {fileID: 895364086}
   - {fileID: 708361619}
