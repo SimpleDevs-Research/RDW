@@ -11,7 +11,6 @@ namespace RDW {
         public static Redirector2 Instance;
 
         public enum Direction { Left=-1, Right=1 }
-        public enum PivotOrigin { Head, BoundaryBuffer }
 
         [System.Flags]
         public enum PlayerState : int { 
@@ -33,8 +32,6 @@ namespace RDW {
         public float min_speed_threshold = 0.5f;
         [Tooltip("The maximum speed expected for a player in motion. This provides a cap for any speed-depending gain modules.")]
         public float max_speed_threshold = 1.5f;
-        [Tooltip("What should be considered the pivot point of the player during gain calculation?")]
-        public PivotOrigin pivotOrigin = PivotOrigin.Head;
         [Tooltip("Do we want the redirection direction to change dynamically? Or keep it static?")]
         public bool dynamic_goal_direction = true;
         [Tooltip("Allows you to define a goal direction of choice, if NOT using dynamic goal direction. If you are using dynamic direction, then this toggle shouldn't change.")]
@@ -47,16 +44,8 @@ namespace RDW {
 
         [Space]
         [Header("=== Cached - READ-ONLY ===")]
-        private Vector3 prev_position, prev_head_orientation, prev_eye_orientation;
+        private Vector3 prev_head_orientation, prev_eye_orientation;
         private float prev_yaw_delta = 0f;
-        [Tooltip("The position of the user in world space.")] 
-        public Vector3 current_position;
-        [Tooltip("The translation direction of the user in world space.")]
-        public Vector3 current_displacement;
-        [Tooltip("Same as `current_displacement`, except as a normalized vector")]
-        public Vector3 current_move_direction;
-        [Tooltip("The forward direction of the user's head in world space.")]
-        public Vector3 current_head_orientation;
         [Tooltip("The forward direction of the user's eye in head local space")]
         public Vector3 current_eye_orientation;
         [Tooltip("The signed angle representing the horizontal rotation of the head in world space.")]
@@ -98,7 +87,6 @@ namespace RDW {
             gainSettings = RDW.Instance.settings;
 
             // Cache the starting data
-            prev_position = RDW.Instance.headPoseAnchor.position.Flatten();
             prev_yaw_delta = 0f;
             prev_eye_orientation = (RDW.Instance.eyeGaze != null) ? RDW.Instance.headPoseAnchor.InverseTransformDirection(RDW.Instance.eyeGaze.forward) : Vector3.zero;
             CacheCurrent(float.MaxValue);
@@ -182,7 +170,7 @@ namespace RDW {
         //  We don't actually modify the environment for redirection in `Update()`. We do that in `LateUpdate()`.
         //  This is to prevent jittering caused by the camera pose in VR moving in the same update cycle as the environment.
         // =========================================
-        public void Update() {
+        public void LateUpdate() {
             // Get the current delta time
             float deltaTime = Time.deltaTime;
 
@@ -212,6 +200,16 @@ namespace RDW {
                         //current_translation_delta -= gainSettings.manualGain.pivot_offset;
                     }
                 }
+
+                // After calculating the entire yaw delta, rotate the environment around the pivot point.
+                environmentParent.RotateAround(current_pivot, Vector3.up, current_yaw_delta);
+                // After rotation, we also apply translational gain
+                environmentParent.position += current_translation_delta;
+                // We rotate the skybox to adhere to our environmentParent's rotation
+                RenderSettings.skybox.SetFloat(
+                    "_Rotation",
+                    -environmentParent.eulerAngles.y
+                );
             }
 
             // Cache the current data into the previous for the next frame
@@ -226,6 +224,7 @@ namespace RDW {
         //  After the `Update()` calculates the amount of gain needed, we rotate the environment round the pivot.
         //  We also update the skybox to match the rotation of the environment.
         // =========================================
+        /*
         private void LateUpdate() {
             if (environmentParent != null) {
                 // After calculating the entire yaw delta, rotate the environment around the pivot point.
@@ -239,6 +238,7 @@ namespace RDW {
                 );
             }
         }
+        */
 
 
         // =========================================
@@ -251,21 +251,9 @@ namespace RDW {
         //  4. As well as 
         // =========================================
         private void CacheCurrent(float deltaTime) {
-            // Position is a constant in world space
-            current_position = RDW.Instance.headPoseAnchor.position.Flatten();
-
-            // Displacement is the vector representing how much the player has moved since the last frame
-            current_displacement = current_position - prev_position;
-            
-            // The (normalized) direction of the displacement.
-            current_move_direction = current_displacement.normalized;
-            
-            // NOT A ROTATION. The vector representing the head's current forward direction in world space
-            current_head_orientation = Vector3.Normalize(RDW.Instance.headPoseAnchor.forward.Flatten());
-           
             // Head rotation is how much the user's head has rotated since the last frame.
             //  Note that we subtract the amount of yaw rotation induced by RDW from the previous frame.
-            current_head_rotation = Vector3.SignedAngle(prev_head_orientation, current_head_orientation, Vector3.up) - prev_yaw_delta;
+            current_head_rotation = Vector3.SignedAngle(Player.Instance.PreviousState.Forward, Player.Instance.CurrentState.Forward, Vector3.up) - prev_yaw_delta;
             
             // Eye rotation is how much the user's eye has rotated since the last frame
             //  Note that we try to do things locally to the head, which should already account for RDW rotation by proxy
@@ -280,7 +268,7 @@ namespace RDW {
             //      always point to the center defined by `SpatialManager`.
             if (dynamic_goal_direction) {
                 float dir_dot = Vector3.Dot(
-                    RDW.Instance.worldCenter-RDW.Instance.headPoseAnchor.position.Flatten(), 
+                    RDW.Instance.worldCenter - RDW.Instance.headPoseAnchor.position.Flatten(), 
                     RDW.Instance.headPoseAnchor.right.Flatten()
                 );
                 goal_direction = (dir_dot < 0f) ? Direction.Left : Direction.Right;
@@ -289,26 +277,11 @@ namespace RDW {
             direction_factor = (float)((int)goal_direction);
             // Speed factor controls how much the RDW affects the player depending on their movement speed.
             //      This allows you to control if RDW affects the user while they're standing still, for example.
-            speed_factor = Mathf.Clamp(((current_displacement.magnitude/deltaTime)-min_speed_threshold)/(max_speed_threshold-min_speed_threshold), 0f, 1f);
-
-            // The pivot is where the user's pivot point is for RDW.
-            //      By default, the pivot is just the user's head position in world space.
-            //      However, some gain components expect the pivot to be dependent on the user's own movement.
-            //      This dynamic pivot moves the pivot left or right based on RDW direction and how much they displace/rotate their body. 
-            /*
-            if (pivotOrigin == PivotOrigin.BoundaryBuffer) {
-                // Note that displacement might be 0. We add the denominator by a small number to avoid 0 denominator
-                float radius = current_displacement.magnitude / (Mathf.Abs(current_head_rotation)+0.0001f);
-                Vector3 pivotDir = direction_factor * RDW.Instance.headPoseAnchor.right.Flatten();
-                pivot = RDW.Instance.headPoseAnchor.position.Flatten() + pivotDir * radius;
-            } else {
-                pivot = RDW.Instance.headPoseAnchor.position.Flatten();
-            }
-            */
+            speed_factor = Mathf.Clamp(((Player.Instance.CurrentState.MoveDistance/deltaTime)-min_speed_threshold)/(max_speed_threshold-min_speed_threshold), 0f, 1f);
         }
+
         private void CachePrev() {
-            prev_position = current_position;
-            prev_head_orientation = current_head_orientation;
+            //prev_head_orientation = current_head_orientation;
             prev_eye_orientation = current_eye_orientation;
             prev_yaw_delta = current_yaw_delta;
         }
@@ -385,10 +358,6 @@ namespace RDW {
                     json_writer.Disable();
                 }
             }
-        }
-
-        public void TogglePivotOrigin() {
-            pivotOrigin = (pivotOrigin == PivotOrigin.Head) ? PivotOrigin.BoundaryBuffer : PivotOrigin.Head;
         }
 
         public void SetEnvironmentParent(Transform t) {
