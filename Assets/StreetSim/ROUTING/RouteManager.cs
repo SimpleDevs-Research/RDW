@@ -125,7 +125,6 @@ namespace StreetSim {
         private float[,] _edges;
         public KDTree tree;
         KDQuery query;
-        private bool _builtThisFrame = false;
         
         // ==========================================
         // === ... I dunno about these ===
