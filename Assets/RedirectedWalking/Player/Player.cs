@@ -74,11 +74,11 @@ namespace RDW {
         private void OnEnable() {
             _currentState = new Status {
                 Position = headPoseAnchor.position,
-                Forward = headPoseAnchor.forward
+                Forward = Vector3.ProjectOnPlane(headPoseAnchor.forward, Vector3.up).normalized
             };
             _previousState = new Status {
-                Position = headPoseAnchor.position,
-                Forward = headPoseAnchor.forward
+                Position = _currentState.Position,
+                Forward = _currentState.Forward
             };
             headPoseAnchor.localPosition = new Vector3(0f, 0f, _headPoseOffset);
 
