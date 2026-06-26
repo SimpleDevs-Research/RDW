@@ -82,6 +82,17 @@ namespace RDW {
             Instance = this;
         }
 
+        // =========================================
+        // === Redirection Activation ===
+        // When we want to start redirection, we call this.
+        // The activation function does several things:
+        //  1. Sets the gain settings for the current environment
+        //  2. Caches both the current state and the previous state. This cached data is used to calculate 
+        //      changes between frames, such as displacement
+        //  3. Enable all gain functions to be used in the current environment
+        //  4. Toggle passthrough if needed
+        //  5. Initlize the logger, if prompted.
+        // =========================================
         public void Activate() {
             // Grab gain settings ref from RDW
             gainSettings = RDW.Instance.settings;
@@ -144,7 +155,14 @@ namespace RDW {
             // Set this to be enabled
             this.enabled = true;
         }
-
+        
+        // =========================================
+        // === Redirection Deactivation ===
+        // When we no longer need the redirection, then we call this.
+        //  1. Disable this component
+        //  2. Disable all active gains
+        //  3. Save our logged data, if needed.
+        // =========================================
         public void Deactivate() {
             this.enabled = false;
             if (gainSettings.curvatureGain.enabled) gainSettings.curvatureGain.Disable();
@@ -154,13 +172,23 @@ namespace RDW {
             SaveData();
         }
 
+        // =========================================
+        // === Redirection Update Loop ===
+        //  This is the core update loop that needs to be executed whenever redirection is needed.
+        //  1. Update our current state cache
+        //  2. If the environment is set, then we calcualte each enabled gain
+        //  3. Cache the current state into the previous state
+        //  4. Add data to logger, if we are logging.
+        //  We don't actually modify the environment for redirection in `Update()`. We do that in `LateUpdate()`.
+        //  This is to prevent jittering caused by the camera pose in VR moving in the same update cycle as the environment.
+        // =========================================
         public void Update() {
             // Get the current delta time
             float deltaTime = Time.deltaTime;
 
             // Measure the current frame
             CacheCurrent(deltaTime);
-            current_pivot = pivot;
+            current_pivot = RDW.Instance.headPoseAnchor.position.Flatten();
             current_translation_delta = Vector3.zero;
             CalculatePlayerState(deltaTime);
 
@@ -193,6 +221,11 @@ namespace RDW {
             if (write_log && json_writer.is_active) AddLogState(deltaTime, current_pivot);
         }
 
+        // =========================================
+        // === Redirection Late Update Loop ===
+        //  After the `Update()` calculates the amount of gain needed, we rotate the environment round the pivot.
+        //  We also update the skybox to match the rotation of the environment.
+        // =========================================
         private void LateUpdate() {
             if (environmentParent != null) {
                 // After calculating the entire yaw delta, rotate the environment around the pivot point.
@@ -207,6 +240,16 @@ namespace RDW {
             }
         }
 
+
+        // =========================================
+        // === Redirection Current State Caching ===
+        //  This is called in the `Update()` loop first thing. We cache the following:
+        //  - [1] 2D head position in the current frame.
+        //  - [2] Changes since the last frame: [2a] displacement, [2b] head rotation, [2c] eye rotation 
+        // 2. Caches displacement features: 2D translation displacement from the last frame and the implied direction from that displacement.
+        //  3. We also track the head's 2D orientation. This is a vector, not a quaternion.
+        //  4. As well as 
+        // =========================================
         private void CacheCurrent(float deltaTime) {
             // Position is a constant in world space
             current_position = RDW.Instance.headPoseAnchor.position.Flatten();
@@ -252,6 +295,7 @@ namespace RDW {
             //      By default, the pivot is just the user's head position in world space.
             //      However, some gain components expect the pivot to be dependent on the user's own movement.
             //      This dynamic pivot moves the pivot left or right based on RDW direction and how much they displace/rotate their body. 
+            /*
             if (pivotOrigin == PivotOrigin.BoundaryBuffer) {
                 // Note that displacement might be 0. We add the denominator by a small number to avoid 0 denominator
                 float radius = current_displacement.magnitude / (Mathf.Abs(current_head_rotation)+0.0001f);
@@ -260,6 +304,7 @@ namespace RDW {
             } else {
                 pivot = RDW.Instance.headPoseAnchor.position.Flatten();
             }
+            */
         }
         private void CachePrev() {
             prev_position = current_position;

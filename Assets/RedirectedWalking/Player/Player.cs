@@ -18,6 +18,7 @@ namespace RDW {
             public Vector3 Forward;
             public Vector3 Pivot;
             public Vector3 HorizontalDisplacement;
+            public Vector3 MoveDirection;
             public TranslationStatus Translating = TranslationStatus.Stationary;
             public TurnStatus Turning = TurnStatus.None;
         }
@@ -97,6 +98,7 @@ namespace RDW {
             float deltaTime = Time.deltaTime;
             Vector3 displacement = _currentState.Position - _previousState.Position;
             _currentState.HorizontalDisplacement = new Vector3(displacement.x, 0f, displacement.z);
+            _currentState.MoveDirection = _currentState.HorizontalDisplacement.normalized;
 
             // ============================
             // SPEED & TRANSLATING UPDATE 
@@ -112,9 +114,16 @@ namespace RDW {
             // 2. The angle or turning is defined as a signed angle (<0 = left, >0 = right) 
             // =============================
             Vector3 radiusDirection = Vector3.Cross(Vector3.up, _currentState.HorizontalDisplacement).normalized;
+            /*
             float signedAngle = Vector3.SignedAngle(
                 Vector3.ProjectOnPlane(_previousState.Forward, Vector3.up),
                 Vector3.ProjectOnPlane(_currentState.Forward, Vector3.up),
+                Vector3.up
+            );
+            */
+            float signedAngle = Vector3.SignedAngle(
+                _previousState.MoveDirection,
+                _currentState.MoveDirection,
                 Vector3.up
             );
             float rotationSpeed = signedAngle / deltaTime;
@@ -129,15 +138,20 @@ namespace RDW {
             // ==============================
             // RADIUS & RAW PIVOT UPDATE
             // ============================== 
-            float radius = _currentState.HorizontalDisplacement.magnitude / (Mathf.Abs(signedAngle) * Mathf.Deg2Rad);
             Vector3 rawPivotPoint = _currentState.Position;
-            switch(_currentState.Turning) {
-                case TurnStatus.Left:
-                    rawPivotPoint -= Vector3.Cross(Vector3.up, _currentState.HorizontalDisplacement.normalized).normalized * radius;
-                    break;
-                case TurnStatus.Right:
-                    rawPivotPoint += Vector3.Cross(Vector3.up, _currentState.HorizontalDisplacement.normalized).normalized * radius;
-                    break;
+            if (_currentState.Turning != TurnStatus.None) {
+                float absMoveAngle = Mathf.Abs(signedAngle) * Mathf.Deg2Rad;
+                float radius = (absMoveAngle != 0f) 
+                    ? _currentState.HorizontalDisplacement.magnitude / absMoveAngle
+                    : 0f;
+                switch(_currentState.Turning) {
+                    case TurnStatus.Left:
+                        rawPivotPoint -= Vector3.Cross(Vector3.up, _currentState.HorizontalDisplacement.normalized).normalized * radius;
+                        break;
+                    case TurnStatus.Right:
+                        rawPivotPoint += Vector3.Cross(Vector3.up, _currentState.HorizontalDisplacement.normalized).normalized * radius;
+                        break;
+                }
             }
 
             // ==============================
@@ -218,6 +232,7 @@ namespace RDW {
             _previousState.Forward = _currentState.Forward;
             _previousState.Pivot = _currentState.Pivot;
             _previousState.HorizontalDisplacement = _currentState.HorizontalDisplacement;
+            _previousState.MoveDirection = _currentState.MoveDirection;
             _previousState.Translating = _currentState.Translating;
             _previousState.Turning = _currentState.Turning;
         }
