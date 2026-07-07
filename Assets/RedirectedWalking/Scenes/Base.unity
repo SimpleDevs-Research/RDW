@@ -2933,7 +2933,6 @@ MonoBehaviour:
   - {fileID: 454340592}
   min_speed_threshold: 0.25
   max_speed_threshold: 1.5
-  pivotOrigin: 0
   dynamic_goal_direction: 1
   goal_direction: -1
   json_writer:
@@ -2942,10 +2941,6 @@ MonoBehaviour:
     append_zero_to_filename: 0
     filePath: 
   write_log: 1
-  current_position: {x: 0, y: 0, z: 0}
-  current_displacement: {x: 0, y: 0, z: 0}
-  current_move_direction: {x: 0, y: 0, z: 0}
-  current_head_orientation: {x: 0, y: 0, z: 0}
   current_eye_orientation: {x: 0, y: 0, z: 0}
   current_head_rotation: 0
   current_eye_rotation: 0
@@ -22291,6 +22286,7 @@ GameObject:
   - component: {fileID: 6624020946277320831}
   - component: {fileID: 6624020946277320830}
   - component: {fileID: 6624020946277320832}
+  - component: {fileID: 6624020946277320833}
   m_Layer: 3
   m_Name: Room Scale Canvas Group
   m_TagString: Untagged
@@ -22350,6 +22346,27 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!65 &6624020946277320833
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6624020946277320829}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 600, y: 350, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &6705868295642121151
 Transform:
   m_ObjectHideFlags: 0

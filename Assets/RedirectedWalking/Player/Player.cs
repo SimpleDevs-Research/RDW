@@ -73,7 +73,7 @@ namespace RDW {
 
         private void OnEnable() {
             _currentState = new Status {
-                Position = headPoseAnchor.position,
+                Position = Vector3.ProjectOnPlane(headPoseAnchor.position, Vector3.up),
                 Forward = Vector3.ProjectOnPlane(headPoseAnchor.forward, Vector3.up).normalized,
                 MoveDirection = Vector3.zero
             };
@@ -92,15 +92,14 @@ namespace RDW {
             // ===========================
             // CURRENT CACHE THIS FRAME
             // ===========================
-            _currentState.Position = headPoseAnchor.position;
+            _currentState.Position = Vector3.ProjectOnPlane(headPoseAnchor.position, Vector3.up);
             _currentState.Forward = Vector3.ProjectOnPlane(headPoseAnchor.forward, Vector3.up).normalized;
 
             // ===========================
             // DELTA TIME AND DISPLACEMENT
             // ===========================
             float deltaTime = Time.deltaTime;
-            Vector3 displacement = _currentState.Position - _previousState.Position;
-            _currentState.HorizontalDisplacement = new Vector3(displacement.x, 0f, displacement.z);
+            _currentState.HorizontalDisplacement = _currentState.Position - _previousState.Position;
             _currentState.MoveDirection = _currentState.HorizontalDisplacement.normalized;
             _currentState.MoveDistance = _currentState.HorizontalDisplacement.magnitude;
 

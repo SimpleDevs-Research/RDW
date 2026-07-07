@@ -196,8 +196,7 @@ namespace RDW {
                 if (gainSettings.manualGain.enabled) {
                     current_yaw_delta += gainSettings.manualGain.CalculateGain(this, deltaTime);
                     if (gainSettings.manualGain.active) {
-                        current_pivot = Player.Instance.CurrentState.Pivot;
-                        //current_translation_delta -= gainSettings.manualGain.pivot_offset;
+                        //current_pivot = Player.Instance.CurrentState.Pivot;
                     }
                 }
 
