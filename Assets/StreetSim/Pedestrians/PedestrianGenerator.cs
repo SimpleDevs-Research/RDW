@@ -29,6 +29,13 @@ namespace StreetSim {
         public RouteNode[] endNodes;                    // The route nodes that pedestrians can end at.
         public Vector2 spawnDelayMinMax;                // In seconds, the min and max time to wait between spawns.
 
+        [Header("=== Optimizations ===")]
+        //public bool hideAnimationOnStart = false;       // The `Pedestrian` class has a `ToggleAnimation(bool)`. Toggle this to initialize animation on start.
+        public bool cullByDistance = true;
+        public float maxCullDistance = 25f;
+        private CullingGroup _cullingGroup;
+        private BoundingSphere[] _cullingBounds;
+
         [Header("=== CACHED DATA - READ-ONLY ===")]
         [SerializeField] private int _totalSpawned = 0;         // How many agents have been spawned in total?
         [SerializeField] private int _totalActive = 0;
@@ -36,7 +43,6 @@ namespace StreetSim {
         private List<Pedestrian> _activePedestrians = new();   // This is a List for all ACTIVE pedestrians
         private List<Pedestrian> _inactivePedestrians = new();  // This is a List for all INACTIVE pedestrians
         private Coroutine spawnCoroutine = null;
-        public bool hideAnimationOnStart = false;               // The `Pedestrian` class has a `ToggleAnimation(bool)`. Toggle this to initialize animation on start.
 
 
         // `Generator` has an `Awake()` function already that does a ton of prep. This `Awake` calls a `Generate` 
@@ -55,11 +61,40 @@ namespace StreetSim {
         // In `Start()`, we give RouteManager time to process all nodes first
 
         protected void Start() {
-            hideAnimationOnStart = Object.FindAnyObjectByType<PedestrianOccluder>() != null;
+            //hideAnimationOnStart = Object.FindAnyObjectByType<PedestrianOccluder>() != null;
+            if (cullByDistance) InitializeCullingSystem();
             // Initialize recorder
             if (record_pedestrians) recorder.StartRecording(this);
             // Invoke the coroutine to initialize the loop to activate robots over time
             spawnCoroutine = StartCoroutine(SpawnCoroutine());
+        }
+
+        private void InitializeCullingSystem() {
+            // Initialize culling group
+            _cullingGroup = new CullingGroup();
+            _cullingGroup.targetCamera = RDW.Player.Instance.centerEyeCamera.GetComponent<Camera>();
+            _cullingGroup.SetBoundingDistances(new float[] { maxCullDistance });
+
+            // Initialize bounds array
+            _cullingBounds = new BoundingSphere[num_agents];
+
+            // Cache all data upfront
+            for (int i = 0; i < num_agents; i++) {
+                Pedestrian pedestrian = _allPedestrians[i];
+                _cullingBounds[i] = new BoundingSphere(pedestrian.transform.position, 1f);
+            }
+
+            // Update culling group
+            _cullingGroup.SetBoundingSpheres(_cullingBounds);
+            _cullingGroup.SetBoundingSphereCount(num_agents);
+            _cullingGroup.onStateChanged = OnCullingStateChanged;
+        }
+
+        private void OnCullingStateChanged(CullingGroupEvent sphereEvent) {
+            // Direct array lookup using the index provided by the CullingGroup API
+            bool isInsideRange = sphereEvent.currentDistance == 0;
+            Pedestrian p = _allPedestrians[sphereEvent.index];
+            p.ToggleAnimation(isInsideRange);
         }
 
         // The function we definitely need to modify is `GenerateAgent(i)`. This is a function that is
@@ -219,7 +254,8 @@ namespace StreetSim {
                 // Pedestrian.UpdatePose(start, rotation)
                 pedestrian.UpdatePose(startPos, startNode.rotation); 
                 pedestrian.SetRoute(startPos, endPos, route);
-                pedestrian.ToggleAnimation(!hideAnimationOnStart);
+                //pedestrian.ToggleAnimation(!hideAnimationOnStart);
+                pedestrian.ToggleAnimation(!cullByDistance);
                 vo_op.reached_destination[pedestrian.agent_index] = false;
 
                 // In closing, we now make sure to set it to active and update our spawn count
@@ -247,6 +283,11 @@ namespace StreetSim {
             Queue<Pedestrian> toCheck = new Queue<Pedestrian>(_activePedestrians); 
             while (toCheck.Count > 0) {
                 Pedestrian pedestrian = toCheck.Dequeue();
+                //  If culling, update their bounds
+                if (cullByDistance) {
+                    _cullingBounds[pedestrian.agent_index].position = pedestrian.transform.position;
+                }
+                // Check if pedestrian has reached the end.
                 if (!pedestrian.ValidateRoute()) {
                     // This pedestrian has truly reached the end.
                     ToggleRobot(pedestrian.agent_index, false);
@@ -267,6 +308,14 @@ namespace StreetSim {
         private void OnValidate() {
             record_data = false;    // force data recording in awake to initialize. We'll use `record_pedestrians` for this.
             if (inactivePosRef != null) inactivePos = inactivePosRef.position;
+        }
+
+        protected override void OnDisable() {
+            base.OnDisable();
+            if (_cullingGroup != null) {
+                _cullingGroup.Dispose();
+                _cullingGroup = null;
+            }
         }
 
     }

@@ -2164,9 +2164,10 @@ MonoBehaviour:
   - {fileID: 403308244}
   - {fileID: 170343454}
   spawnDelayMinMax: {x: 0.5, y: 0.75}
+  cullByDistance: 1
+  maxCullDistance: 25
   _totalSpawned: 0
   _totalActive: 0
-  hideAnimationOnStart: 1
   record_pedestrians: 1
 --- !u!4 &895364086
 Transform:
