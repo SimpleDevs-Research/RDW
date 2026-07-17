@@ -70,9 +70,21 @@ namespace StreetSim {
         }
 
         private void InitializeCullingSystem() {
+            // Initialize search for camera
+            Camera cam = (RDW.Player.Instance != null)
+                ? RDW.Player.Instance.centerEyeCamera.GetComponent<Camera>()
+                : (Camera.main != null)
+                    ? Camera.main
+                    : null;
+            if (cam == null) {
+                // End early
+                cullByDistance = false;
+                return;
+            }
+
             // Initialize culling group
             _cullingGroup = new CullingGroup();
-            _cullingGroup.targetCamera = RDW.Player.Instance.centerEyeCamera.GetComponent<Camera>();
+            _cullingGroup.targetCamera = cam;
             _cullingGroup.SetBoundingDistances(new float[] { maxCullDistance });
 
             // Initialize bounds array

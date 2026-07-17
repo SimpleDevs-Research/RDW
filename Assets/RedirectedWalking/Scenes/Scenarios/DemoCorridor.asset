@@ -44,7 +44,7 @@ MonoBehaviour:
   saccadeGain:
     _enabled: 1
     _active: 1
-    activeState: 2
+    activeState: 3
     _contribution: 0
     active: 0
     description: Saccade Gain refers to the gain obtained while the user's gaze is
