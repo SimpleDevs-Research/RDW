@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BodyFemale
+  m_Shader: {fileID: 4800000, guid: 0e7b011049d9a044e95c75eee99bd0d5, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _AmbientOcclusion: 1
+    - _BUILTIN_QueueControl: 0
+    - _BUILTIN_QueueOffset: 0
+    - _Emission: 0
+    - _GlossyReflections: 1
+    - _Smoothness: 0
+    - _SpecularHighlights: 1
+    m_Colors:
+    - _EyeColor: {r: 0.24172837, g: 0.38488454, b: 0.27658108, a: 0}
+    - _HairColor: {r: 0.3065897, g: 0.5461934, b: 0.38482767, a: 0}
+    - _OralCavityColor: {r: 0.6901961, g: 0.29019603, b: 0.30196074, a: 0}
+    - _SkinColor: {r: 0.77621233, g: 0.5124224, b: 0.42552632, a: 1}
+    - _Teeth: {r: 0.8584906, g: 0.8584906, b: 0.8584906, a: 0}
+    - _TeethColor: {r: 0.8584906, g: 0.8584906, b: 0.8584906, a: 0}
+    - _UnderpantsColor: {r: 0.2745098, g: 0.2745098, b: 0.2745098, a: 0}
+  m_BuildTextureStacks: []
