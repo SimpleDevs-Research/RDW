@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: DemoCorridor
   usePassthrough: 0
+  steeringType: 0
   curvatureGain:
     _enabled: 1
     _active: 1

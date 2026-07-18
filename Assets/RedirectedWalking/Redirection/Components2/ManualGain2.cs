@@ -94,6 +94,14 @@ namespace RDW {
             // Record the last rotation for the next frame update
             last_rotation = cur_rotation;
 
+            // ===================
+            // Gain Direction
+            // ===================
+            if (Redirector2.Instance.steering is ManualSteering ms) {
+                ms.isActive = true;
+                ms.SetDirection(Mathf.Sign(_contribution));
+            }
+
             /*
             // ===================
             // Pivot offset calculation

@@ -10,8 +10,6 @@ namespace RDW {
     {
         public static Redirector2 Instance;
 
-        public enum Direction { Left=-1, Right=1 }
-
         [System.Flags]
         public enum PlayerState : int { 
             Off         = 0x00,
@@ -33,9 +31,9 @@ namespace RDW {
         [Tooltip("The maximum speed expected for a player in motion. This provides a cap for any speed-depending gain modules.")]
         public float max_speed_threshold = 1.5f;
         [Tooltip("Do we want the redirection direction to change dynamically? Or keep it static?")]
-        public bool dynamic_goal_direction = true;
+        public Steering steering;
         [Tooltip("Allows you to define a goal direction of choice, if NOT using dynamic goal direction. If you are using dynamic direction, then this toggle shouldn't change.")]
-        public Direction goal_direction = Direction.Left;
+        public Steering.Direction goal_direction = Steering.Direction.Left;
 
         [Header("=== Caching and Saving Records ===")]
         public JSONWriter json_writer;
@@ -115,6 +113,19 @@ namespace RDW {
 
             // Should we toggle passthrough?
             RDW.Instance.TogglePassthrough(gainSettings.usePassthrough);
+
+            // How do we initialize steering?
+            switch(gainSettings.steeringType) {
+                case Steering.SteeringType.Manual:
+                    steering = new ManualSteering();
+                    break;
+                case Steering.SteeringType.S2C:
+                    steering = new S2C();
+                    break;
+                default:
+                    steering = new Steering();
+                    break;
+            }
 
             // Prep log if needed
             if (write_log) {
@@ -262,16 +273,8 @@ namespace RDW {
             // Set the current yaw delta of this frame to 0
             current_yaw_delta = 0f;
 
-            // We want to track the direction we want the RDW to head to. We calculate that here.
-            //  - If using dynamic goal direction (the default), then the intended redirection will
-            //      always point to the center defined by `SpatialManager`.
-            if (dynamic_goal_direction) {
-                float dir_dot = Vector3.Dot(
-                    RDW.Instance.worldCenter - RDW.Instance.headPoseAnchor.position.Flatten(), 
-                    RDW.Instance.headPoseAnchor.right.Flatten()
-                );
-                goal_direction = (dir_dot < 0f) ? Direction.Left : Direction.Right;
-            }
+            // We want to track the direction we want the RDW to head to.
+            goal_direction = steering.GetDirection();
             // Given the goal direction, calculate the direction factor
             direction_factor = (float)((int)goal_direction);
             // Speed factor controls how much the RDW affects the player depending on their movement speed.

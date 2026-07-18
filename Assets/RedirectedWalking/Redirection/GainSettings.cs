@@ -10,6 +10,10 @@ namespace RDW {
 
         [Tooltip("Should we incorporate passthrough?")]
         public bool usePassthrough;
+
+        [Header("=== Steering Algorithm ===")]
+        [Tooltip("What kind of steering algorithm should this environment use?")]
+        public Steering.SteeringType steeringType;
         
         [Header("=== Curvature Gain ===")]
         public CurvatureGain2 curvatureGain;
