@@ -1838,7 +1838,7 @@ MonoBehaviour:
   scene_cam: {fileID: 0}
   floor: {fileID: 0}
   bounds: {x: 40, y: 130}
-  num_agents: 140
+  num_agents: 70
   destination_buffer: 0.1
   spawn_orientation: 0
   bound_edge_buffer: 1
