@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: StreetSim-Intersections
   usePassthrough: 0
+  steeringType: 0
   curvatureGain:
     _enabled: 1
     _active: 1
@@ -66,3 +67,4 @@ MonoBehaviour:
       the user needs to make a rapid rotation, such as next to the play space border.
     automated: 0
     toggleButton: 2
+    gainRef: 1

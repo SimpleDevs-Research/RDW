@@ -6,6 +6,9 @@ namespace RDW {
     [System.Serializable]
     public class ManualGain2 : GainComponent2
     {
+
+        public enum GainRef { Head, Hand }
+
         [Header("=== Manual Gain ===")]
         [TextArea(4, 1000)]
         public string description = 
@@ -16,6 +19,8 @@ namespace RDW {
 
         public bool automated = false;
         public OVRInput.Button toggleButton = OVRInput.Button.Two;
+        public GainRef gainRef = GainRef.Head;
+        private OVRInput.Controller activeController = OVRInput.Controller.None;
 
         private Quaternion last_rotation;
         //public Vector3 pivot_offset = Vector3.zero;
@@ -36,12 +41,14 @@ namespace RDW {
         }
 
         public override void ToggleOn() {
-            last_rotation = RDW.Instance.headPoseAnchor.rotation;
+            //last_rotation = RDW.Instance.headPoseAnchor.rotation;
+            last_rotation = GetReferenceRotation();
             //pivot_offset = Vector3.zero;
             base.ToggleOn();
         }
         public void ToggleOn(Boundary.BoundaryInfo _) {
-            last_rotation = RDW.Instance.headPoseAnchor.rotation;
+            //last_rotation = RDW.Instance.headPoseAnchor.rotation;
+            last_rotation = GetReferenceRotation();
             //pivot_offset = Vector3.zero;
             base.ToggleOn();
         }
@@ -64,6 +71,84 @@ namespace RDW {
         }
         */
 
+        private void HandleManualInput() {
+            if (gainRef == GainRef.Head) {
+                if (OVRInput.GetDown(toggleButton)) ToggleOn();
+                if (OVRInput.GetUp(toggleButton)) ToggleOff();
+                return;
+            }
+
+            // HAND MODE
+            // Button.One = X on LTouch, A on RTouch.
+            // Button.Two = Y on LTouch, B on RTouch.
+            if (!active) {
+                if (OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.LTouch)) {
+                    activeController = OVRInput.Controller.LTouch;
+                    ToggleOn();
+                }
+                else if (OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch)) {
+                    activeController = OVRInput.Controller.RTouch;
+                    ToggleOn();
+                }
+            }
+            else {
+                // Only the controller that activated the gain can deactivate it.
+                if (OVRInput.GetUp(OVRInput.Button.One, activeController)) {
+                    ToggleOff();
+                    activeController = OVRInput.Controller.None;
+                }
+            }
+        }
+
+
+        private Quaternion GetReferenceRotation() {
+            // Determine what should be the reference for the rotation
+
+            // If we just set to the head, then just use the head pose anchor's rotation as the reference of rotation
+            if (gainRef == GainRef.Head) {
+                return RDW.Instance.headPoseAnchor.rotation;
+            }
+
+            // Dependiong which controller is active at the moment, we return that
+            switch (activeController) {
+                case OVRInput.Controller.LTouch:
+                    return RDW.Instance.leftHandAnchor.rotation;
+
+                case OVRInput.Controller.RTouch:
+                    return RDW.Instance.rightHandAnchor.rotation;
+
+                default:
+                    // This should normally only happen before a hand has been selected.
+                    return RDW.Instance.headPoseAnchor.rotation;
+            }
+        }
+
+        private float CalculateHorizontalRotation( Quaternion previous, Quaternion current) {
+            Vector3 previousForward = previous * Vector3.forward;
+            Vector3 currentForward = current * Vector3.forward;
+
+            previousForward = Vector3.ProjectOnPlane(
+                previousForward,
+                Vector3.up
+            );
+
+            currentForward = Vector3.ProjectOnPlane(
+                currentForward,
+                Vector3.up
+            );
+
+            if (previousForward.sqrMagnitude < 0.0001f ||
+                currentForward.sqrMagnitude < 0.0001f) {
+                return 0f;
+            }
+
+            return Vector3.SignedAngle(
+                previousForward,
+                currentForward,
+                Vector3.up
+            );
+        }
+
         public override float CalculateGain(Redirector2 redirector, float deltaTime) {
             // Active state is dependent on if the component's `activeState` matches the current state
             if (automated) {
@@ -75,8 +160,9 @@ namespace RDW {
             // This handles manual, not automated, input.
             //bool leftButtonDown = OVRInput.GetDown(OVRInput.Button.Four);
             //bool rightDownDown = OVRInput.GetDown(OVRInput.Button.Two);
-            if (OVRInput.GetDown(toggleButton)) ToggleOn();
-            if (OVRInput.GetUp(toggleButton)) ToggleOff();
+            //if (OVRInput.GetDown(toggleButton)) ToggleOn();
+            //if (OVRInput.GetUp(toggleButton)) ToggleOff();
+            HandleManualInput();
             if (!active) {
                 _contribution = 0f;
                 return _contribution;
@@ -86,11 +172,15 @@ namespace RDW {
             // Gain Contribution Calculation
             // ===================
             // Calculate change in rotation
-            Quaternion cur_rotation = RDW.Instance.headPoseAnchor.rotation;
+            //Quaternion cur_rotation = RDW.Instance.headPoseAnchor.rotation;
+            Quaternion cur_rotation = GetReferenceRotation();
+            /*
             Quaternion delta_rotation = cur_rotation * Quaternion.Inverse(last_rotation);
             delta_rotation.ToAngleAxis(out float angle, out Vector3 axis);
             // Guarantee that the rotation is around Y
             _contribution = Vector3.Dot(axis, Vector3.up) * angle;
+            */
+            _contribution = CalculateHorizontalRotation(last_rotation, cur_rotation);
             // Record the last rotation for the next frame update
             last_rotation = cur_rotation;
 
