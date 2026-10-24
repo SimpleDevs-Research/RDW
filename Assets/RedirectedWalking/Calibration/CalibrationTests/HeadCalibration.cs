@@ -72,6 +72,18 @@ namespace RDW {
 
             // Update the head pose anchor
             Player.Instance.UpdateHeadPoseOffset(estimatedHeadPoseDisplacement);
+
+            // If both the user's body anchor and chest anchor are set, then we estimate the center anchor relative to the chest anchor.
+            // We do this instead of sampling from the chest anchor because there is no guarantee that the chest anchor is looking "forward" in the same way the head is.
+            if (
+                RDW.Instance.chestAnchor != null 
+                && RDW.Instance.bodyCenterAnchor != null
+            ) {
+                // The new world position of the body center anchor is head pose anchor's XZ position and the chest anchor's Y position
+                RDW.Instance.bodyCenterAnchor.position = new Vector3(RDW.Instance.headPoseAnchor.position.x, RDW.Instance.chestAnchor.position.y, RDW.Instance.headPoseAnchor.position.z);
+                // If body center anchor is not a child of the chest anchor, better do it now.
+                RDW.Instance.bodyCenterAnchor.parent = RDW.Instance.chestAnchor;
+            }
         }
 
         // Overriding the base `SetCalibrated` to account for sampling. We don't want to cancel out if we're sampling

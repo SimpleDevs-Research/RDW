@@ -7,7 +7,7 @@ namespace RDW {
     public class ManualGain2 : GainComponent2
     {
 
-        public enum GainRef { Head, Hand }
+        public enum GainRef { Head, SameHand, OppositeHand, bodyCenter }
 
         [Header("=== Manual Gain ===")]
         [TextArea(4, 1000)]
@@ -18,7 +18,9 @@ namespace RDW {
             + "space border.";
 
         public bool automated = false;
+        [Tooltip("Which button or interaction toggles manual gain")]
         public OVRInput.Button toggleButton = OVRInput.Button.Two;
+        [Tooltip("What is the reference point for the rotation during manual gain?")]
         public GainRef gainRef = GainRef.Head;
         private OVRInput.Controller activeController = OVRInput.Controller.None;
 
@@ -72,28 +74,31 @@ namespace RDW {
         */
 
         private void HandleManualInput() {
+            // GAIN REF = HEAD
             if (gainRef == GainRef.Head) {
                 if (OVRInput.GetDown(toggleButton)) ToggleOn();
                 if (OVRInput.GetUp(toggleButton)) ToggleOff();
                 return;
             }
 
-            // HAND MODE
+            // GAIN REF = HAND MODE OR BODY CENTER
             // Button.One = X on LTouch, A on RTouch.
             // Button.Two = Y on LTouch, B on RTouch.
             if (!active) {
-                if (OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.LTouch)) {
+                // Left Controller
+                if (OVRInput.GetDown(toggleButton, OVRInput.Controller.LTouch)) {
                     activeController = OVRInput.Controller.LTouch;
                     ToggleOn();
                 }
-                else if (OVRInput.GetDown(OVRInput.Button.One, OVRInput.Controller.RTouch)) {
+                // Right controller
+                else if (OVRInput.GetDown(toggleButton, OVRInput.Controller.RTouch)) {
                     activeController = OVRInput.Controller.RTouch;
                     ToggleOn();
                 }
             }
             else {
                 // Only the controller that activated the gain can deactivate it.
-                if (OVRInput.GetUp(OVRInput.Button.One, activeController)) {
+                if (OVRInput.GetUp(toggleButton, activeController)) {
                     ToggleOff();
                     activeController = OVRInput.Controller.None;
                 }
@@ -104,18 +109,29 @@ namespace RDW {
         private Quaternion GetReferenceRotation() {
             // Determine what should be the reference for the rotation
 
-            // If we just set to the head, then just use the head pose anchor's rotation as the reference of rotation
+            // GAIN REF == HEAD: just use the head pose anchor's rotation as the reference of rotation
             if (gainRef == GainRef.Head) {
                 return RDW.Instance.headPoseAnchor.rotation;
+            }
+
+            // GAIN REF == "BODY CENTER": Use the body center's rotation as a reference
+            if (gainRef == GainRef.bodyCenter) {
+                return (RDW.Instance.bodyCenterAnchor != null)
+                    ? RDW.Instance.bodyCenterAnchor.rotation
+                    : RDW.Instance.headPoseAnchor.rotation;
             }
 
             // Dependiong which controller is active at the moment, we return that
             switch (activeController) {
                 case OVRInput.Controller.LTouch:
-                    return RDW.Instance.leftHandAnchor.rotation;
+                    return (gainRef == GainRef.SameHand) 
+                        ? RDW.Instance.leftHandAnchor.rotation      // Same hand
+                        : RDW.Instance.rightHandAnchor.rotation;    // Opposite hand
 
                 case OVRInput.Controller.RTouch:
-                    return RDW.Instance.rightHandAnchor.rotation;
+                    return (gainRef == GainRef.SameHand)    
+                        ? RDW.Instance.rightHandAnchor.rotation     // Same hand
+                        : RDW.Instance.leftHandAnchor.rotation;     // Opposite hand
 
                 default:
                     // This should normally only happen before a hand has been selected.

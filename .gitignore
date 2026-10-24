@@ -73,3 +73,8 @@ crashlytics-build.properties
 
 # MAC-specific
 **/.DS_Store
+
+# Log files
+**/Logs/**/*.bytes
+**/Logs/**/*.json
+**/Logs/**/*.meta

@@ -66,5 +66,5 @@ MonoBehaviour:
       to rotate at the same rate as the user's head. Use this for instances when
       the user needs to make a rapid rotation, such as next to the play space border.
     automated: 0
-    toggleButton: 2
-    gainRef: 1
+    toggleButton: 3
+    gainRef: 3

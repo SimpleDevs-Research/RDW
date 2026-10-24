@@ -19,6 +19,8 @@ namespace RDW {
 
         [Header("=== RDW References ===")]
         public Transform headPoseAnchor;
+        public Transform chestAnchor;
+        public Transform bodyCenterAnchor;
         public Transform canvasTarget;
         public Transform playSpace;
         public Boundary boundary;
