@@ -67,4 +67,4 @@ MonoBehaviour:
       the user needs to make a rapid rotation, such as next to the play space border.
     automated: 0
     toggleButton: 3
-    gainRef: 3
+    gainRef: 1
