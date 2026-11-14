@@ -3539,12 +3539,13 @@ MonoBehaviour:
   - {fileID: 1189259915}
   - {fileID: 1560495651}
   - {fileID: 43393192}
-  spawnDelayMinMax: {x: 0.1, y: 0.75}
+  spawnDelayMinMax: {x: 0.1, y: 0.1}
   cullByDistance: 1
   maxCullDistance: 30
   _totalSpawned: 0
   _totalActive: 0
   record_pedestrians: 1
+  useTrialSequence: 1
 --- !u!4 &895364086
 Transform:
   m_ObjectHideFlags: 0
@@ -6165,7 +6166,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1478738359
 Transform:
   m_ObjectHideFlags: 0
