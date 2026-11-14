@@ -39,6 +39,7 @@ namespace StreetSim {
         [Header("=== CACHED DATA - READ-ONLY ===")]
         [SerializeField] private int _totalSpawned = 0;         // How many agents have been spawned in total?
         [SerializeField] private int _totalActive = 0;
+        public int TotalActive => _activePedestrians.Count;     // Read-only public accessor for the current number of active agents
         private List<Pedestrian> _allPedestrians = new();      // This is a List for all pedestrians
         private List<Pedestrian> _activePedestrians = new();   // This is a List for all ACTIVE pedestrians
         private List<Pedestrian> _inactivePedestrians = new();  // This is a List for all INACTIVE pedestrians
@@ -57,6 +58,16 @@ namespace StreetSim {
         
         [Header("=== Recording Pedestrians Data ===")]
         public bool record_pedestrians = true;
+
+        [Header("=== Trial Sequence ===")]
+        [Tooltip("If true, this scene is driven by TrialRunner: num_agents is overwritten per trial and the scene is reloaded between trials.")]
+        public bool useTrialSequence = true;
+
+        // `num_agents` must be set BEFORE `Generator.Awake()`, since that's where every agent is generated.
+        protected override void Awake() {
+            if (useTrialSequence) num_agents = TrialRunner.GetOrCreate().CurrentAgentCount;
+            base.Awake();
+        }
 
         // In `Start()`, we give RouteManager time to process all nodes first
 

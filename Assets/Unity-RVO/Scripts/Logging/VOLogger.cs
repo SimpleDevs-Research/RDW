@@ -35,14 +35,15 @@ namespace RVO {
             _vo_op = _generator.vo_op;
 
             // Create output directory
-            string dname = $"{Application.persistentDataPath}/{GetCurrentDateTime()}";
+            // Default folder name is "<num_agents>_<time>", e.g. "500_14-32-07"
+            string dname = $"{Application.persistentDataPath}/{_generator.num_agents}_{GetCurrentDateTime()}";
             if (dirName != null && dirName.Length > 0) {
                 dname = $"{Application.persistentDataPath}/{dirName}";
             }
             CheckOrCreateDirectory(dname);
 
             // Determine the filename and ressulting filepath
-            string fname = (fileName != null && fileName.Length > 0) ? fileName : GetCurrentDateTime();
+            string fname = (fileName != null && fileName.Length > 0) ? fileName : $"{_generator.num_agents}_{GetCurrentDateTime()}";
             filePath = (append_zero_to_filename) ? Path.Combine(dname, fname+"_0.bytes") : Path.Combine(dname, fname+".bytes");
 
             // Add numbers to end of filepath if duplicates are found.

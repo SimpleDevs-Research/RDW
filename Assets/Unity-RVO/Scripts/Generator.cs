@@ -110,7 +110,7 @@ namespace RVO {
         }
 #endif
 
-        private void Awake() {
+        protected virtual void Awake() {
             // Set initial instance
             current = this;
 

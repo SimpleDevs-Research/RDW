@@ -123,6 +123,56 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &68096560
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 68096562}
+  - component: {fileID: 68096561}
+  m_Layer: 0
+  m_Name: AutoQuit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &68096561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68096560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e2f2fe7dca44d7488e2bd1ed8d7d87c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generator: {fileID: 0}
+  activeThreshold: 0.95
+  quitDelaySeconds: 180
+  _timerStarted: 0
+  _timeRemaining: 0
+  _quitting: 0
+--- !u!4 &68096562
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 68096560}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.0528736, y: -45.154526, z: 65.18604}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &99945461
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1857,7 +1907,7 @@ MonoBehaviour:
   record_data: 0
   recorder:
     dirName: 
-    fileName: StreetSim-Alley
+    fileName: 
     append_zero_to_filename: 1
   draw_bounds: 1
   bounds_color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
@@ -1869,12 +1919,13 @@ MonoBehaviour:
   endNodes:
   - {fileID: 403308244}
   - {fileID: 170343454}
-  spawnDelayMinMax: {x: 0.5, y: 0.75}
+  spawnDelayMinMax: {x: 0.1, y: 0.1}
   cullByDistance: 1
   maxCullDistance: 30
   _totalSpawned: 0
   _totalActive: 0
   record_pedestrians: 1
+  useTrialSequence: 1
 --- !u!4 &895364086
 Transform:
   m_ObjectHideFlags: 0
@@ -4834,3 +4885,4 @@ SceneRoots:
   - {fileID: 895364086}
   - {fileID: 708361619}
   - {fileID: 1580018141}
+  - {fileID: 68096562}

@@ -26,7 +26,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Debug/2.RDW-RVO.unity
     guid: 41a3b5b7482ffa84da0125e128b6d802
-  - enabled: 1
+  - enabled: 0
     path: Assets/RedirectedWalking/Scenes/Scenarios/StreetSim-Intersections_CardboardXR.unity
     guid: 5c7d15a2619ff304c8d3945b21720088
   - enabled: 1
