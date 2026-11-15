@@ -16,7 +16,7 @@ namespace StreetSim {
         public static TrialRunner Instance { get; private set; }
 
         [Header("=== Sequence ===")]
-        public int[] agentCounts = { 20, 40, 60, 100, 200, 300, 400, 500 };
+        public int[] agentCounts = { 20, 40, 60, 100, 200, 300, 400, 500, 600 };
         public int cycles = 3;
 
         [Header("=== Per-Trial Timing ===")]
