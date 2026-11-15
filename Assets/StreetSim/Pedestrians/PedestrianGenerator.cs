@@ -65,7 +65,12 @@ namespace StreetSim {
 
         // `num_agents` must be set BEFORE `Generator.Awake()`, since that's where every agent is generated.
         protected override void Awake() {
-            if (useTrialSequence) num_agents = TrialRunner.GetOrCreate().CurrentAgentCount;
+            if (useTrialSequence) {
+                TrialRunner.Trial trial = TrialRunner.GetOrCreate().CurrentTrial;
+                num_agents = trial.numAgents;
+                execution_method = trial.executionMethod;
+                visionMethod = trial.visionMethod;
+            }
             base.Awake();
         }
 

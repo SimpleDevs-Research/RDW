@@ -1896,6 +1896,8 @@ MonoBehaviour:
   num_candidate_directions: 24
   max_neighbors: 8
   visual_radius: 5
+  execution_method: 0
+  batch_size: 64
   visionMethod: 1
   grid_cell_size: 5
   record_data: 0
@@ -2682,6 +2684,7 @@ GameObject:
   - component: {fileID: 1095311595}
   - component: {fileID: 1095311594}
   - component: {fileID: 1095311593}
+  - component: {fileID: 1095311597}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2857,6 +2860,27 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1095311597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1095311591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f97d3618b07d29842ba65cd60531da64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agent_index: 0
+  generator: {fileID: 0}
+  personality: {fileID: 0}
+  environment_parent: {fileID: 0}
+  radius: 0
+  position: {x: 0, y: 0, z: 0}
+  rotation: {x: 0, y: 0, z: 0, w: 1}
+  velocity: {x: 0, y: 0, z: 0}
+  prev_position: {x: 0, y: 0, z: 0}
 --- !u!1 &1179348302
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,15 +13,44 @@ namespace StreetSim {
     // runner in its Awake. The runner persists across loads and reloads whichever scene created it.
     public class TrialRunner : MonoBehaviour
     {
+        [System.Serializable]
+        public class Trial {
+            public int numAgents;
+            public RVO.Generator.ExecutionMethod executionMethod;
+            public RVO.Generator.VisionMethod visionMethod;
+        }
+
         public static TrialRunner Instance { get; private set; }
 
         [Header("=== Sequence ===")]
-        public int[] agentCounts = { 20, 40, 60, 100, 200, 300, 400, 500, 600 };
+        // agentCounts
+        public Trial[] trials = {
+            new Trial { numAgents = 20,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 20,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 40,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 40,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 60,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 60,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 100, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 100, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 200, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 200, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 300, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 300, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 400, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 400, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 500, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 500, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 600, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 600, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree }
+        };
         public int cycles = 3;
 
         [Header("=== Per-Trial Timing ===")]
         [Range(0f, 1f)] public float activeThreshold = 0.95f;
         public float trialDurationSeconds = 180f;
+        [Tooltip("Maximum wait time for active agent threshold before skipping the trial")]
+        public float warmupTimeoutSeconds = 360f;
 
         [Header("=== Read-only ===")]
         [SerializeField] private int _trialIndex = 0;
@@ -29,6 +58,8 @@ namespace StreetSim {
         [SerializeField] private bool _timerStarted = false;
         [SerializeField] private float _timeRemaining = 0f;
         [SerializeField] private bool _transitioning = false;
+        [SerializeField] private float _warmupTimeRemaining = 0f;
+        [SerializeField] private bool _warmupTimedOut = false;
 
         private PedestrianGenerator _generator;
 
@@ -36,8 +67,9 @@ namespace StreetSim {
         [Tooltip("Show a small head-locked readout of trial progress.")]
         public bool showHUD = true;
 
-        public int TotalTrials => agentCounts.Length * cycles;
-        public int CurrentAgentCount => agentCounts[_trialIndex % agentCounts.Length];
+        public int TotalTrials => trials.Length * cycles;
+        public Trial CurrentTrial => trials[_trialIndex % trials.Length];
+        public int CurrentAgentCount => CurrentTrial.numAgents;
 
         // Read-only state for TrialHUD
         public int TrialNumber => _trialIndex + 1;
@@ -73,27 +105,63 @@ namespace StreetSim {
 
         private void ResetTrialState() {
             _generator = FindAnyObjectByType<PedestrianGenerator>();
+
             _timerStarted = false;
             _timeRemaining = 0f;
+            _warmupTimeRemaining = Mathf.Max(0f, warmupTimeoutSeconds);
+            _warmupTimedOut = false;
             _transitioning = false;
+
             if (_generator == null) Debug.LogWarning("[TrialRunner] No PedestrianGenerator in trial scene.");
-            // The HUD is parented to the scene's camera, so it's destroyed with the scene and rebuilt here.
             if (showHUD) TrialHUD.Create(this);
         }
 
         private void Update() {
             if (_transitioning || _generator == null) return;
 
+            // PHASE 1: WARM-UP
             if (!_timerStarted) {
+                // Check whether the target active count has been reached.
                 if (_generator.TotalActive >= TargetActiveCount) {
                     _timerStarted = true;
                     _timeRemaining = trialDurationSeconds;
-                    Debug.Log($"[TrialRunner] Trial {_trialIndex + 1}/{TotalTrials}: {_generator.TotalActive}/{_generator.num_agents} active. Running for {trialDurationSeconds}s.");
+
+                    Debug.Log(
+                        $"[TrialRunner] Trial {_trialIndex + 1}/{TotalTrials}: " +
+                        $"{_generator.TotalActive}/{_generator.num_agents} active. " +
+                        $"Warm-up completed with " +
+                        $"{_warmupTimeRemaining:F1}s remaining. " +
+                        $"Running for {trialDurationSeconds}s."
+                    );
+
+                    return;
                 }
+
+                // Otherwise, continue the warm-up countdown.
+                _warmupTimeRemaining -= Time.unscaledDeltaTime;
+
+                // Warm-up timeout reached.
+                if (_warmupTimeRemaining <= 0f) {
+                    _warmupTimeRemaining = 0f;
+                    _warmupTimedOut = true;
+                    _transitioning = true;
+
+                    Debug.LogWarning(
+                        $"[TrialRunner] Trial {_trialIndex + 1}/{TotalTrials} " +
+                        $"({CurrentAgentCount} agents) timed out during warm-up. " +
+                        $"Only {_generator.TotalActive}/{TargetActiveCount} " +
+                        $"required agents were active. Skipping trial."
+                    );
+
+                    StartCoroutine(AdvanceTrial());
+                }
+
                 return;
             }
 
+            // PHASE 2: MEASUREMENT
             _timeRemaining -= Time.unscaledDeltaTime;
+
             if (_timeRemaining <= 0f) {
                 _timeRemaining = 0f;
                 _transitioning = true;
