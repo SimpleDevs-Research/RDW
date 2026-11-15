@@ -3275,6 +3275,7 @@ MonoBehaviour:
   _totalSpawned: 0
   _totalActive: 0
   record_pedestrians: 1
+  useTrialSequence: 1
 --- !u!4 &895364086
 Transform:
   m_ObjectHideFlags: 0
@@ -8358,6 +8359,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 690262b0d09c60646acb0942a03459de, type: 3}
   m_PrefabInstance: {fileID: 2056489991}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2064255365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2064255367}
+  - component: {fileID: 2064255366}
+  m_Layer: 0
+  m_Name: Android Frame Rate
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2064255366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064255365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 527807f5c7ee79d45bda41813703cda5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetFPS: 120
+--- !u!4 &2064255367
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064255365}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2071446741
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8517,6 +8563,7 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 2064255367}
   - {fileID: 1905767839}
   - {fileID: 908227481}
   - {fileID: 895364086}
