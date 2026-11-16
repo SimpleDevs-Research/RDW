@@ -39,7 +39,8 @@ namespace RVO {
             string parallelSetting = (_generator.execution_method == RVO.Generator.ExecutionMethod.Parallel)
                 ? "Parallel"
                 : "Sequential";
-            string dname = $"{Application.persistentDataPath}/{_generator.num_agents}_{parallelSetting}_{GetCurrentDateTime()}";
+            string visionSetting = _generator.visionMethod.ToString();
+            string dname = $"{Application.persistentDataPath}/{_generator.num_agents}_{parallelSetting}_{visionSetting}_{GetCurrentDateTime()}";
             if (dirName != null && dirName.Length > 0) {
                 dname = $"{Application.persistentDataPath}/{dirName}";
             }

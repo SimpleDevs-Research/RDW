@@ -25,32 +25,50 @@ namespace StreetSim {
         [Header("=== Sequence ===")]
         // agentCounts
         public Trial[] trials = {
-            new Trial { numAgents = 20,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            // sequential + kdtree
             new Trial { numAgents = 20,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 40,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
             new Trial { numAgents = 40,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 60,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
             new Trial { numAgents = 60,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 100, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
             new Trial { numAgents = 100, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 200, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
             new Trial { numAgents = 200, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 300, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
             new Trial { numAgents = 300, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 400, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
             new Trial { numAgents = 400, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 500, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
             new Trial { numAgents = 500, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree },
-            new Trial { numAgents = 600, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
-            new Trial { numAgents = 600, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.KDTree }
+            // sequential + spatial hashing
+            new Trial { numAgents = 20,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 40,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 60,  executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 100, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 200, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 300, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 400, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 500, executionMethod = RVO.Generator.ExecutionMethod.Sequential, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            // parallel + kdtree
+            new Trial { numAgents = 20,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 40,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 60,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 100, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 200, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 300, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 400, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            new Trial { numAgents = 500, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.KDTree },
+            // parallel + spatial hashing
+            new Trial { numAgents = 20,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 40,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 60,  executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 100, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 200, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 300, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 400, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
+            new Trial { numAgents = 500, executionMethod = RVO.Generator.ExecutionMethod.Parallel, visionMethod = RVO.Generator.VisionMethod.SpatialHash },
         };
         public int cycles = 3;
 
         [Header("=== Per-Trial Timing ===")]
         [Range(0f, 1f)] public float activeThreshold = 0.95f;
-        public float trialDurationSeconds = 180f;
+        public float trialDurationSeconds = 120f;
         [Tooltip("Maximum wait time for active agent threshold before skipping the trial")]
-        public float warmupTimeoutSeconds = 360f;
+        public float warmupTimeoutSeconds = 480f;
 
         [Header("=== Read-only ===")]
         [SerializeField] private int _trialIndex = 0;
