@@ -62,14 +62,15 @@ namespace StreetSim {
         [Header("=== Trial Sequence ===")]
         [Tooltip("If true, this scene is driven by TrialRunner: num_agents is overwritten per trial and the scene is reloaded between trials.")]
         public bool useTrialSequence = true;
+        public TrialRunner.Trial currentTrial = null;
 
         // `num_agents` must be set BEFORE `Generator.Awake()`, since that's where every agent is generated.
         protected override void Awake() {
             if (useTrialSequence) {
-                TrialRunner.Trial trial = TrialRunner.GetOrCreate().CurrentTrial;
-                num_agents = trial.numAgents;
-                execution_method = trial.executionMethod;
-                visionMethod = trial.visionMethod;
+                currentTrial = TrialRunner.GetOrCreate().CurrentTrial;
+                num_agents = currentTrial.numAgents;
+                execution_method = currentTrial.executionMethod;
+                visionMethod = currentTrial.visionMethod;
             }
             base.Awake();
         }
