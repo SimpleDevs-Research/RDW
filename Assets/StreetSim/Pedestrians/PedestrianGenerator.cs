@@ -35,6 +35,16 @@ namespace StreetSim {
         public float maxCullDistance = 25f;
         private CullingGroup _cullingGroup;
         private BoundingSphere[] _cullingBounds;
+        // Cached commanded renderer state; index is vo_op agent_index.
+        // 1 = enabled for an active pedestrian, 0 = disabled/inactive.
+        private byte[] _rendererStateCache;
+        public byte[] RendererStateCache => _rendererStateCache;
+
+        public void SetCachedRendererState(int index, bool enabled) {
+            if (_rendererStateCache != null && index >= 0 && index < _rendererStateCache.Length)
+                _rendererStateCache[index] = (byte)(enabled ? 1 : 0);
+        }
+
 
         [Header("=== CACHED DATA - READ-ONLY ===")]
         [SerializeField] private int _totalSpawned = 0;         // How many agents have been spawned in total?
@@ -73,6 +83,7 @@ namespace StreetSim {
                 visionMethod = currentTrial.visionMethod;
             }
             base.Awake();
+            _rendererStateCache = new byte[num_total_agents];
         }
 
         // In `Start()`, we give RouteManager time to process all nodes first
@@ -289,6 +300,7 @@ namespace StreetSim {
 
                 // In closing, we now make sure to set it to active and update our spawn count
                 ToggleRobot(pedestrian.agent_index, true);
+                SetCachedRendererState(pedestrian.agent_index, !cullByDistance);
                 _activePedestrians.Add(pedestrian);
                 _totalSpawned++;
                 yield return new WaitForSeconds(Random.Range(spawnDelayMinMax.x, spawnDelayMinMax.y));
@@ -320,6 +332,7 @@ namespace StreetSim {
                 if (!pedestrian.ValidateRoute()) {
                     // This pedestrian has truly reached the end.
                     ToggleRobot(pedestrian.agent_index, false);
+                    SetCachedRendererState(pedestrian.agent_index, false);
                     _activePedestrians.Remove(pedestrian);
                     _inactivePedestrians.Add(pedestrian);
                     continue;

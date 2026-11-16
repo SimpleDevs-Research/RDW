@@ -21,6 +21,9 @@ namespace RVO {
         private VO_OP _vo_op;
         private string filePath;
         private bool _is_writing = false;
+        private StreetSim.PedestrianGenerator _pedestrianGenerator;
+        private const int FormatVersion = 3; // VOLS + int32 version + legacy header
+
         public bool is_writing => _is_writing;
 
         public void StartRecording(Generator generator) {
@@ -33,6 +36,12 @@ namespace RVO {
             // Set References
             _generator = generator;
             _vo_op = _generator.vo_op;
+            _pedestrianGenerator = generator as StreetSim.PedestrianGenerator;
+            if (_pedestrianGenerator == null || _pedestrianGenerator.RendererStateCache == null ||
+                _pedestrianGenerator.RendererStateCache.Length != _generator.num_total_agents) {
+                Debug.LogError("VOLogger v3 requires initialized PedestrianGenerator renderer-state cache.");
+                return;
+            }
 
             // Create output directory
             // Default folder name is "<num_agents>_<time>", e.g. "500_14-32-07"
@@ -60,6 +69,10 @@ namespace RVO {
             // Initialize writer
             _writer = new BinaryWriter(File.Open(filePath, FileMode.Create));
             _is_writing = true;
+
+            // Versioned binary format; original 28-byte header follows.
+            _writer.Write(new byte[] { (byte)'V', (byte)'O', (byte)'L', (byte)'S' });
+            _writer.Write(FormatVersion);
 
             // We write the first few lines:
             _writer.Write(_generator.simulation_start_frame);   // When the scene was started, since the start of the game.
@@ -96,6 +109,10 @@ namespace RVO {
             WriteNativeArray<float3>(_writer,_vo_op.destinations);
             WriteNativeArray<float>(_writer,_vo_op.radii);
             WriteNativeArray<int>(_writer,_vo_op.num_neighbors);
+            // Append cached per-agent commanded renderer state (one byte per slot).
+            // No per-agent or per-renderer inspection in RecordFrame().
+            _writer.Write(_pedestrianGenerator.RendererStateCache);
+
         }
 
         unsafe static void WriteNativeArray<T>( BinaryWriter writer, NativeArray<T> array ) where T : unmanaged {
