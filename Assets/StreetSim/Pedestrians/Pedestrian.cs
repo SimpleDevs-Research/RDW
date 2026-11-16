@@ -15,6 +15,7 @@ namespace StreetSim {
         public Animator _animator;
         public LODGroup _lodGroup;
         public List<Renderer> _renderers = new();
+        [SerializeField] private PedestrianGenerator _pedestrian_generator = null;
 
         // ============================================
         [Header("=== ROUTING DATA - Read-Only ===")]
@@ -36,6 +37,10 @@ namespace StreetSim {
             + "is to be used. It's also used by `PedestrianManager` when initializing an agent's destination."
         )]
         private Vector3 _currentDestination;
+
+        private void Awake() {
+            _pedestrian_generator = generator as PedestrianGenerator;
+        }
 
         public bool ValidateRoute() {
             // Two initial checks: 
@@ -129,8 +134,10 @@ namespace StreetSim {
             if (_animator != null) _animator.enabled = set_to;
             if (_lodGroup != null) _lodGroup.enabled = set_to;
             if (_renderers.Count > 0) foreach(Renderer _renderer in _renderers) _renderer.enabled = set_to;
+            // Mirror the commanded state without polling renderers every frame.
+            // The generator clears this cache on deactivation and sets it on spawn.
+            if (_pedestrian_generator != null)  _pedestrian_generator.SetCachedRendererState(agent_index, set_to && gameObject.activeInHierarchy);
         }
-
 
     }
 }
