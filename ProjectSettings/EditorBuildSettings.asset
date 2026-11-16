@@ -32,10 +32,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/SSV3/StreetSim-Alley_CardboardXR.unity
     guid: 70871f1f58c72194e80ec7e23281eced
-  - enabled: 1
+  - enabled: 0
     path: Assets/SSV3/StreetSim-Intersections_Quest.unity
     guid: 0d7853ec7a7e4c940a719246ebba50f9
-  - enabled: 0
+  - enabled: 1
     path: Assets/SSV3/StreetSim-Alley_Quest.unity
     guid: ed2846a921540ba498dc8f4016c72999
   m_configObjects:
