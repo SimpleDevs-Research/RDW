@@ -36,7 +36,10 @@ namespace RVO {
 
             // Create output directory
             // Default folder name is "<num_agents>_<time>", e.g. "500_14-32-07"
-            string dname = $"{Application.persistentDataPath}/{_generator.num_agents}_{GetCurrentDateTime()}";
+            string parallelSetting = (_generator.execution_method == RVO.Generator.ExecutionMethod.Parallel)
+                ? "Parallel"
+                : "Sequential";
+            string dname = $"{Application.persistentDataPath}/{_generator.num_agents}_{parallelSetting}_{GetCurrentDateTime()}";
             if (dirName != null && dirName.Length > 0) {
                 dname = $"{Application.persistentDataPath}/{dirName}";
             }
